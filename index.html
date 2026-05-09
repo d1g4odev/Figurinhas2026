@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Figurinhas" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>Figurinhas do @devjuninho</title>
+  <style>
+    :root {
+      /* X / Twitter palette (pure B&W) */
+      --bg: #000000;
+      --surface: #16181c;
+      --surface-2: #1c1f23;
+      --surface-3: #202327;
+      --border: #2f3336;
+      --border-strong: #3e4144;
+      --text: #e7e9ea;
+      --text-2: #71767b;
+      --text-3: #5b5f63;
+      --accent: #ffffff;
+      --accent-dim: #1c1f23;
+      --hover: rgba(231,233,234,0.03);
+      --danger: #f4212e;
+      --success: #00ba7c;
+      --warning: #ffd400;
+      --info: #1d9bf0;
+      --verified: #1d9bf0;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 0 16px rgba(255,255,255,0.04);
+      --transition: 150ms cubic-bezier(.4,0,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      /* X's font stack — Chirp first (their proprietary), system-ui fallbacks */
+      font-family: "TwitterChirp", "Chirp", -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      letter-spacing: -0.003em;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      padding-bottom: 88px;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    button {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    input, select {
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--text);
+    }
+
+    /* HEADER — X-style profile */
+    .header {
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.85);
+    }
+
+    .header-banner {
+      height: 80px;
+      background:
+        repeating-linear-gradient(45deg, #0a0a0a 0px, #0a0a0a 8px, #111 8px, #111 16px),
+        #000;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .header-banner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
+    }
+
+    .header-body {
+      padding: 12px 16px 14px;
+      position: relative;
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: -36px;
+    }
+
+    .avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 3px solid var(--bg);
+      background: var(--surface);
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px var(--border);
+      position: relative;
+    }
+    .avatar img, .avatar svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar .initials {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 26px; color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .profile-info {
+      margin-top: 38px;
+      flex: 1;
+      min-width: 0;
+    }
+    .profile-name-row {
+      display: flex; align-items: center; gap: 4px;
+      font-weight: 800; font-size: 17px; letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .verified {
+      width: 18px; height: 18px; flex-shrink: 0;
+      color: var(--verified);
+    }
+    .profile-handle {
+      color: var(--text-2); font-size: 13px; line-height: 1.3; margin-top: 1px;
+    }
+    .profile-bio {
+      font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.35;
+    }
+    .profile-meta {
+      display: flex; gap: 14px; margin-top: 6px;
+      font-size: 12px; color: var(--text-2);
+    }
+    .profile-meta strong { color: var(--text); font-weight: 700; }
+
+    .header-actions { display: flex; gap: 6px; }
+    .header-actions { display: flex; gap: 6px; margin-top: 4px; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
+    }
+    .icon-btn:hover, .icon-btn:active { background: var(--hover); }
+    .icon-btn svg { width: 18px; height: 18px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* PROGRESS BAR — agora no rodapé do header, fininha */
+    .global-progress {
+      padding: 0;
+      background: transparent;
+    }
+    .progress-bar {
+      height: 3px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--text);
+      transition: width 400ms cubic-bezier(.4,0,.2,1);
+    }
+
+    /* MAIN */
+    main {
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    /* On desktop, constrain header inner content to 600px but keep full-width sticky */
+    .header-banner, .header-body, .global-progress {
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab { display: none; }
+    .tab.active { display: block; animation: fade .25s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
+
+    h2.tab-title { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 4px; font-weight: 800; }
+    p.tab-sub { color: var(--text-2); font-size: 13px; margin-bottom: 18px; }
+
+    /* DASHBOARD */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .stat-card {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      transition: background var(--transition);
+    }
+    .stat-card:hover { background: var(--hover); }
+    .stat-card .label { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+    .stat-card .value { font-size: 24px; font-weight: 800; margin-top: 6px; letter-spacing: -0.02em; }
+    .stat-card .sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+    .section-card {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .section-card h3 {
+      font-size: 14px; font-weight: 700; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-card h3 small { font-size: 11px; color: var(--text-2); font-weight: 500; }
+
+    .conf-list { display: flex; flex-direction: column; gap: 10px; }
+    .conf-row { display: flex; align-items: center; gap: 10px; }
+    .conf-row .conf-name { width: 90px; font-size: 12px; color: var(--text-2); font-weight: 600; }
+    .conf-row .conf-bar { flex: 1; height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+    .conf-row .conf-bar > div { height: 100%; background: var(--text); border-radius: 999px; transition: width .4s; }
+    .conf-row .conf-pct { width: 50px; text-align: right; font-size: 12px; color: var(--text); font-weight: 700; }
+
+    .milestones { display: flex; gap: 8px; flex-wrap: wrap; }
+    .milestone {
+      padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px;
+      font-size: 11px; color: var(--text-2); display: flex; align-items: center; gap: 6px;
+    }
+    .milestone.done { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 700; }
+
+    /* SELEÇÕES GRID */
+    .filters-row {
+      display: flex; gap: 8px; margin-bottom: 14px; align-items: center;
+    }
+    .filters-row input[type="search"] { flex: 1; }
+    .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: thin; }
+    .chip-row::-webkit-scrollbar { height: 4px; }
+    .chip-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .chip {
+      padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+      font-size: 12px; color: var(--text-2); white-space: nowrap; transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .chip.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .team-card {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .team-card:active { transform: scale(0.98); }
+    .team-card:hover { background: var(--hover); border-color: var(--border-strong); }
+    .team-card .team-flag {
+      width: 32px; height: 22px; border-radius: 4px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .team-card .team-code { font-size: 10px; color: var(--text-3); font-weight: 700; letter-spacing: 0.08em; }
+    .team-card .team-name { font-size: 14px; font-weight: 700; margin: 2px 0 8px; line-height: 1.2; }
+    .team-card .team-progress {
+      height: 4px; background: var(--surface-2); border-radius: 999px; overflow: hidden;
+    }
+    .team-card .team-progress > div { height: 100%; background: var(--c1); transition: width .3s; }
+    .team-card .team-meta { font-size: 11px; color: var(--text-2); margin-top: 6px; display: flex; justify-content: space-between; }
+    .team-card .team-meta .dups-badge { color: var(--warning); font-weight: 600; }
+    .team-card.host::after {
+      content: 'SEDE'; position: absolute; top: 8px; right: 8px;
+      font-size: 9px; font-weight: 800; background: var(--text); color: var(--bg);
+      padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 200; opacity: 0; pointer-events: none; transition: opacity var(--transition);
+      backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      position: fixed; left: 50%; right: auto; bottom: 0;
+      transform: translateX(-50%) translateY(100%);
+      background: var(--bg); border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      max-height: 92vh; overflow-y: auto;
+      transition: transform 280ms cubic-bezier(.4,0,.2,1);
+      z-index: 201;
+      width: 100%; max-width: 600px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .modal.open { transform: translateX(-50%) translateY(0); }
+    .modal-header {
+      padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 2;
+    }
+    .modal-grip { width: 40px; height: 4px; background: var(--border-strong); border-radius: 999px; margin: 0 auto 12px; }
+    .modal-title-row { display: flex; align-items: center; gap: 12px; }
+    .modal-flag { width: 44px; height: 30px; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .modal-title h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .modal-title small { color: var(--text-2); font-size: 12px; }
+    .modal-close { margin-left: auto; }
+    .modal-body { padding: 16px; }
+
+    .stickers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .sticker {
+      aspect-ratio: 3/4;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 4px;
+      overflow: hidden;
+    }
+    .sticker.owned {
+      background: var(--accent-team, var(--text));
+      border-color: var(--accent-team, var(--text));
+    }
+    .sticker.owned .sticker-num { color: #fff; }
+    .sticker.owned .sticker-label { color: rgba(255,255,255,0.85); }
+    .sticker:active { transform: scale(0.94); }
+    .sticker-num { font-size: 16px; font-weight: 800; color: var(--text-2); letter-spacing: -0.02em; }
+    .sticker-label { font-size: 9px; color: var(--text-3); text-transform: uppercase; font-weight: 700; margin-top: 2px; }
+    .sticker.owned .sticker-num { font-weight: 900; }
+    .sticker .sticker-name {
+      font-size: 8px; color: var(--text-3); text-align: center; line-height: 1.1;
+      max-height: 22px; overflow: hidden;
+    }
+    .sticker.owned .sticker-name { color: rgba(255,255,255,0.9); }
+    .sticker .sticker-dups {
+      position: absolute; top: 3px; right: 3px;
+      background: var(--warning); color: #000; font-size: 9px; font-weight: 800;
+      padding: 1px 5px; border-radius: 999px; line-height: 1.4;
+    }
+
+    .sticker-actions {
+      position: fixed; left: 0; right: 0; bottom: 80px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 14px 16px;
+      transform: translateY(120%); transition: transform 240ms;
+      z-index: 250; box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+      max-width: 720px; margin: 0 auto; border-radius: 16px 16px 0 0;
+    }
+    .sticker-actions.open { transform: translateY(0); }
+    .sticker-actions-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .sticker-actions-title { font-weight: 800; font-size: 16px; }
+    .sticker-actions-name {
+      flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 8px 10px; font-size: 13px; outline: none; color: var(--text);
+    }
+    .sticker-actions-buttons { display: flex; gap: 8px; }
+    .btn {
+      padding: 12px 16px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13px;
+      transition: all var(--transition); flex: 1; text-align: center;
+      border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+    .btn-warning { background: transparent; color: var(--warning); border-color: var(--warning); }
+    .btn-ghost { background: transparent; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .dups-counter {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 6px; margin-bottom: 12px;
+    }
+    .dups-counter button {
+      width: 36px; height: 36px; border-radius: 6px; background: var(--surface-2);
+      border: 1px solid var(--border); font-weight: 800; font-size: 18px;
+    }
+    .dups-counter .dups-display { flex: 1; text-align: center; }
+    .dups-counter .dups-display span { font-size: 22px; font-weight: 800; }
+    .dups-counter .dups-display small { display: block; font-size: 11px; color: var(--text-2); }
+
+    /* REPETIDAS LIST */
+    .empty-state {
+      text-align: center; padding: 48px 16px; color: var(--text-2);
+    }
+    .empty-state .icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    .dup-item, .swap-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .dup-flag { width: 30px; height: 20px; border-radius: 4px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+    .dup-info { flex: 1; min-width: 0; }
+    .dup-info .dup-id { font-size: 13px; font-weight: 700; }
+    .dup-info .dup-name { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dup-controls { display: flex; align-items: center; gap: 6px; }
+    .dup-controls button {
+      width: 30px; height: 30px; border-radius: 6px; background: var(--surface-2);
+      border: 1px solid var(--border); font-weight: 800; color: var(--text);
+    }
+    .dup-controls .count { min-width: 28px; text-align: center; font-weight: 800; font-size: 14px; }
+
+    /* TROCAS */
+    .swap-toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex; gap: 8px;
+    }
+
+    .swap-tabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .swap-tab {
+      padding: 10px 14px; font-size: 13px; color: var(--text-2); font-weight: 600;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .swap-tab.active { color: var(--text); border-color: var(--text); }
+
+    .swap-list, .history-list { display: flex; flex-direction: column; gap: 6px; }
+    .history-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px; display: flex; gap: 12px; align-items: center;
+    }
+    .history-item .h-date { font-size: 11px; color: var(--text-3); }
+    .history-item .h-text { flex: 1; font-size: 13px; }
+    .history-item .h-with { font-weight: 700; }
+
+    /* SETTINGS */
+    .settings-list { display: flex; flex-direction: column; gap: 8px; }
+    .setting-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .setting-item .label { font-size: 14px; font-weight: 600; }
+    .setting-item .desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+    /* TAB BAR — X-style */
+    .tabbar {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around;
+      padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+      z-index: 90;
+    }
+    .tab-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0;
+      padding: 8px 4px; color: var(--text-2); font-size: 11px; font-weight: 500;
+      transition: color var(--transition);
+      position: relative;
+    }
+    .tab-btn.active { color: var(--text); font-weight: 700; }
+    .tab-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .tab-btn.active svg { stroke-width: 2.5; }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -6px;
+      width: 32px; height: 3px; background: var(--text); border-radius: 999px;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed; left: 50%; transform: translateX(-50%) translateY(120%);
+      bottom: calc(80px + env(safe-area-inset-bottom));
+      background: var(--text); color: var(--bg);
+      padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 13px;
+      box-shadow: var(--shadow); z-index: 300;
+      transition: transform 240ms cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* CONFIRM DIALOG */
+    .confirm-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .confirm-backdrop.open { display: flex; }
+    .confirm-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; max-width: 360px; width: 100%;
+    }
+    .confirm-box h4 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .confirm-box p { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
+    .confirm-box .actions { display: flex; gap: 8px; }
+
+    /* desktop tweaks */
+    @media (min-width: 640px) {
+      .teams-grid { grid-template-columns: repeat(3, 1fr); }
+      .dash-grid { grid-template-columns: repeat(4, 1fr); }
+      .stickers-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .teams-grid { grid-template-columns: repeat(4, 1fr); }
+      .stickers-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-banner"></div>
+    <div class="header-body">
+      <div class="profile-row">
+        <div class="avatar" id="avatar">
+          <div class="initials">DJ</div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="btn-install" title="Instalar app" style="display:none">
+            <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-settings" title="Configurações">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name-row">
+          <span>dev juninho</span>
+          <svg class="verified" viewBox="0 0 22 22" aria-label="Verificado"><g><path fill="currentColor" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></g></svg>
+        </div>
+        <div class="profile-handle">@devjuninho</div>
+        <div class="profile-bio">colecionando 🎴 Copa 2026 · álbum Panini</div>
+        <div class="profile-meta">
+          <span><strong id="global-count">0</strong> coladas</span>
+          <span><strong id="global-pct">0%</strong> completo</span>
+          <span><strong id="global-total">960</strong> total</span>
+        </div>
+      </div>
+    </div>
+    <div class="global-progress">
+      <div class="progress-bar"><div class="progress-fill" id="global-fill" style="width: 0%"></div></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- INÍCIO -->
+    <section class="tab active" id="tab-home">
+      <h2 class="tab-title">Visão geral</h2>
+      <p class="tab-sub">Seu álbum em números.</p>
+
+      <div class="dash-grid">
+        <div class="stat-card">
+          <div class="label">Coladas</div>
+          <div class="value" id="s-owned">0</div>
+          <div class="sub" id="s-owned-sub">de 980</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Faltam</div>
+          <div class="value" id="s-missing">980</div>
+          <div class="sub">pra completar</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Repetidas</div>
+          <div class="value" id="s-dups">0</div>
+          <div class="sub" id="s-dups-sub">pra trocar</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Seleções OK</div>
+          <div class="value" id="s-teams-done">0</div>
+          <div class="sub">de 48</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Marcos <small>conquistas</small></h3>
+        <div class="milestones" id="milestones"></div>
+      </div>
+
+      <div class="section-card">
+        <h3>Por confederação</h3>
+        <div class="conf-list" id="conf-list"></div>
+      </div>
+
+      <div class="section-card">
+        <h3>Estimativa <small>probabilística</small></h3>
+        <p style="font-size: 13px; color: var(--text-2); line-height: 1.5;">
+          Pra completar o que falta, considerando que cada figurinha repetida tem chance proporcional, a estimativa é:
+        </p>
+        <p style="font-size: 28px; font-weight: 800; margin-top: 8px; letter-spacing: -0.02em;">
+          ~<span id="packs-estimate">—</span> pacotinhos
+        </p>
+        <p style="font-size: 11px; color: var(--text-3); margin-top: 4px;">
+          Cálculo aproximado pelo problema do colecionador. A estimativa cai conforme você troca repetidas.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <h3>Tracker de gastos</h3>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
+          <input type="number" id="spend-input" placeholder="Valor gasto (R$)" min="0" step="0.01" style="flex:1" />
+          <button class="btn btn-primary" id="btn-add-spend" style="flex: 0">Adicionar</button>
+        </div>
+        <p style="font-size: 13px; color: var(--text-2);">Total gasto: <strong style="color: var(--text); font-size: 18px;">R$ <span id="total-spent">0,00</span></strong></p>
+        <p style="font-size: 11px; color: var(--text-3); margin-top: 4px;">Custo médio por figurinha: R$ <span id="cost-per-sticker">0,00</span></p>
+      </div>
+    </section>
+
+    <!-- SELEÇÕES -->
+    <section class="tab" id="tab-teams">
+      <h2 class="tab-title">Seleções</h2>
+      <p class="tab-sub">48 seleções na Copa 2026. Toque pra ver as figurinhas.</p>
+
+      <div class="filters-row">
+        <input type="search" id="team-search" placeholder="Buscar seleção..." />
+      </div>
+
+      <div class="chip-row" id="conf-chips"></div>
+
+      <div class="teams-grid" id="teams-grid"></div>
+    </section>
+
+    <!-- REPETIDAS -->
+    <section class="tab" id="tab-dups">
+      <h2 class="tab-title">Repetidas</h2>
+      <p class="tab-sub">Suas figurinhas pra trocar. Use os botões pra ajustar a quantidade.</p>
+
+      <div class="filters-row">
+        <input type="search" id="dup-search" placeholder="Buscar (ex: BRA, ARG3)..." />
+      </div>
+
+      <div id="dups-container"></div>
+    </section>
+
+    <!-- TROCAS -->
+    <section class="tab" id="tab-swap">
+      <h2 class="tab-title">Trocas</h2>
+      <p class="tab-sub">Bate, falta e histórico. Compartilhe sua lista no zap.</p>
+
+      <div class="swap-toolbar">
+        <button class="btn btn-primary" id="btn-share-bate">📋 Copiar BATE</button>
+        <button class="btn" id="btn-share-falta">📋 Copiar FALTA</button>
+      </div>
+
+      <div class="swap-tabs">
+        <button class="swap-tab active" data-swap="bate">Bate (repetidas)</button>
+        <button class="swap-tab" data-swap="falta">Falta</button>
+        <button class="swap-tab" data-swap="hist">Histórico</button>
+      </div>
+
+      <div id="swap-container"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="tab" id="tab-settings">
+      <h2 class="tab-title">Configurações</h2>
+      <p class="tab-sub">Backup e gestão dos dados.</p>
+
+      <div class="settings-list">
+        <div class="setting-item">
+          <div>
+            <div class="label">Exportar JSON</div>
+            <div class="desc">Baixa um arquivo com todos os seus dados</div>
+          </div>
+          <button class="btn btn-primary" id="btn-export" style="flex: 0">Exportar</button>
+        </div>
+        <div class="setting-item">
+          <div>
+            <div class="label">Importar JSON</div>
+            <div class="desc">Restaurar de um backup</div>
+          </div>
+          <button class="btn" id="btn-import" style="flex: 0">Importar</button>
+          <input type="file" id="import-file" accept="application/json" style="display:none" />
+        </div>
+        <div class="setting-item">
+          <div>
+            <div class="label">Editar seleções</div>
+            <div class="desc">Ajustar a lista de 48 seleções caso o álbum oficial difira</div>
+          </div>
+          <button class="btn" id="btn-edit-teams" style="flex: 0">Abrir</button>
+        </div>
+        <div class="setting-item">
+          <div>
+            <div class="label" style="color: var(--danger)">Resetar tudo</div>
+            <div class="desc">Apaga todos os dados (figurinhas, repetidas, histórico)</div>
+          </div>
+          <button class="btn btn-danger" id="btn-reset" style="flex: 0">Resetar</button>
+        </div>
+      </div>
+
+      <div class="section-card" style="margin-top: 14px;">
+        <h3>Sobre</h3>
+        <p style="font-size: 13px; color: var(--text-2); line-height: 1.5;">
+          App pessoal pra controle do álbum Panini Copa do Mundo 2026. 980 figurinhas, 48 seleções, numeração 1–20 por equipe. Dados salvos no seu navegador.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- TAB BAR -->
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="home">
+      <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      Início
+    </button>
+    <button class="tab-btn" data-tab="teams">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+      Seleções
+    </button>
+    <button class="tab-btn" data-tab="dups">
+      <svg viewBox="0 0 24 24"><rect x="9" y="3" width="12" height="12" rx="2"/><rect x="3" y="9" width="12" height="12" rx="2"/></svg>
+      Repetidas
+    </button>
+    <button class="tab-btn" data-tab="swap">
+      <svg viewBox="0 0 24 24"><path d="M7 16h13M7 16l4-4M7 16l4 4M17 8H4M17 8l-4 4M17 8l-4-4"/></svg>
+      Trocas
+    </button>
+    <button class="tab-btn" data-tab="settings">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      Mais
+    </button>
+  </nav>
+
+  <!-- MODAL SELEÇÃO -->
+  <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-grip"></div>
+      <div class="modal-title-row">
+        <div class="modal-flag" id="m-flag"></div>
+        <div class="modal-title">
+          <h3 id="m-name">—</h3>
+          <small id="m-meta">—</small>
+        </div>
+        <button class="icon-btn modal-close" id="m-close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="stickers-grid" id="m-stickers"></div>
+    </div>
+  </div>
+
+  <!-- STICKER ACTIONS PANEL -->
+  <div class="sticker-actions" id="sticker-actions">
+    <div class="sticker-actions-header">
+      <div class="sticker-actions-title" id="sa-id">—</div>
+      <input type="text" class="sticker-actions-name" id="sa-name" placeholder="Nome do jogador (opcional)" />
+      <button class="icon-btn" id="sa-close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="dups-counter" id="sa-dups-counter" style="display:none">
+      <button id="sa-dec">−</button>
+      <div class="dups-display"><span id="sa-dups-count">0</span><small>repetidas</small></div>
+      <button id="sa-inc">+</button>
+    </div>
+    <div class="sticker-actions-buttons">
+      <button class="btn btn-primary" id="sa-toggle-owned">Tenho</button>
+      <button class="btn btn-warning" id="sa-add-dup">+ Repetida</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">—</div>
+
+  <!-- CONFIRM -->
+  <div class="confirm-backdrop" id="confirm">
+    <div class="confirm-box">
+      <h4 id="confirm-title">Confirmar</h4>
+      <p id="confirm-msg">Tem certeza?</p>
+      <div class="actions">
+        <button class="btn btn-ghost" id="confirm-cancel" style="flex:1">Cancelar</button>
+        <button class="btn btn-primary" id="confirm-ok" style="flex:1">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ================== DATA ================== */
+    const TEAMS = [
+      // CONCACAF — 3 sedes + classificadas
+      { code: 'CAN', name: 'Canadá',          conf: 'CONCACAF', host: true,  c1: '#FF0000', c2: '#FFFFFF' },
+      { code: 'MEX', name: 'México',          conf: 'CONCACAF', host: true,  c1: '#006847', c2: '#CE1126' },
+      { code: 'USA', name: 'Estados Unidos',  conf: 'CONCACAF', host: true,  c1: '#3C3B6E', c2: '#B22234' },
+      { code: 'CRC', name: 'Costa Rica',      conf: 'CONCACAF', c1: '#002B7F', c2: '#CE1126' },
+      { code: 'PAN', name: 'Panamá',          conf: 'CONCACAF', c1: '#005AA7', c2: '#D21034' },
+      { code: 'JAM', name: 'Jamaica',         conf: 'CONCACAF', c1: '#009B3A', c2: '#FED100' },
+
+      // CONMEBOL
+      { code: 'ARG', name: 'Argentina',       conf: 'CONMEBOL', c1: '#75AADB', c2: '#FFFFFF' },
+      { code: 'BRA', name: 'Brasil',          conf: 'CONMEBOL', c1: '#FFDF00', c2: '#009C3B' },
+      { code: 'URU', name: 'Uruguai',         conf: 'CONMEBOL', c1: '#7BB6E1', c2: '#FFFFFF' },
+      { code: 'COL', name: 'Colômbia',        conf: 'CONMEBOL', c1: '#FCD116', c2: '#003893' },
+      { code: 'ECU', name: 'Equador',         conf: 'CONMEBOL', c1: '#FFD100', c2: '#0033A0' },
+      { code: 'PAR', name: 'Paraguai',        conf: 'CONMEBOL', c1: '#D52B1E', c2: '#0038A8' },
+
+      // UEFA (16)
+      { code: 'ENG', name: 'Inglaterra',      conf: 'UEFA', c1: '#FFFFFF', c2: '#CE1124' },
+      { code: 'FRA', name: 'França',          conf: 'UEFA', c1: '#0055A4', c2: '#EF4135' },
+      { code: 'ESP', name: 'Espanha',         conf: 'UEFA', c1: '#AA151B', c2: '#F1BF00' },
+      { code: 'GER', name: 'Alemanha',        conf: 'UEFA', c1: '#000000', c2: '#FFCC00' },
+      { code: 'POR', name: 'Portugal',        conf: 'UEFA', c1: '#006600', c2: '#FF0000' },
+      { code: 'ITA', name: 'Itália',          conf: 'UEFA', c1: '#0066CC', c2: '#FFFFFF' },
+      { code: 'NED', name: 'Holanda',         conf: 'UEFA', c1: '#FF6900', c2: '#FFFFFF' },
+      { code: 'BEL', name: 'Bélgica',         conf: 'UEFA', c1: '#FAE042', c2: '#ED2939' },
+      { code: 'CRO', name: 'Croácia',         conf: 'UEFA', c1: '#FF0000', c2: '#FFFFFF' },
+      { code: 'SUI', name: 'Suíça',           conf: 'UEFA', c1: '#DA291C', c2: '#FFFFFF' },
+      { code: 'AUT', name: 'Áustria',         conf: 'UEFA', c1: '#ED2939', c2: '#FFFFFF' },
+      { code: 'POL', name: 'Polônia',         conf: 'UEFA', c1: '#DC143C', c2: '#FFFFFF' },
+      { code: 'SRB', name: 'Sérvia',          conf: 'UEFA', c1: '#C6363C', c2: '#0C4076' },
+      { code: 'DEN', name: 'Dinamarca',       conf: 'UEFA', c1: '#C8102E', c2: '#FFFFFF' },
+      { code: 'TUR', name: 'Turquia',         conf: 'UEFA', c1: '#E30A17', c2: '#FFFFFF' },
+      { code: 'NOR', name: 'Noruega',         conf: 'UEFA', c1: '#EF2B2D', c2: '#002868' },
+
+      // AFC (8)
+      { code: 'JPN', name: 'Japão',           conf: 'AFC', c1: '#BC002D', c2: '#FFFFFF' },
+      { code: 'KOR', name: 'Coreia do Sul',   conf: 'AFC', c1: '#003478', c2: '#C60C30' },
+      { code: 'IRN', name: 'Irã',             conf: 'AFC', c1: '#239F40', c2: '#DA0000' },
+      { code: 'AUS', name: 'Austrália',       conf: 'AFC', c1: '#FFCD00', c2: '#00843D' },
+      { code: 'KSA', name: 'Arábia Saudita',  conf: 'AFC', c1: '#006C35', c2: '#FFFFFF' },
+      { code: 'QAT', name: 'Catar',           conf: 'AFC', c1: '#8A1538', c2: '#FFFFFF' },
+      { code: 'UZB', name: 'Uzbequistão',     conf: 'AFC', c1: '#1EB53A', c2: '#0099B5' },
+      { code: 'JOR', name: 'Jordânia',        conf: 'AFC', c1: '#000000', c2: '#CE1126' },
+
+      // CAF (9)
+      { code: 'MAR', name: 'Marrocos',        conf: 'CAF', c1: '#C1272D', c2: '#006233' },
+      { code: 'SEN', name: 'Senegal',         conf: 'CAF', c1: '#00853F', c2: '#FDEF42' },
+      { code: 'EGY', name: 'Egito',           conf: 'CAF', c1: '#CE1126', c2: '#FFFFFF' },
+      { code: 'ALG', name: 'Argélia',         conf: 'CAF', c1: '#006233', c2: '#FFFFFF' },
+      { code: 'TUN', name: 'Tunísia',         conf: 'CAF', c1: '#E70013', c2: '#FFFFFF' },
+      { code: 'NGA', name: 'Nigéria',         conf: 'CAF', c1: '#008751', c2: '#FFFFFF' },
+      { code: 'CMR', name: 'Camarões',        conf: 'CAF', c1: '#007A5E', c2: '#CE1126' },
+      { code: 'CIV', name: 'Costa do Marfim', conf: 'CAF', c1: '#FF8200', c2: '#009E60' },
+      { code: 'RSA', name: 'África do Sul',   conf: 'CAF', c1: '#007749', c2: '#FFB81C' },
+
+      // OFC + Repescagem (slots editáveis)
+      { code: 'NZL', name: 'Nova Zelândia',   conf: 'OFC', c1: '#FFFFFF', c2: '#012169' },
+      { code: 'BOL', name: 'Bolívia',         conf: 'CONMEBOL', c1: '#D52B1E', c2: '#007934' },
+      { code: 'IRQ', name: 'Iraque',          conf: 'AFC', c1: '#CE1126', c2: '#000000' },
+    ];
+
+    const STICKERS_PER_TEAM = 20;
+    const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM;
+    const STORAGE_KEY = 'figurinhas-devjuninho-v1';
+
+    /* ================== STATE ================== */
+    let state = {
+      teams: TEAMS.map(t => ({ ...t })),
+      stickers: {},   // id -> { owned: bool, dups: int, name: string }
+      history: [],    // { id, action, with, date }
+      spending: [],   // { amount, date }
+      version: 1
+    };
+
+    function buildEmptyStickers() {
+      const map = {};
+      state.teams.forEach(t => {
+        for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+          map[`${t.code}${i}`] = { owned: false, dups: 0, name: '' };
+        }
+      });
+      return map;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed };
+        }
+      } catch(e) { console.warn('load failed', e); }
+      // ensure all stickers exist (in case team list changed)
+      const fresh = buildEmptyStickers();
+      Object.keys(fresh).forEach(id => {
+        if (!state.stickers[id]) state.stickers[id] = fresh[id];
+      });
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch(e) { console.warn('save failed', e); }
+    }
+
+    /* ================== HELPERS ================== */
+    function $(sel) { return document.querySelector(sel); }
+    function $$(sel) { return [...document.querySelectorAll(sel)]; }
+
+    function toast(msg) {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function confirmDialog(title, msg) {
+      return new Promise(resolve => {
+        $('#confirm-title').textContent = title;
+        $('#confirm-msg').textContent = msg;
+        $('#confirm').classList.add('open');
+        const ok = () => { cleanup(); resolve(true); };
+        const cancel = () => { cleanup(); resolve(false); };
+        const cleanup = () => {
+          $('#confirm').classList.remove('open');
+          $('#confirm-ok').removeEventListener('click', ok);
+          $('#confirm-cancel').removeEventListener('click', cancel);
+        };
+        $('#confirm-ok').addEventListener('click', ok);
+        $('#confirm-cancel').addEventListener('click', cancel);
+      });
+    }
+
+    function ownedCount() {
+      return Object.values(state.stickers).filter(s => s.owned).length;
+    }
+    function dupsCount() {
+      return Object.values(state.stickers).reduce((a, s) => a + (s.dups || 0), 0);
+    }
+    function teamProgress(code) {
+      let owned = 0, dups = 0;
+      for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+        const s = state.stickers[`${code}${i}`];
+        if (s && s.owned) owned++;
+        if (s && s.dups) dups += s.dups;
+      }
+      return { owned, dups, total: STICKERS_PER_TEAM, pct: (owned / STICKERS_PER_TEAM) * 100 };
+    }
+    function teamsCompleted() {
+      return state.teams.filter(t => teamProgress(t.code).owned === STICKERS_PER_TEAM).length;
+    }
+    function totalSpent() {
+      return state.spending.reduce((a, s) => a + (Number(s.amount) || 0), 0);
+    }
+
+    // Coupon collector estimate: pacotes de 5, ainda preciso de N únicas de 980
+    function packsEstimate() {
+      const owned = ownedCount();
+      const total = TOTAL_STICKERS;
+      if (owned >= total) return 0;
+      let need = total - owned;
+      // Expected number of single sticker pulls to get `need` more from `total` total
+      // Sum from i=owned to total-1 of total/(total-i)
+      let exp = 0;
+      for (let i = owned; i < total; i++) {
+        exp += total / (total - i);
+      }
+      return Math.ceil(exp / 5); // 5 stickers per pack
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    /* ================== RENDERING ================== */
+    function renderHeader() {
+      const owned = ownedCount();
+      const pct = (owned / TOTAL_STICKERS) * 100;
+      $('#global-fill').style.width = pct + '%';
+      $('#global-pct').textContent = pct.toFixed(1) + '%';
+      $('#global-count').textContent = owned;
+      $('#global-total').textContent = TOTAL_STICKERS;
+    }
+
+    function renderHome() {
+      const owned = ownedCount();
+      const dups = dupsCount();
+      const done = teamsCompleted();
+      $('#s-owned').textContent = owned;
+      $('#s-owned-sub').textContent = `de ${TOTAL_STICKERS}`;
+      $('#s-missing').textContent = TOTAL_STICKERS - owned;
+      $('#s-dups').textContent = dups;
+      const uniqueDups = Object.values(state.stickers).filter(s => s.dups > 0).length;
+      $('#s-dups-sub').textContent = `${uniqueDups} únicas`;
+      $('#s-teams-done').textContent = done;
+
+      // milestones
+      const pct = (owned / TOTAL_STICKERS) * 100;
+      const ml = [10, 25, 50, 75, 90, 100];
+      const html = ml.map(m => {
+        const reached = pct >= m;
+        return `<div class="milestone ${reached ? 'done' : ''}">${reached ? '✓ ' : ''}${m}%</div>`;
+      }).join('');
+      $('#milestones').innerHTML = html;
+
+      // confederations
+      const confs = [...new Set(state.teams.map(t => t.conf))];
+      const confHtml = confs.map(c => {
+        const teams = state.teams.filter(t => t.conf === c);
+        let owned = 0, total = teams.length * STICKERS_PER_TEAM;
+        teams.forEach(t => owned += teamProgress(t.code).owned);
+        const p = (owned / total) * 100;
+        return `
+          <div class="conf-row">
+            <div class="conf-name">${c}</div>
+            <div class="conf-bar"><div style="width:${p}%"></div></div>
+            <div class="conf-pct">${p.toFixed(0)}%</div>
+          </div>`;
+      }).join('');
+      $('#conf-list').innerHTML = confHtml;
+
+      // packs estimate
+      $('#packs-estimate').textContent = packsEstimate().toLocaleString('pt-BR');
+
+      // spending
+      $('#total-spent').textContent = totalSpent().toFixed(2).replace('.', ',');
+      const cps = owned > 0 ? (totalSpent() / owned) : 0;
+      $('#cost-per-sticker').textContent = cps.toFixed(2).replace('.', ',');
+    }
+
+    let teamFilter = { conf: 'all', search: '' };
+
+    function renderTeamsTab() {
+      // chips
+      const confs = ['all', ...new Set(state.teams.map(t => t.conf))];
+      $('#conf-chips').innerHTML = confs.map(c => {
+        const label = c === 'all' ? 'Todas' : c;
+        return `<button class="chip ${teamFilter.conf === c ? 'active' : ''}" data-conf="${c}">${label}</button>`;
+      }).join('');
+      $$('#conf-chips .chip').forEach(b => {
+        b.addEventListener('click', () => {
+          teamFilter.conf = b.dataset.conf;
+          renderTeamsTab();
+        });
+      });
+
+      // grid
+      const q = teamFilter.search.toLowerCase().trim();
+      const filtered = state.teams.filter(t => {
+        if (teamFilter.conf !== 'all' && t.conf !== teamFilter.conf) return false;
+        if (q && !(t.name.toLowerCase().includes(q) || t.code.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      $('#teams-grid').innerHTML = filtered.map(t => {
+        const p = teamProgress(t.code);
+        return `
+          <div class="team-card ${t.host ? 'host' : ''}" style="--c1:${t.c1};--c2:${t.c2};" data-code="${t.code}">
+            <div class="team-flag"></div>
+            <div class="team-code">${t.code}</div>
+            <div class="team-name">${t.name}</div>
+            <div class="team-progress"><div style="width:${p.pct}%"></div></div>
+            <div class="team-meta">
+              <span>${p.owned}/${p.total}</span>
+              ${p.dups > 0 ? `<span class="dups-badge">+${p.dups} rep</span>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+      $$('#teams-grid .team-card').forEach(c => {
+        c.addEventListener('click', () => openTeamModal(c.dataset.code));
+      });
+    }
+
+    /* ================== MODAL ================== */
+    let currentTeam = null;
+    let currentSticker = null;
+
+    function openTeamModal(code) {
+      currentTeam = state.teams.find(t => t.code === code);
+      if (!currentTeam) return;
+      const p = teamProgress(code);
+      $('#m-name').textContent = currentTeam.name;
+      $('#m-meta').textContent = `${currentTeam.conf} · ${p.owned}/${p.total} figurinhas${currentTeam.host ? ' · SEDE' : ''}`;
+      $('#m-flag').style.background = `linear-gradient(135deg, ${currentTeam.c1}, ${currentTeam.c2})`;
+      renderStickersGrid();
+      $('#modal').classList.add('open');
+      $('#modal-backdrop').classList.add('open');
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeTeamModal() {
+      $('#modal').classList.remove('open');
+      $('#modal-backdrop').classList.remove('open');
+      document.documentElement.style.overflow = '';
+      closeStickerActions();
+      currentTeam = null;
+    }
+
+    function renderStickersGrid() {
+      if (!currentTeam) return;
+      const accent = currentTeam.c1;
+      let html = '';
+      for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+        const id = `${currentTeam.code}${i}`;
+        const s = state.stickers[id];
+        const label = i === 1 ? 'Escudo' : i === 2 ? 'Equipe' : '';
+        html += `
+          <div class="sticker ${s.owned ? 'owned' : ''}" data-id="${id}" style="--accent-team:${accent}">
+            ${s.dups > 0 ? `<div class="sticker-dups">×${s.dups}</div>` : ''}
+            <div class="sticker-num">${i}</div>
+            ${label ? `<div class="sticker-label">${label}</div>` : ''}
+            ${s.name ? `<div class="sticker-name">${s.name}</div>` : ''}
+          </div>`;
+      }
+      $('#m-stickers').innerHTML = html;
+      $$('#m-stickers .sticker').forEach(el => {
+        el.addEventListener('click', () => openStickerActions(el.dataset.id));
+      });
+    }
+
+    function openStickerActions(id) {
+      currentSticker = id;
+      const s = state.stickers[id];
+      $('#sa-id').textContent = id;
+      $('#sa-name').value = s.name || '';
+      $('#sa-toggle-owned').textContent = s.owned ? 'Remover' : 'Tenho';
+      $('#sa-toggle-owned').className = s.owned ? 'btn btn-danger' : 'btn btn-primary';
+      $('#sa-add-dup').textContent = s.owned ? '+ Repetida' : 'Marcar como tenho primeiro';
+      $('#sa-add-dup').disabled = !s.owned;
+      $('#sa-dups-counter').style.display = s.dups > 0 || s.owned ? 'flex' : 'none';
+      $('#sa-dups-count').textContent = s.dups || 0;
+      $('#sticker-actions').classList.add('open');
+    }
+
+    function closeStickerActions() {
+      $('#sticker-actions').classList.remove('open');
+      currentSticker = null;
+    }
+
+    function refreshStickerActions() {
+      if (!currentSticker) return;
+      openStickerActions(currentSticker);
+    }
+
+    /* ================== STICKER ACTIONS ================== */
+    function toggleOwned(id) {
+      const s = state.stickers[id];
+      s.owned = !s.owned;
+      if (!s.owned) s.dups = 0;
+      saveState();
+      renderAll();
+      refreshStickerActions();
+      toast(s.owned ? `${id} colada!` : `${id} removida`);
+    }
+
+    function adjustDups(id, delta) {
+      const s = state.stickers[id];
+      if (!s.owned) {
+        s.owned = true;
+      }
+      s.dups = Math.max(0, (s.dups || 0) + delta);
+      saveState();
+      renderAll();
+      refreshStickerActions();
+    }
+
+    function setName(id, name) {
+      state.stickers[id].name = name.trim();
+      saveState();
+      // soft refresh just the grid
+      if (currentTeam) renderStickersGrid();
+    }
+
+    /* ================== REPETIDAS TAB ================== */
+    function renderDupsTab() {
+      const q = ($('#dup-search')?.value || '').toLowerCase().trim();
+      const dups = [];
+      Object.entries(state.stickers).forEach(([id, s]) => {
+        if (s.dups > 0) {
+          if (q && !id.toLowerCase().includes(q) && !(s.name || '').toLowerCase().includes(q)) return;
+          dups.push({ id, ...s });
+        }
+      });
+      dups.sort((a, b) => a.id.localeCompare(b.id));
+
+      const c = $('#dups-container');
+      if (dups.length === 0) {
+        c.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">🎴</div>
+            <p>Nenhuma figurinha repetida ainda.<br>Quando vier repetida, abra a seleção e toque em "+ Repetida".</p>
+          </div>`;
+        return;
+      }
+
+      c.innerHTML = dups.map(d => {
+        const team = state.teams.find(t => d.id.startsWith(t.code));
+        const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
+        return `
+          <div class="dup-item" data-id="${d.id}">
+            <div class="dup-flag" style="background:${grad}"></div>
+            <div class="dup-info">
+              <div class="dup-id">${d.id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-name">${d.name || '—'}</div>
+            </div>
+            <div class="dup-controls">
+              <button data-act="dec">−</button>
+              <span class="count">${d.dups}</span>
+              <button data-act="inc">+</button>
+              <button data-act="trade" title="Trocar (uso uma)">↻</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      $$('#dups-container .dup-item').forEach(item => {
+        const id = item.dataset.id;
+        item.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const act = btn.dataset.act;
+            if (act === 'inc') adjustDups(id, +1);
+            else if (act === 'dec') adjustDups(id, -1);
+            else if (act === 'trade') tradeDuplicate(id);
+          });
+        });
+      });
+    }
+
+    async function tradeDuplicate(id) {
+      // Reduz 1 da repetida e abre prompt pra pegar a que veio
+      const ok = await confirmDialog('Trocar repetida', `Você está dando 1 ${id}. Vou abrir a tela pra você marcar a que recebeu.`);
+      if (!ok) return;
+      adjustDups(id, -1);
+      const withWho = prompt('Trocou com quem? (opcional)') || '';
+      const got = prompt('Qual figurinha você recebeu? (ex: ARG3)');
+      if (got) {
+        const cleanId = got.trim().toUpperCase();
+        if (state.stickers[cleanId]) {
+          if (!state.stickers[cleanId].owned) {
+            state.stickers[cleanId].owned = true;
+          } else {
+            state.stickers[cleanId].dups = (state.stickers[cleanId].dups || 0) + 1;
+          }
+          state.history.push({
+            id, gave: id, got: cleanId, with: withWho, date: new Date().toISOString()
+          });
+          saveState();
+          renderAll();
+          toast(`Trocou ${id} por ${cleanId}!`);
+        } else {
+          toast('Figurinha não encontrada: ' + cleanId);
+        }
+      }
+    }
+
+    /* ================== TROCAS TAB ================== */
+    let swapView = 'bate';
+
+    function renderSwapTab() {
+      $$('#tab-swap .swap-tab').forEach(b => b.classList.toggle('active', b.dataset.swap === swapView));
+      const c = $('#swap-container');
+
+      if (swapView === 'bate') {
+        const items = Object.entries(state.stickers)
+          .filter(([_, s]) => s.dups > 0)
+          .sort(([a], [b]) => a.localeCompare(b));
+        if (items.length === 0) {
+          c.innerHTML = `<div class="empty-state"><div class="icon">📤</div><p>Sem repetidas no momento.</p></div>`;
+          return;
+        }
+        c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
+          const team = state.teams.find(t => id.startsWith(t.code));
+          const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
+          return `<div class="swap-item">
+            <div class="dup-flag" style="background:${grad}"></div>
+            <div class="dup-info">
+              <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-name">${s.name || 'sem nome'}</div>
+            </div>
+            <div style="font-weight:800;color:var(--warning)">×${s.dups}</div>
+          </div>`;
+        }).join('') + '</div>';
+      } else if (swapView === 'falta') {
+        const items = Object.entries(state.stickers)
+          .filter(([_, s]) => !s.owned)
+          .sort(([a], [b]) => a.localeCompare(b));
+        if (items.length === 0) {
+          c.innerHTML = `<div class="empty-state"><div class="icon">🏆</div><p>Não falta nenhuma! Álbum completo.</p></div>`;
+          return;
+        }
+        c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
+          const team = state.teams.find(t => id.startsWith(t.code));
+          const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
+          return `<div class="swap-item">
+            <div class="dup-flag" style="background:${grad}"></div>
+            <div class="dup-info">
+              <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-name">${s.name || '—'}</div>
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      } else {
+        // history
+        if (state.history.length === 0) {
+          c.innerHTML = `<div class="empty-state"><div class="icon">📜</div><p>Sem trocas registradas ainda.</p></div>`;
+          return;
+        }
+        const items = [...state.history].reverse();
+        c.innerHTML = '<div class="history-list">' + items.map(h => {
+          const dt = new Date(h.date);
+          const datestr = dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          return `<div class="history-item">
+            <div class="h-text">
+              <div>Trocou <strong>${h.gave}</strong> → <strong>${h.got}</strong>${h.with ? ` com <span class="h-with">${h.with}</span>` : ''}</div>
+              <div class="h-date">${datestr}</div>
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      }
+    }
+
+    function buildBateText() {
+      const items = Object.entries(state.stickers)
+        .filter(([_, s]) => s.dups > 0)
+        .sort(([a], [b]) => a.localeCompare(b));
+      if (items.length === 0) return 'Sem repetidas!';
+      const grouped = {};
+      items.forEach(([id, s]) => {
+        const team = state.teams.find(t => id.startsWith(t.code));
+        const key = team ? `${team.name} (${team.code})` : 'Outras';
+        if (!grouped[key]) grouped[key] = [];
+        const num = id.replace(/^[A-Z]+/, '');
+        grouped[key].push(`${num}${s.dups > 1 ? `(×${s.dups})` : ''}`);
+      });
+      let out = '🎴 BATE — @devjuninho\n\n';
+      Object.entries(grouped).forEach(([k, arr]) => {
+        out += `${k}: ${arr.join(', ')}\n`;
+      });
+      out += `\nTotal: ${items.reduce((a, [_, s]) => a + s.dups, 0)} figurinhas`;
+      return out;
+    }
+
+    function buildFaltaText() {
+      const items = Object.entries(state.stickers)
+        .filter(([_, s]) => !s.owned)
+        .sort(([a], [b]) => a.localeCompare(b));
+      if (items.length === 0) return 'Álbum completo!';
+      const grouped = {};
+      items.forEach(([id]) => {
+        const team = state.teams.find(t => id.startsWith(t.code));
+        const key = team ? `${team.name} (${team.code})` : 'Outras';
+        if (!grouped[key]) grouped[key] = [];
+        const num = id.replace(/^[A-Z]+/, '');
+        grouped[key].push(num);
+      });
+      let out = '🔍 FALTA — @devjuninho\n\n';
+      Object.entries(grouped).forEach(([k, arr]) => {
+        out += `${k}: ${arr.join(', ')}\n`;
+      });
+      out += `\nTotal: ${items.length} figurinhas`;
+      return out;
+    }
+
+    async function copyToClip(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('Copiado pro clipboard!');
+      } catch {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        toast('Copiado!');
+      }
+    }
+
+    /* ================== TABS ================== */
+    function switchTab(name) {
+      $$('.tab').forEach(t => t.classList.remove('active'));
+      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      $('#tab-' + name).classList.add('active');
+      $(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      // refresh content
+      if (name === 'home') renderHome();
+      if (name === 'teams') renderTeamsTab();
+      if (name === 'dups') renderDupsTab();
+      if (name === 'swap') renderSwapTab();
+    }
+
+    /* ================== RENDER ALL ================== */
+    function renderAll() {
+      renderHeader();
+      const active = $('.tab.active')?.id || 'tab-home';
+      const name = active.replace('tab-', '');
+      if (name === 'home') renderHome();
+      if (name === 'teams') renderTeamsTab();
+      if (name === 'dups') renderDupsTab();
+      if (name === 'swap') renderSwapTab();
+      // also refresh modal grid if open
+      if (currentTeam) renderStickersGrid();
+    }
+
+    /* ================== EVENTS ================== */
+    function bindEvents() {
+      $$('.tab-btn').forEach(b => {
+        b.addEventListener('click', () => switchTab(b.dataset.tab));
+      });
+
+      // Settings
+      $('#btn-settings').addEventListener('click', () => switchTab('settings'));
+
+      // Modal
+      $('#m-close').addEventListener('click', closeTeamModal);
+      $('#modal-backdrop').addEventListener('click', closeTeamModal);
+
+      // Sticker actions
+      $('#sa-close').addEventListener('click', closeStickerActions);
+      $('#sa-toggle-owned').addEventListener('click', () => {
+        if (currentSticker) toggleOwned(currentSticker);
+      });
+      $('#sa-add-dup').addEventListener('click', () => {
+        if (currentSticker && state.stickers[currentSticker].owned) adjustDups(currentSticker, +1);
+      });
+      $('#sa-inc').addEventListener('click', () => currentSticker && adjustDups(currentSticker, +1));
+      $('#sa-dec').addEventListener('click', () => currentSticker && adjustDups(currentSticker, -1));
+      $('#sa-name').addEventListener('input', e => currentSticker && setName(currentSticker, e.target.value));
+
+      // Search
+      $('#team-search').addEventListener('input', e => {
+        teamFilter.search = e.target.value;
+        renderTeamsTab();
+      });
+      $('#dup-search').addEventListener('input', renderDupsTab);
+
+      // Spending
+      $('#btn-add-spend').addEventListener('click', () => {
+        const v = parseFloat($('#spend-input').value);
+        if (!v || v <= 0) return;
+        state.spending.push({ amount: v, date: new Date().toISOString() });
+        $('#spend-input').value = '';
+        saveState();
+        renderHome();
+        toast(`+R$ ${v.toFixed(2).replace('.', ',')} registrados`);
+      });
+
+      // Swap tabs
+      $$('#tab-swap .swap-tab').forEach(b => {
+        b.addEventListener('click', () => {
+          swapView = b.dataset.swap;
+          renderSwapTab();
+        });
+      });
+      $('#btn-share-bate').addEventListener('click', () => copyToClip(buildBateText()));
+      $('#btn-share-falta').addEventListener('click', () => copyToClip(buildFaltaText()));
+
+      // Settings actions
+      $('#btn-export').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `figurinhas-devjuninho-${todayStr()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('Backup exportado');
+      });
+
+      $('#btn-import').addEventListener('click', () => $('#import-file').click());
+      $('#import-file').addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const txt = await file.text();
+          const data = JSON.parse(txt);
+          const ok = await confirmDialog('Importar backup', 'Isso vai substituir TODOS os seus dados atuais. Continuar?');
+          if (!ok) return;
+          state = { ...state, ...data };
+          // ensure stickers exist
+          const fresh = buildEmptyStickers();
+          Object.keys(fresh).forEach(id => {
+            if (!state.stickers[id]) state.stickers[id] = fresh[id];
+          });
+          saveState();
+          renderAll();
+          toast('Backup importado!');
+        } catch (err) {
+          toast('Erro ao importar: ' + err.message);
+        }
+      });
+
+      $('#btn-reset').addEventListener('click', async () => {
+        const ok = await confirmDialog('Resetar tudo', 'Apaga todas as figurinhas, repetidas e histórico. Não dá pra desfazer.');
+        if (!ok) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state.stickers = buildEmptyStickers();
+        state.history = [];
+        state.spending = [];
+        saveState();
+        renderAll();
+        toast('Tudo resetado');
+      });
+
+      $('#btn-edit-teams').addEventListener('click', () => {
+        const list = state.teams.map((t, i) => `${i+1}. ${t.code} - ${t.name} (${t.conf})`).join('\n');
+        alert('Lista atual de seleções:\n\n' + list + '\n\nPra alterar nome/código/cor de uma seleção, edite o array TEAMS no arquivo index.html. (versão futura: editor visual)');
+      });
+
+      // Install PWA
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredPrompt = e;
+        $('#btn-install').style.display = 'flex';
+      });
+      $('#btn-install').addEventListener('click', async () => {
+        if (!deferredPrompt) { toast('Use o menu do navegador → Instalar'); return; }
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        $('#btn-install').style.display = 'none';
+      });
+    }
+
+    /* ================== AVATAR LOADER ================== */
+    function loadAvatar() {
+      const el = document.getElementById('avatar');
+      if (!el) return;
+      // try avatar.png → .jpg → .jpeg → .webp → .svg → fallback (initials já no DOM)
+      const candidates = ['avatar.png', 'avatar.jpg', 'avatar.jpeg', 'avatar.webp', 'avatar.svg'];
+      let i = 0;
+      const tryNext = () => {
+        if (i >= candidates.length) return; // mantém initials
+        const src = candidates[i++];
+        const img = new Image();
+        img.onload = () => {
+          el.innerHTML = '';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          img.style.display = 'block';
+          el.appendChild(img);
+        };
+        img.onerror = tryNext;
+        img.src = src + '?v=' + Date.now();
+      };
+      tryNext();
+    }
+
+    /* ================== INIT ================== */
+    function init() {
+      loadState();
+      bindEvents();
+      renderAll();
+      loadAvatar();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(e => console.warn('sw failed', e));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <pattern id="lines" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="4" fill="#1a1a1a"/>
+      <line x1="0" y1="2" x2="4" y2="2" stroke="#2a2a2a" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a1a1a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#lines)"/>
+  <!-- silhouette/portrait -->
+  <g fill="#0a0a0a" stroke="#e7e9ea" stroke-width="2" stroke-linejoin="round">
+    <!-- neck/shoulders -->
+    <path d="M80 360 Q80 290 130 270 L270 270 Q320 290 320 360 L320 400 L80 400 Z"/>
+    <!-- head -->
+    <ellipse cx="200" cy="180" rx="92" ry="108"/>
+    <!-- hair messy strands -->
+    <path d="M108 160 Q105 80 180 70 Q260 65 290 130 Q300 170 295 200 L285 195 Q280 130 240 110 Q210 100 195 130 Q185 145 175 160 Q165 175 150 175 Q135 178 125 195 Q118 210 108 160 Z" fill="#e7e9ea" stroke="none"/>
+    <path d="M115 175 Q110 130 145 115 Q140 145 130 165 Z" fill="#1a1a1a" stroke="#e7e9ea" stroke-width="1.2"/>
+    <path d="M260 130 Q280 145 282 175 Q270 165 258 155 Z" fill="#1a1a1a" stroke="#e7e9ea" stroke-width="1.2"/>
+  </g>
+  <!-- single visible eye -->
+  <g>
+    <ellipse cx="170" cy="200" rx="22" ry="14" fill="#0a0a0a" stroke="#e7e9ea" stroke-width="1.5"/>
+    <circle cx="170" cy="200" r="8" fill="#e7e9ea"/>
+    <circle cx="172" cy="198" r="3" fill="#0a0a0a"/>
+  </g>
+  <!-- hair over right eye -->
+  <path d="M210 150 Q230 175 250 200 Q260 215 245 220 Q225 215 215 200 Q205 180 210 150 Z" fill="#e7e9ea" stroke="#0a0a0a" stroke-width="1.5"/>
+  <!-- mouth -->
+  <path d="M180 250 Q200 256 220 250" fill="none" stroke="#e7e9ea" stroke-width="2" stroke-linecap="round"/>
+  <!-- vignette -->
+  <rect width="400" height="400" fill="url(#vignette)"/>
+</svg>
