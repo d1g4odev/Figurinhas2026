@@ -1,4 +1,4 @@
-const CACHE = 'figurinhas-devjuninho-v2';
+const CACHE = 'figurinhas-devjuninho-v3';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './avatar.jpg', './avatar.svg'];
 
 self.addEventListener('install', (e) => {

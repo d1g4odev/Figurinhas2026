@@ -54,7 +54,7 @@
     }
 
     body {
-      padding-bottom: calc(88px + env(safe-area-inset-bottom));
+      padding-bottom: calc(116px + env(safe-area-inset-bottom));
       padding-top: env(safe-area-inset-top);
     }
 
@@ -86,30 +86,11 @@
     /* HEADER — X-style profile */
     .header {
       border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: env(safe-area-inset-top);
-      z-index: 100;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: rgba(0,0,0,0.85);
-    }
-
-    .header-banner {
-      height: 80px;
-      background:
-        repeating-linear-gradient(45deg, #0a0a0a 0px, #0a0a0a 8px, #111 8px, #111 16px),
-        #000;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .header-banner::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
+      background: var(--bg);
     }
 
     .header-body {
-      padding: 12px 16px 14px;
+      padding: 18px 16px 14px;
       position: relative;
     }
 
@@ -118,13 +99,11 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
-      margin-top: -36px;
     }
 
     .avatar {
-      width: 72px; height: 72px;
+      width: 68px; height: 68px;
       border-radius: 50%;
-      border: 3px solid var(--bg);
       background: var(--surface);
       overflow: hidden;
       flex-shrink: 0;
@@ -140,7 +119,7 @@
     }
 
     .profile-info {
-      margin-top: 38px;
+      margin-top: 12px;
       flex: 1;
       min-width: 0;
     }
@@ -160,7 +139,7 @@
       font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.35;
     }
     .profile-meta {
-      display: flex; gap: 14px; margin-top: 6px;
+      display: flex; gap: 14px; margin-top: 6px; flex-wrap: wrap;
       font-size: 12px; color: var(--text-2);
     }
     .profile-meta strong { color: var(--text); font-weight: 700; }
@@ -201,7 +180,7 @@
       margin: 0 auto;
     }
     /* On desktop, constrain header inner content to 600px but keep full-width sticky */
-    .header-banner, .header-body, .global-progress {
+    .header-body, .global-progress {
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
@@ -211,8 +190,11 @@
     .tab.active { display: block; animation: fade .25s ease; }
     @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
 
-    h2.tab-title { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 4px; font-weight: 800; }
-    p.tab-sub { color: var(--text-2); font-size: 13px; margin-bottom: 18px; }
+    .tab-heading {
+      margin-bottom: 18px;
+    }
+    h2.tab-title { font-size: 24px; letter-spacing: 0; margin-bottom: 4px; font-weight: 850; line-height: 1.15; }
+    p.tab-sub { color: var(--text-2); font-size: 14px; margin-bottom: 0; line-height: 1.35; }
 
     /* DASHBOARD */
     .dash-grid {
@@ -245,6 +227,7 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     .section-card h3 small { font-size: 11px; color: var(--text-2); font-weight: 500; }
+    .section-card p { line-height: 1.5; }
 
     .conf-list { display: flex; flex-direction: column; gap: 10px; }
     .conf-row { display: flex; align-items: center; gap: 10px; }
@@ -264,6 +247,7 @@
     .filters-row {
       display: flex; gap: 8px; margin-bottom: 14px; align-items: center;
     }
+    .filters-row.hidden { display: none; }
     .filters-row input[type="search"] { flex: 1; }
     .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: thin; }
     .chip-row::-webkit-scrollbar { height: 4px; }
@@ -285,6 +269,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 14px;
+      min-height: 146px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
@@ -293,10 +278,12 @@
     .team-card:active { transform: scale(0.98); }
     .team-card:hover { background: var(--hover); border-color: var(--border-strong); }
     .team-card .team-flag {
-      width: 32px; height: 22px; border-radius: 4px;
-      background: linear-gradient(135deg, var(--c1), var(--c2));
+      width: 46px; height: 32px; border-radius: 5px;
+      background: var(--surface-2);
       margin-bottom: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      object-fit: cover;
+      display: block;
     }
     .team-card .team-code { font-size: 10px; color: var(--text-3); font-weight: 700; letter-spacing: 0.08em; }
     .team-card .team-name { font-size: 14px; font-weight: 700; margin: 2px 0 8px; line-height: 1.2; }
@@ -338,7 +325,7 @@
     }
     .modal-grip { width: 40px; height: 4px; background: var(--border-strong); border-radius: 999px; margin: 0 auto 12px; }
     .modal-title-row { display: flex; align-items: center; gap: 12px; }
-    .modal-flag { width: 44px; height: 30px; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .modal-flag { width: 48px; height: 34px; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); object-fit: cover; background: var(--surface-2); }
     .modal-title h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
     .modal-title small { color: var(--text-2); font-size: 12px; }
     .modal-close { margin-left: auto; }
@@ -440,7 +427,7 @@
       margin-bottom: 8px;
       display: flex; align-items: center; gap: 12px;
     }
-    .dup-flag { width: 30px; height: 20px; border-radius: 4px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+    .dup-flag { width: 34px; height: 24px; border-radius: 4px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.4); object-fit: cover; background: var(--surface-2); }
     .dup-info { flex: 1; min-width: 0; }
     .dup-info .dup-id { font-size: 13px; font-weight: 700; }
     .dup-info .dup-name { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -460,6 +447,7 @@
       margin-bottom: 14px;
       display: flex; gap: 8px;
     }
+    .swap-toolbar .btn { min-width: 0; }
 
     .swap-tabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 1px solid var(--border); }
     .swap-tab {
@@ -483,18 +471,26 @@
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
       padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
+    .setting-item > div { min-width: 0; }
     .setting-item .label { font-size: 14px; font-weight: 600; }
     .setting-item .desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .setting-item .btn { flex: 0 0 auto; }
 
-    /* TAB BAR — X-style */
+    /* BOTTOM DOCK */
     .bottom-dock {
       position: fixed; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.85);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border-top: 1px solid var(--border);
       display: flex; align-items: center; gap: 10px;
-      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      padding: 10px max(14px, env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-right));
       z-index: 280;
+      transition: transform 220ms cubic-bezier(.4,0,.2,1), opacity 160ms;
+    }
+    body.modal-open .bottom-dock { transform: translateY(100%); opacity: 0; pointer-events: none; }
+    .bottom-dock-inner {
+      width: 100%; max-width: 600px; margin: 0 auto;
+      display: flex; align-items: center; gap: 10px;
     }
     .dock-menu-btn {
       width: 44px; height: 44px; flex: 0 0 44px;
@@ -567,7 +563,6 @@
     .side-menu .tab-btn.active::after { display: none; }
     .side-menu .tab-btn svg { width: 24px; height: 24px; }
     .side-menu .tab-btn span { min-width: 0; }
-    .tabbar { display: none; }
     .tab-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0;
       padding: 8px 4px; color: var(--text-2); font-size: 11px; font-weight: 500;
@@ -623,7 +618,6 @@
 </head>
 <body>
   <header class="header">
-    <div class="header-banner"></div>
     <div class="header-body">
       <div class="profile-row">
         <div class="avatar" id="avatar">
@@ -660,8 +654,10 @@
   <main>
     <!-- INÍCIO -->
     <section class="tab active" id="tab-home">
-      <h2 class="tab-title">Visão geral</h2>
-      <p class="tab-sub">Seu álbum em números.</p>
+      <div class="tab-heading">
+        <h2 class="tab-title">Visão geral</h2>
+        <p class="tab-sub">Seu álbum em números.</p>
+      </div>
 
       <div class="dash-grid">
         <div class="stat-card">
@@ -722,10 +718,12 @@
 
     <!-- SELEÇÕES -->
     <section class="tab" id="tab-teams">
-      <h2 class="tab-title">Seleções</h2>
-      <p class="tab-sub">48 seleções na Copa 2026. Toque pra ver as figurinhas.</p>
+      <div class="tab-heading">
+        <h2 class="tab-title">Seleções</h2>
+        <p class="tab-sub">48 seleções na Copa 2026. Toque para ver as figurinhas.</p>
+      </div>
 
-      <div class="filters-row">
+      <div class="filters-row hidden">
         <input type="search" id="team-search" placeholder="Buscar seleção..." />
       </div>
 
@@ -736,10 +734,12 @@
 
     <!-- REPETIDAS -->
     <section class="tab" id="tab-dups">
-      <h2 class="tab-title">Repetidas</h2>
-      <p class="tab-sub">Suas figurinhas pra trocar. Use os botões pra ajustar a quantidade.</p>
+      <div class="tab-heading">
+        <h2 class="tab-title">Repetidas</h2>
+        <p class="tab-sub">Suas figurinhas para trocar. Use os botões para ajustar a quantidade.</p>
+      </div>
 
-      <div class="filters-row">
+      <div class="filters-row hidden">
         <input type="search" id="dup-search" placeholder="Buscar (ex: BRA, ARG3)..." />
       </div>
 
@@ -748,8 +748,10 @@
 
     <!-- TROCAS -->
     <section class="tab" id="tab-swap">
-      <h2 class="tab-title">Trocas</h2>
-      <p class="tab-sub">Bate, falta e histórico. Compartilhe sua lista no zap.</p>
+      <div class="tab-heading">
+        <h2 class="tab-title">Trocas</h2>
+        <p class="tab-sub">Bate, falta e histórico. Compartilhe sua lista no zap.</p>
+      </div>
 
       <div class="swap-toolbar">
         <button class="btn btn-primary" id="btn-share-bate">📋 Copiar BATE</button>
@@ -767,8 +769,10 @@
 
     <!-- SETTINGS -->
     <section class="tab" id="tab-settings">
-      <h2 class="tab-title">Configurações</h2>
-      <p class="tab-sub">Backup e gestão dos dados.</p>
+      <div class="tab-heading">
+        <h2 class="tab-title">Configurações</h2>
+        <p class="tab-sub">Backup e gestão dos dados.</p>
+      </div>
 
       <div class="settings-list">
         <div class="setting-item">
@@ -811,31 +815,6 @@
     </section>
   </main>
 
-  <!-- TAB BAR -->
-  <nav class="tabbar" aria-hidden="true">
-    <button class="tab-btn active" data-tab="home">
-      <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-      Início
-    </button>
-    <button class="tab-btn" data-tab="teams">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
-      Seleções
-    </button>
-    <button class="tab-btn" data-tab="dups">
-      <svg viewBox="0 0 24 24"><rect x="9" y="3" width="12" height="12" rx="2"/><rect x="3" y="9" width="12" height="12" rx="2"/></svg>
-      Repetidas
-    </button>
-    <button class="tab-btn" data-tab="swap">
-      <svg viewBox="0 0 24 24"><path d="M7 16h13M7 16l4-4M7 16l4 4M17 8H4M17 8l-4 4M17 8l-4-4"/></svg>
-      Trocas
-    </button>
-    <button class="tab-btn" data-tab="settings">
-      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      Mais
-    </button>
-  </nav>
-
-  <!-- MODAL SELEÇÃO -->
   <!-- SIDE MENU -->
   <div class="side-menu-backdrop" id="side-menu-backdrop"></div>
   <aside class="side-menu" id="side-menu" aria-hidden="true">
@@ -845,14 +824,14 @@
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
       </button>
     </div>
-    <nav class="side-menu-list" aria-label="Navegacao principal">
+    <nav class="side-menu-list" aria-label="Navegação principal">
       <button class="tab-btn active" data-tab="home">
         <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        <span>Inicio</span>
+        <span>Início</span>
       </button>
       <button class="tab-btn" data-tab="teams">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
-        <span>Selecoes</span>
+        <span>Seleções</span>
       </button>
       <button class="tab-btn" data-tab="dups">
         <svg viewBox="0 0 24 24"><rect x="9" y="3" width="12" height="12" rx="2"/><rect x="3" y="9" width="12" height="12" rx="2"/></svg>
@@ -871,13 +850,15 @@
 
   <!-- BOTTOM DOCK -->
   <nav class="bottom-dock" aria-label="Busca e menu">
-    <button class="dock-menu-btn" id="menu-toggle" aria-label="Abrir menu" aria-controls="side-menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <label class="dock-search">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-      <input type="search" id="global-search" placeholder="Buscar selecao..." autocomplete="off" />
-    </label>
+    <div class="bottom-dock-inner">
+      <button class="dock-menu-btn" id="menu-toggle" aria-label="Abrir menu" aria-controls="side-menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <label class="dock-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="global-search" placeholder="Buscar seleção..." autocomplete="off" />
+      </label>
+    </div>
   </nav>
 
   <div class="modal-backdrop" id="modal-backdrop"></div>
@@ -885,7 +866,7 @@
     <div class="modal-header">
       <div class="modal-grip"></div>
       <div class="modal-title-row">
-        <div class="modal-flag" id="m-flag"></div>
+        <img class="modal-flag" id="m-flag" alt="" />
         <div class="modal-title">
           <h3 id="m-name">—</h3>
           <small id="m-meta">—</small>
@@ -1002,6 +983,17 @@
     const STICKERS_PER_TEAM = 20;
     const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM;
     const STORAGE_KEY = 'figurinhas-devjuninho-v1';
+    const FLAG_ISO = {
+      CAN: 'ca', MEX: 'mx', USA: 'us', CRC: 'cr', PAN: 'pa', JAM: 'jm',
+      ARG: 'ar', BRA: 'br', URU: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
+      ENG: 'gb-eng', FRA: 'fr', ESP: 'es', GER: 'de', POR: 'pt', ITA: 'it',
+      NED: 'nl', BEL: 'be', CRO: 'hr', SUI: 'ch', AUT: 'at', POL: 'pl',
+      SRB: 'rs', DEN: 'dk', TUR: 'tr', NOR: 'no',
+      JPN: 'jp', KOR: 'kr', IRN: 'ir', AUS: 'au', KSA: 'sa', QAT: 'qa',
+      UZB: 'uz', JOR: 'jo', MAR: 'ma', SEN: 'sn', EGY: 'eg', ALG: 'dz',
+      TUN: 'tn', NGA: 'ng', CMR: 'cm', CIV: 'ci', RSA: 'za',
+      NZL: 'nz', BOL: 'bo', IRQ: 'iq'
+    };
 
     /* ================== STATE ================== */
     let state = {
@@ -1046,6 +1038,16 @@
     /* ================== HELPERS ================== */
     function $(sel) { return document.querySelector(sel); }
     function $$(sel) { return [...document.querySelectorAll(sel)]; }
+
+    function flagUrl(code, size = 80) {
+      const iso = FLAG_ISO[code] || code.toLowerCase();
+      return `https://flagcdn.com/w${size}/${iso}.png`;
+    }
+
+    function flagSrcset(code) {
+      const iso = FLAG_ISO[code] || code.toLowerCase();
+      return `https://flagcdn.com/w80/${iso}.png 1x, https://flagcdn.com/w160/${iso}.png 2x`;
+    }
 
     function toast(msg) {
       const t = $('#toast');
@@ -1198,7 +1200,7 @@
         const p = teamProgress(t.code);
         return `
           <div class="team-card ${t.host ? 'host' : ''}" style="--c1:${t.c1};--c2:${t.c2};" data-code="${t.code}">
-            <div class="team-flag"></div>
+            <img class="team-flag" src="${flagUrl(t.code)}" srcset="${flagSrcset(t.code)}" alt="Bandeira do ${t.name}" loading="lazy" />
             <div class="team-code">${t.code}</div>
             <div class="team-name">${t.name}</div>
             <div class="team-progress"><div style="width:${p.pct}%"></div></div>
@@ -1224,16 +1226,20 @@
       const p = teamProgress(code);
       $('#m-name').textContent = currentTeam.name;
       $('#m-meta').textContent = `${currentTeam.conf} · ${p.owned}/${p.total} figurinhas${currentTeam.host ? ' · SEDE' : ''}`;
-      $('#m-flag').style.background = `linear-gradient(135deg, ${currentTeam.c1}, ${currentTeam.c2})`;
+      $('#m-flag').src = flagUrl(currentTeam.code);
+      $('#m-flag').srcset = flagSrcset(currentTeam.code);
+      $('#m-flag').alt = `Bandeira do ${currentTeam.name}`;
       renderStickersGrid();
       $('#modal').classList.add('open');
       $('#modal-backdrop').classList.add('open');
+      document.body.classList.add('modal-open');
       document.documentElement.style.overflow = 'hidden';
     }
 
     function closeTeamModal() {
       $('#modal').classList.remove('open');
       $('#modal-backdrop').classList.remove('open');
+      document.body.classList.remove('modal-open');
       document.documentElement.style.overflow = '';
       closeStickerActions();
       currentTeam = null;
@@ -1338,10 +1344,9 @@
 
       c.innerHTML = dups.map(d => {
         const team = state.teams.find(t => d.id.startsWith(t.code));
-        const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
         return `
           <div class="dup-item" data-id="${d.id}">
-            <div class="dup-flag" style="background:${grad}"></div>
+            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
             <div class="dup-info">
               <div class="dup-id">${d.id}${team ? ` · ${team.name}` : ''}</div>
               <div class="dup-name">${d.name || '—'}</div>
@@ -1350,7 +1355,7 @@
               <button data-act="dec">−</button>
               <span class="count">${d.dups}</span>
               <button data-act="inc">+</button>
-              <button data-act="trade" title="Trocar (uso uma)">↻</button>
+              <button data-act="trade" title="Trocar (uso uma)">↔</button>
             </div>
           </div>`;
       }).join('');
@@ -1412,9 +1417,8 @@
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
           const team = state.teams.find(t => id.startsWith(t.code));
-          const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
           return `<div class="swap-item">
-            <div class="dup-flag" style="background:${grad}"></div>
+            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
             <div class="dup-info">
               <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
               <div class="dup-name">${s.name || 'sem nome'}</div>
@@ -1432,9 +1436,8 @@
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
           const team = state.teams.find(t => id.startsWith(t.code));
-          const grad = team ? `linear-gradient(135deg, ${team.c1}, ${team.c2})` : '#666';
           return `<div class="swap-item">
-            <div class="dup-flag" style="background:${grad}"></div>
+            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
             <div class="dup-info">
               <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
               <div class="dup-name">${s.name || '—'}</div>
@@ -1524,12 +1527,17 @@
       $('#tab-' + name).classList.add('active');
       $$(`.tab-btn[data-tab="${name}"]`).forEach(b => b.classList.add('active'));
       closeSideMenu();
+      syncGlobalSearch(name);
       window.scrollTo({ top: 0, behavior: 'instant' });
       // refresh content
       if (name === 'home') renderHome();
       if (name === 'teams') renderTeamsTab();
       if (name === 'dups') renderDupsTab();
       if (name === 'swap') renderSwapTab();
+    }
+
+    function activeTabName() {
+      return ($('.tab.active')?.id || 'tab-home').replace('tab-', '');
     }
 
     function openSideMenu() {
@@ -1547,14 +1555,34 @@
     }
 
     function handleGlobalSearch(value) {
+      const active = activeTabName();
+      if (active === 'dups') {
+        const dupSearch = $('#dup-search');
+        if (dupSearch) dupSearch.value = value;
+        renderDupsTab();
+        return;
+      }
+
       teamFilter.search = value;
       const teamSearch = $('#team-search');
       if (teamSearch) teamSearch.value = value;
-      if (!$('#tab-teams').classList.contains('active')) {
+      if (active !== 'teams') {
         switchTab('teams');
         return;
       }
       renderTeamsTab();
+    }
+
+    function syncGlobalSearch(name = activeTabName()) {
+      const input = $('#global-search');
+      if (!input) return;
+      if (name === 'dups') {
+        input.placeholder = 'Buscar repetida...';
+        input.value = $('#dup-search')?.value || '';
+      } else {
+        input.placeholder = 'Buscar seleção...';
+        input.value = teamFilter.search || '';
+      }
     }
 
     /* ================== RENDER ALL ================== */
@@ -1566,6 +1594,7 @@
       if (name === 'teams') renderTeamsTab();
       if (name === 'dups') renderDupsTab();
       if (name === 'swap') renderSwapTab();
+      syncGlobalSearch(name);
       // also refresh modal grid if open
       if (currentTeam) renderStickersGrid();
     }
@@ -1583,7 +1612,6 @@
         if (e.key === 'Escape') closeSideMenu();
       });
 
-      $('#global-search').addEventListener('focus', e => handleGlobalSearch(e.target.value));
       $('#global-search').addEventListener('input', e => handleGlobalSearch(e.target.value));
 
       // Settings
@@ -1611,7 +1639,10 @@
         $('#global-search').value = e.target.value;
         renderTeamsTab();
       });
-      $('#dup-search').addEventListener('input', renderDupsTab);
+      $('#dup-search').addEventListener('input', e => {
+        if (activeTabName() === 'dups') $('#global-search').value = e.target.value;
+        renderDupsTab();
+      });
 
       // Spending
       $('#btn-add-spend').addEventListener('click', () => {
