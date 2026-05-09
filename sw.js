@@ -1,5 +1,5 @@
-const CACHE = 'figurinhas-devjuninho-v1';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
+const CACHE = 'figurinhas-devjuninho-v2';
+const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './avatar.jpg', './avatar.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -14,6 +14,18 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  const acceptsHtml = (e.request.headers.get('accept') || '').includes('text/html');
+  if (e.request.mode === 'navigate' || acceptsHtml) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const copy = resp.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return resp;
+      }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
       const copy = resp.clone();
