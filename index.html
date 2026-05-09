@@ -54,7 +54,7 @@
     }
 
     body {
-      padding-bottom: 88px;
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
       padding-top: env(safe-area-inset-top);
     }
 
@@ -87,7 +87,7 @@
     .header {
       border-bottom: 1px solid var(--border);
       position: sticky;
-      top: 0;
+      top: env(safe-area-inset-top);
       z-index: 100;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -383,18 +383,19 @@
     }
 
     .sticker-actions {
-      position: fixed; left: 0; right: 0; bottom: 80px;
+      position: fixed; left: 0; right: 0; bottom: calc(74px + env(safe-area-inset-bottom));
       background: var(--surface-2); border: 1px solid var(--border);
       padding: 14px 16px;
-      transform: translateY(120%); transition: transform 240ms;
+      transform: translateY(calc(100% + 120px)); transition: transform 240ms, opacity 160ms;
+      opacity: 0; pointer-events: none;
       z-index: 250; box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
       max-width: 720px; margin: 0 auto; border-radius: 16px 16px 0 0;
     }
-    .sticker-actions.open { transform: translateY(0); }
+    .sticker-actions.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .sticker-actions-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .sticker-actions-title { font-weight: 800; font-size: 16px; }
+    .sticker-actions-title { font-weight: 800; font-size: 16px; flex: 0 0 auto; }
     .sticker-actions-name {
-      flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
       padding: 8px 10px; font-size: 13px; outline: none; color: var(--text);
     }
     .sticker-actions-buttons { display: flex; gap: 8px; }
@@ -486,15 +487,87 @@
     .setting-item .desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
 
     /* TAB BAR — X-style */
-    .tabbar {
+    .bottom-dock {
       position: fixed; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.85);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around;
-      padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
-      z-index: 90;
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      z-index: 280;
     }
+    .dock-menu-btn {
+      width: 44px; height: 44px; flex: 0 0 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dock-menu-btn:active { background: var(--surface-2); transform: scale(0.97); }
+    .dock-menu-btn svg {
+      width: 24px; height: 24px; stroke: var(--text); fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .dock-search {
+      flex: 1; min-width: 0; height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 14px;
+    }
+    .dock-search svg {
+      width: 18px; height: 18px; flex: 0 0 18px;
+      stroke: var(--text-2); fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .dock-search input {
+      min-width: 0; flex: 1; height: 100%;
+      border: 0; background: transparent; padding: 0;
+      border-radius: 0; font-size: 15px;
+    }
+    .dock-search input:focus { border-color: transparent; }
+    .side-menu-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      opacity: 0; pointer-events: none;
+      transition: opacity 220ms cubic-bezier(.4,0,.2,1);
+      z-index: 340;
+    }
+    .side-menu-backdrop.open { opacity: 1; pointer-events: auto; }
+    .side-menu {
+      position: fixed; top: 0; bottom: 0; left: 0;
+      width: min(84vw, 320px);
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      transform: translateX(-100%);
+      transition: transform 240ms cubic-bezier(.4,0,.2,1);
+      z-index: 350;
+      padding: calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));
+      box-shadow: 10px 0 32px rgba(0,0,0,0.45);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .side-menu.open { transform: translateX(0); }
+    .side-menu-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .side-menu-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .side-menu-list { display: flex; flex-direction: column; gap: 4px; }
+    .side-menu .tab-btn {
+      width: 100%; flex: none; flex-direction: row; justify-content: flex-start;
+      gap: 14px; padding: 13px 12px; border-radius: 12px;
+      color: var(--text-2); font-size: 15px; font-weight: 700;
+    }
+    .side-menu .tab-btn.active {
+      color: var(--text);
+      background: var(--surface);
+    }
+    .side-menu .tab-btn.active::after { display: none; }
+    .side-menu .tab-btn svg { width: 24px; height: 24px; }
+    .side-menu .tab-btn span { min-width: 0; }
+    .tabbar { display: none; }
     .tab-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0;
       padding: 8px 4px; color: var(--text-2); font-size: 11px; font-weight: 500;
@@ -511,15 +584,16 @@
 
     /* TOAST */
     .toast {
-      position: fixed; left: 50%; transform: translateX(-50%) translateY(120%);
+      position: fixed; left: 50%; transform: translateX(-50%) translateY(calc(100% + 120px));
       bottom: calc(80px + env(safe-area-inset-bottom));
       background: var(--text); color: var(--bg);
       padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 13px;
       box-shadow: var(--shadow); z-index: 300;
-      transition: transform 240ms cubic-bezier(.4,0,.2,1);
+      transition: transform 240ms cubic-bezier(.4,0,.2,1), opacity 160ms;
+      opacity: 0;
       pointer-events: none;
     }
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
     /* CONFIRM DIALOG */
     .confirm-backdrop {
@@ -738,7 +812,7 @@
   </main>
 
   <!-- TAB BAR -->
-  <nav class="tabbar">
+  <nav class="tabbar" aria-hidden="true">
     <button class="tab-btn active" data-tab="home">
       <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
       Início
@@ -762,6 +836,50 @@
   </nav>
 
   <!-- MODAL SELEÇÃO -->
+  <!-- SIDE MENU -->
+  <div class="side-menu-backdrop" id="side-menu-backdrop"></div>
+  <aside class="side-menu" id="side-menu" aria-hidden="true">
+    <div class="side-menu-head">
+      <div class="side-menu-title">Menu</div>
+      <button class="icon-btn" id="menu-close" aria-label="Fechar menu">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <nav class="side-menu-list" aria-label="Navegacao principal">
+      <button class="tab-btn active" data-tab="home">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="tab-btn" data-tab="teams">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+        <span>Selecoes</span>
+      </button>
+      <button class="tab-btn" data-tab="dups">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="12" height="12" rx="2"/><rect x="3" y="9" width="12" height="12" rx="2"/></svg>
+        <span>Repetidas</span>
+      </button>
+      <button class="tab-btn" data-tab="swap">
+        <svg viewBox="0 0 24 24"><path d="M7 16h13M7 16l4-4M7 16l4 4M17 8H4M17 8l-4 4M17 8l-4-4"/></svg>
+        <span>Trocas</span>
+      </button>
+      <button class="tab-btn" data-tab="settings">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span>Mais</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- BOTTOM DOCK -->
+  <nav class="bottom-dock" aria-label="Busca e menu">
+    <button class="dock-menu-btn" id="menu-toggle" aria-label="Abrir menu" aria-controls="side-menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <label class="dock-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input type="search" id="global-search" placeholder="Buscar selecao..." autocomplete="off" />
+    </label>
+  </nav>
+
   <div class="modal-backdrop" id="modal-backdrop"></div>
   <div class="modal" id="modal">
     <div class="modal-header">
@@ -1404,13 +1522,39 @@
       $$('.tab').forEach(t => t.classList.remove('active'));
       $$('.tab-btn').forEach(b => b.classList.remove('active'));
       $('#tab-' + name).classList.add('active');
-      $(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+      $$(`.tab-btn[data-tab="${name}"]`).forEach(b => b.classList.add('active'));
+      closeSideMenu();
       window.scrollTo({ top: 0, behavior: 'instant' });
       // refresh content
       if (name === 'home') renderHome();
       if (name === 'teams') renderTeamsTab();
       if (name === 'dups') renderDupsTab();
       if (name === 'swap') renderSwapTab();
+    }
+
+    function openSideMenu() {
+      $('#side-menu').classList.add('open');
+      $('#side-menu-backdrop').classList.add('open');
+      $('#side-menu').setAttribute('aria-hidden', 'false');
+      $('#menu-toggle').setAttribute('aria-expanded', 'true');
+    }
+
+    function closeSideMenu() {
+      $('#side-menu')?.classList.remove('open');
+      $('#side-menu-backdrop')?.classList.remove('open');
+      $('#side-menu')?.setAttribute('aria-hidden', 'true');
+      $('#menu-toggle')?.setAttribute('aria-expanded', 'false');
+    }
+
+    function handleGlobalSearch(value) {
+      teamFilter.search = value;
+      const teamSearch = $('#team-search');
+      if (teamSearch) teamSearch.value = value;
+      if (!$('#tab-teams').classList.contains('active')) {
+        switchTab('teams');
+        return;
+      }
+      renderTeamsTab();
     }
 
     /* ================== RENDER ALL ================== */
@@ -1431,6 +1575,16 @@
       $$('.tab-btn').forEach(b => {
         b.addEventListener('click', () => switchTab(b.dataset.tab));
       });
+
+      $('#menu-toggle').addEventListener('click', openSideMenu);
+      $('#menu-close').addEventListener('click', closeSideMenu);
+      $('#side-menu-backdrop').addEventListener('click', closeSideMenu);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeSideMenu();
+      });
+
+      $('#global-search').addEventListener('focus', e => handleGlobalSearch(e.target.value));
+      $('#global-search').addEventListener('input', e => handleGlobalSearch(e.target.value));
 
       // Settings
       $('#btn-settings').addEventListener('click', () => switchTab('settings'));
@@ -1454,6 +1608,7 @@
       // Search
       $('#team-search').addEventListener('input', e => {
         teamFilter.search = e.target.value;
+        $('#global-search').value = e.target.value;
         renderTeamsTab();
       });
       $('#dup-search').addEventListener('input', renderDupsTab);
