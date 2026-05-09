@@ -378,6 +378,11 @@
       z-index: 250; box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
       max-width: 720px; margin: 0 auto; border-radius: 16px 16px 0 0;
     }
+    body.modal-open .sticker-actions {
+      bottom: 0;
+      max-width: 600px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
     .sticker-actions.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .sticker-actions-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .sticker-actions-title { font-weight: 800; font-size: 16px; flex: 0 0 auto; }
@@ -1252,7 +1257,7 @@
       for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
         const id = `${currentTeam.code}${i}`;
         const s = state.stickers[id];
-        const label = i === 1 ? 'Escudo' : i === 2 ? 'Equipe' : '';
+        const label = i === 1 ? 'Escudo' : i === 13 ? 'Equipe' : '';
         html += `
           <div class="sticker ${s.owned ? 'owned' : ''}" data-id="${id}" style="--accent-team:${accent}">
             ${s.dups > 0 ? `<div class="sticker-dups">×${s.dups}</div>` : ''}
@@ -1263,8 +1268,28 @@
       }
       $('#m-stickers').innerHTML = html;
       $$('#m-stickers .sticker').forEach(el => {
-        el.addEventListener('click', () => openStickerActions(el.dataset.id));
+        el.addEventListener('click', () => handleStickerTap(el.dataset.id));
       });
+    }
+
+    async function handleStickerTap(id) {
+      const s = state.stickers[id];
+      if (!s) return;
+
+      if (!s.owned) {
+        s.owned = true;
+        saveState();
+        renderHeader();
+        renderStickersGrid();
+        toast(`${id} colada!`);
+        return;
+      }
+
+      const ok = await confirmDialog('Figurinha repetida?', `Você já tem a ${id}. Quer marcar +1 repetida?`);
+      if (ok) {
+        adjustDups(id, +1);
+        toast(`${id} repetida +1`);
+      }
     }
 
     function openStickerActions(id) {
