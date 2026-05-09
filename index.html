@@ -608,6 +608,9 @@
     .confirm-box h4 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
     .confirm-box p { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
     .confirm-box .actions { display: flex; gap: 8px; }
+    .confirm-box .actions.three { flex-wrap: wrap; }
+    .confirm-box .actions.three .btn { flex: 1 1 calc(50% - 4px); }
+    .confirm-box .actions.three .btn-ghost { flex-basis: 100%; }
 
     /* desktop tweaks */
     @media (min-width: 640px) {
@@ -914,9 +917,10 @@
     <div class="confirm-box">
       <h4 id="confirm-title">Confirmar</h4>
       <p id="confirm-msg">Tem certeza?</p>
-      <div class="actions">
+      <div class="actions" id="confirm-actions">
         <button class="btn btn-ghost" id="confirm-cancel" style="flex:1">Cancelar</button>
         <button class="btn btn-primary" id="confirm-ok" style="flex:1">Confirmar</button>
+        <button class="btn btn-danger" id="confirm-danger" style="flex:1;display:none">Remover</button>
       </div>
     </div>
   </div>
@@ -1062,8 +1066,17 @@
       toast._t = setTimeout(() => t.classList.remove('show'), 2200);
     }
 
+    function resetConfirmButtons() {
+      $('#confirm-actions').classList.remove('three');
+      $('#confirm-cancel').textContent = 'Cancelar';
+      $('#confirm-ok').textContent = 'Confirmar';
+      $('#confirm-ok').className = 'btn btn-primary';
+      $('#confirm-danger').style.display = 'none';
+    }
+
     function confirmDialog(title, msg) {
       return new Promise(resolve => {
+        resetConfirmButtons();
         $('#confirm-title').textContent = title;
         $('#confirm-msg').textContent = msg;
         $('#confirm').classList.add('open');
@@ -1075,6 +1088,36 @@
           $('#confirm-cancel').removeEventListener('click', cancel);
         };
         $('#confirm-ok').addEventListener('click', ok);
+        $('#confirm-cancel').addEventListener('click', cancel);
+      });
+    }
+
+    function stickerDecisionDialog(id) {
+      return new Promise(resolve => {
+        resetConfirmButtons();
+        $('#confirm-title').textContent = 'O que fazer?';
+        $('#confirm-msg').textContent = `${id} já está colada. Marcar como repetida ou descolar?`;
+        $('#confirm-actions').classList.add('three');
+        $('#confirm-ok').textContent = '+ Repetida';
+        $('#confirm-ok').className = 'btn btn-warning';
+        $('#confirm-danger').textContent = 'Descolar';
+        $('#confirm-danger').style.display = 'inline-flex';
+        $('#confirm-cancel').textContent = 'Cancelar';
+        $('#confirm').classList.add('open');
+
+        const addDup = () => { cleanup(); resolve('duplicate'); };
+        const removeOwned = () => { cleanup(); resolve('remove'); };
+        const cancel = () => { cleanup(); resolve(null); };
+        const cleanup = () => {
+          $('#confirm').classList.remove('open');
+          $('#confirm-ok').removeEventListener('click', addDup);
+          $('#confirm-danger').removeEventListener('click', removeOwned);
+          $('#confirm-cancel').removeEventListener('click', cancel);
+          resetConfirmButtons();
+        };
+
+        $('#confirm-ok').addEventListener('click', addDup);
+        $('#confirm-danger').addEventListener('click', removeOwned);
         $('#confirm-cancel').addEventListener('click', cancel);
       });
     }
@@ -1285,10 +1328,16 @@
         return;
       }
 
-      const ok = await confirmDialog('Figurinha repetida?', `Você já tem a ${id}. Quer marcar +1 repetida?`);
-      if (ok) {
+      const action = await stickerDecisionDialog(id);
+      if (action === 'duplicate') {
         adjustDups(id, +1);
         toast(`${id} repetida +1`);
+      } else if (action === 'remove') {
+        s.owned = false;
+        s.dups = 0;
+        saveState();
+        renderAll();
+        toast(`${id} descolada`);
       }
     }
 
