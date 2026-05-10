@@ -52,6 +52,28 @@ As instâncias ficam disponíveis em `window.FigurinhasFirebase` para a próxima
 
 Em desenvolvimento local, o Analytics não é iniciado para evitar erros de rede no navegador; ele fica pronto para ativar em HTTPS.
 
+Estrutura criada no Firestore após login:
+
+- `users/{uid}`: dados da conta Google;
+- `users/{uid}/albums/default`: estado completo do álbum e resumo;
+- `users/{uid}/albums/default/stickers/{stickerId}`: estado por figurinha;
+- `users/{uid}/albums/default/history/log`: histórico de trocas;
+- `users/{uid}/albums/default/spending/log`: gastos registrados.
+
+Regras recomendadas para Firestore:
+
+```js
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
 ## Distribuição
 
 O app não precisa de backend. Para distribuir, publique estes arquivos em qualquer hospedagem estática, como Vercel, GitHub Pages, Netlify ou um servidor local.
