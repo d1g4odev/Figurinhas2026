@@ -815,7 +815,7 @@
       bottom: calc(80px + env(safe-area-inset-bottom));
       background: var(--text); color: var(--bg);
       padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: 13px;
-      box-shadow: var(--shadow); z-index: 300;
+      box-shadow: var(--shadow); z-index: 600;
       transition: transform 240ms cubic-bezier(.4,0,.2,1), opacity 160ms;
       opacity: 0;
       pointer-events: none;
@@ -1257,8 +1257,6 @@
       setDoc,
       writeBatch
     } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js';
-    import { getDatabase } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js';
-
     const firebaseConfig = {
       apiKey: 'AIzaSyDSw00VgqOxULKNYRqGQ6fdZumXKWsd19Q',
       authDomain: 'figurinhas2026-9bd5b.firebaseapp.com',
@@ -1272,7 +1270,6 @@
     const firebaseApp = initializeApp(firebaseConfig);
     const firebaseAuth = getAuth(firebaseApp);
     const firestoreDb = getFirestore(firebaseApp);
-    const realtimeDb = getDatabase(firebaseApp);
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -1356,11 +1353,20 @@
       if (shouldWriteCatalog) await writeStickerDocs(user.uid, state.stickers);
     }
 
+    function preferRedirect() {
+      return window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true ||
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
     async function signInWithGoogle() {
+      if (preferRedirect()) {
+        return signInWithRedirect(firebaseAuth, googleProvider);
+      }
       try {
         return await signInWithPopup(firebaseAuth, googleProvider);
       } catch (err) {
-        if (['auth/popup-blocked', 'auth/cancelled-popup-request'].includes(err.code)) {
+        if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'].includes(err.code)) {
           return signInWithRedirect(firebaseAuth, googleProvider);
         }
         throw err;
@@ -1372,7 +1378,6 @@
       auth: firebaseAuth,
       db: firestoreDb,
       firestore: firestoreDb,
-      realtimeDb,
       googleProvider,
       analytics: null,
       config: firebaseConfig,
@@ -1413,6 +1418,15 @@
 
     getRedirectResult(firebaseAuth).catch((err) => {
       console.warn('Firebase redirect login indisponível', err);
+      const el = document.getElementById('auth-message');
+      if (!el) return;
+      if (err.code === 'auth/unauthorized-domain') {
+        el.textContent = 'Adicione este domínio nos domínios autorizados do Firebase Authentication.';
+      } else if (err.code === 'auth/operation-not-allowed') {
+        el.textContent = 'Ative o provedor Google no Firebase Authentication.';
+      } else {
+        el.textContent = 'Não consegui concluir o login com Google. Tente novamente.';
+      }
     });
 
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -2023,9 +2037,12 @@
     async function signInWithGoogle() {
       const api = firebaseApi();
       if (!api?.signInWithGoogle) {
+        setAuthMessage('Firebase ainda carregando, tente em instantes.');
         toast('Firebase ainda está carregando');
         return;
       }
+      const btn = $('#btn-google-login');
+      if (btn) btn.disabled = true;
       try {
         setAuthMessage('Abrindo login do Google...');
         await api.signInWithGoogle();
@@ -2037,10 +2054,11 @@
         } else if (err.code === 'auth/unauthorized-domain') {
           setAuthMessage('Adicione este domínio nos domínios autorizados do Firebase Authentication.');
           toast('Domínio não autorizado');
-        } else if (err.code !== 'auth/popup-closed-by-user') {
-          setAuthMessage('Não consegui concluir o login com Google.');
+        } else {
+          setAuthMessage('Não consegui concluir o login. Tente novamente.');
           toast('Erro no login Google');
         }
+        if (btn) btn.disabled = false;
       }
     }
 
