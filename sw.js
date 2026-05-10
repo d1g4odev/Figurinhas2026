@@ -1,4 +1,4 @@
-const CACHE = 'figurinhas-copa-2026-v1';
+const CACHE = 'figurinhas-copa-2026-v3';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', (e) => {

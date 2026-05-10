@@ -726,7 +726,7 @@
       </div>
 
       <div class="section-card">
-        <h3>Por confederação</h3>
+        <h3>Por grupo</h3>
         <div class="conf-list" id="conf-list"></div>
       </div>
 
@@ -992,71 +992,84 @@
   <script>
     /* ================== DATA ================== */
     const TEAMS = [
-      // CONCACAF — 3 sedes + classificadas
-      { code: 'CAN', name: 'Canadá',          conf: 'CONCACAF', host: true,  c1: '#FF0000', c2: '#FFFFFF' },
-      { code: 'MEX', name: 'México',          conf: 'CONCACAF', host: true,  c1: '#006847', c2: '#CE1126' },
-      { code: 'USA', name: 'Estados Unidos',  conf: 'CONCACAF', host: true,  c1: '#3C3B6E', c2: '#B22234' },
-      { code: 'CRC', name: 'Costa Rica',      conf: 'CONCACAF', c1: '#002B7F', c2: '#CE1126' },
-      { code: 'PAN', name: 'Panamá',          conf: 'CONCACAF', c1: '#005AA7', c2: '#D21034' },
-      { code: 'JAM', name: 'Jamaica',         conf: 'CONCACAF', c1: '#009B3A', c2: '#FED100' },
+      // Grupo A
+      { code: 'MEX', name: 'México',          conf: 'Grupo A', host: true, c1: '#006847', c2: '#CE1126' },
+      { code: 'RSA', name: 'África do Sul',   conf: 'Grupo A', c1: '#007749', c2: '#FFB81C' },
+      { code: 'KOR', name: 'Coreia do Sul',   conf: 'Grupo A', c1: '#003478', c2: '#C60C30' },
+      { code: 'CZE', name: 'Rep. Tcheca',     conf: 'Grupo A', c1: '#11457E', c2: '#D7141A' },
 
-      // CONMEBOL
-      { code: 'ARG', name: 'Argentina',       conf: 'CONMEBOL', c1: '#75AADB', c2: '#FFFFFF' },
-      { code: 'BRA', name: 'Brasil',          conf: 'CONMEBOL', c1: '#FFDF00', c2: '#009C3B' },
-      { code: 'URU', name: 'Uruguai',         conf: 'CONMEBOL', c1: '#7BB6E1', c2: '#FFFFFF' },
-      { code: 'COL', name: 'Colômbia',        conf: 'CONMEBOL', c1: '#FCD116', c2: '#003893' },
-      { code: 'ECU', name: 'Equador',         conf: 'CONMEBOL', c1: '#FFD100', c2: '#0033A0' },
-      { code: 'PAR', name: 'Paraguai',        conf: 'CONMEBOL', c1: '#D52B1E', c2: '#0038A8' },
+      // Grupo B
+      { code: 'CAN', name: 'Canadá',          conf: 'Grupo B', host: true, c1: '#FF0000', c2: '#FFFFFF' },
+      { code: 'BIH', name: 'Bósnia',          conf: 'Grupo B', c1: '#002F6C', c2: '#FFCD00' },
+      { code: 'QAT', name: 'Catar',           conf: 'Grupo B', c1: '#8A1538', c2: '#FFFFFF' },
+      { code: 'SUI', name: 'Suíça',           conf: 'Grupo B', c1: '#DA291C', c2: '#FFFFFF' },
 
-      // UEFA (16)
-      { code: 'ENG', name: 'Inglaterra',      conf: 'UEFA', c1: '#FFFFFF', c2: '#CE1124' },
-      { code: 'FRA', name: 'França',          conf: 'UEFA', c1: '#0055A4', c2: '#EF4135' },
-      { code: 'ESP', name: 'Espanha',         conf: 'UEFA', c1: '#AA151B', c2: '#F1BF00' },
-      { code: 'GER', name: 'Alemanha',        conf: 'UEFA', c1: '#000000', c2: '#FFCC00' },
-      { code: 'POR', name: 'Portugal',        conf: 'UEFA', c1: '#006600', c2: '#FF0000' },
-      { code: 'ITA', name: 'Itália',          conf: 'UEFA', c1: '#0066CC', c2: '#FFFFFF' },
-      { code: 'NED', name: 'Holanda',         conf: 'UEFA', c1: '#FF6900', c2: '#FFFFFF' },
-      { code: 'BEL', name: 'Bélgica',         conf: 'UEFA', c1: '#FAE042', c2: '#ED2939' },
-      { code: 'CRO', name: 'Croácia',         conf: 'UEFA', c1: '#FF0000', c2: '#FFFFFF' },
-      { code: 'SUI', name: 'Suíça',           conf: 'UEFA', c1: '#DA291C', c2: '#FFFFFF' },
-      { code: 'AUT', name: 'Áustria',         conf: 'UEFA', c1: '#ED2939', c2: '#FFFFFF' },
-      { code: 'POL', name: 'Polônia',         conf: 'UEFA', c1: '#DC143C', c2: '#FFFFFF' },
-      { code: 'SRB', name: 'Sérvia',          conf: 'UEFA', c1: '#C6363C', c2: '#0C4076' },
-      { code: 'DEN', name: 'Dinamarca',       conf: 'UEFA', c1: '#C8102E', c2: '#FFFFFF' },
-      { code: 'TUR', name: 'Turquia',         conf: 'UEFA', c1: '#E30A17', c2: '#FFFFFF' },
-      { code: 'NOR', name: 'Noruega',         conf: 'UEFA', c1: '#EF2B2D', c2: '#002868' },
+      // Grupo C
+      { code: 'BRA', name: 'Brasil',          conf: 'Grupo C', c1: '#FFDF00', c2: '#009C3B' },
+      { code: 'MAR', name: 'Marrocos',        conf: 'Grupo C', c1: '#C1272D', c2: '#006233' },
+      { code: 'HAI', name: 'Haiti',           conf: 'Grupo C', c1: '#00209F', c2: '#D21034' },
+      { code: 'SCO', name: 'Escócia',         conf: 'Grupo C', c1: '#005EB8', c2: '#FFFFFF' },
 
-      // AFC (8)
-      { code: 'JPN', name: 'Japão',           conf: 'AFC', c1: '#BC002D', c2: '#FFFFFF' },
-      { code: 'KOR', name: 'Coreia do Sul',   conf: 'AFC', c1: '#003478', c2: '#C60C30' },
-      { code: 'IRN', name: 'Irã',             conf: 'AFC', c1: '#239F40', c2: '#DA0000' },
-      { code: 'AUS', name: 'Austrália',       conf: 'AFC', c1: '#FFCD00', c2: '#00843D' },
-      { code: 'KSA', name: 'Arábia Saudita',  conf: 'AFC', c1: '#006C35', c2: '#FFFFFF' },
-      { code: 'QAT', name: 'Catar',           conf: 'AFC', c1: '#8A1538', c2: '#FFFFFF' },
-      { code: 'UZB', name: 'Uzbequistão',     conf: 'AFC', c1: '#1EB53A', c2: '#0099B5' },
-      { code: 'JOR', name: 'Jordânia',        conf: 'AFC', c1: '#000000', c2: '#CE1126' },
+      // Grupo D
+      { code: 'USA', name: 'Estados Unidos',  conf: 'Grupo D', host: true, c1: '#3C3B6E', c2: '#B22234' },
+      { code: 'PAR', name: 'Paraguai',        conf: 'Grupo D', c1: '#D52B1E', c2: '#0038A8' },
+      { code: 'AUS', name: 'Austrália',       conf: 'Grupo D', c1: '#FFCD00', c2: '#00843D' },
+      { code: 'TUR', name: 'Turquia',         conf: 'Grupo D', c1: '#E30A17', c2: '#FFFFFF' },
 
-      // CAF (9)
-      { code: 'MAR', name: 'Marrocos',        conf: 'CAF', c1: '#C1272D', c2: '#006233' },
-      { code: 'SEN', name: 'Senegal',         conf: 'CAF', c1: '#00853F', c2: '#FDEF42' },
-      { code: 'EGY', name: 'Egito',           conf: 'CAF', c1: '#CE1126', c2: '#FFFFFF' },
-      { code: 'ALG', name: 'Argélia',         conf: 'CAF', c1: '#006233', c2: '#FFFFFF' },
-      { code: 'TUN', name: 'Tunísia',         conf: 'CAF', c1: '#E70013', c2: '#FFFFFF' },
-      { code: 'NGA', name: 'Nigéria',         conf: 'CAF', c1: '#008751', c2: '#FFFFFF' },
-      { code: 'CMR', name: 'Camarões',        conf: 'CAF', c1: '#007A5E', c2: '#CE1126' },
-      { code: 'CIV', name: 'Costa do Marfim', conf: 'CAF', c1: '#FF8200', c2: '#009E60' },
-      { code: 'RSA', name: 'África do Sul',   conf: 'CAF', c1: '#007749', c2: '#FFB81C' },
+      // Grupo E
+      { code: 'GER', name: 'Alemanha',        conf: 'Grupo E', c1: '#000000', c2: '#FFCC00' },
+      { code: 'CUW', name: 'Curaçao',         conf: 'Grupo E', c1: '#002B7F', c2: '#F9E814' },
+      { code: 'CIV', name: 'Costa do Marfim', conf: 'Grupo E', c1: '#FF8200', c2: '#009E60' },
+      { code: 'ECU', name: 'Equador',         conf: 'Grupo E', c1: '#FFD100', c2: '#0033A0' },
 
-      // OFC + Repescagem (slots editáveis)
-      { code: 'NZL', name: 'Nova Zelândia',   conf: 'OFC', c1: '#FFFFFF', c2: '#012169' },
-      { code: 'BOL', name: 'Bolívia',         conf: 'CONMEBOL', c1: '#D52B1E', c2: '#007934' },
-      { code: 'IRQ', name: 'Iraque',          conf: 'AFC', c1: '#CE1126', c2: '#000000' },
+      // Grupo F
+      { code: 'NED', name: 'Holanda',         conf: 'Grupo F', c1: '#FF6900', c2: '#FFFFFF' },
+      { code: 'JPN', name: 'Japão',           conf: 'Grupo F', c1: '#BC002D', c2: '#FFFFFF' },
+      { code: 'SWE', name: 'Suécia',          conf: 'Grupo F', c1: '#006AA7', c2: '#FECC00' },
+      { code: 'TUN', name: 'Tunísia',         conf: 'Grupo F', c1: '#E70013', c2: '#FFFFFF' },
+
+      // Grupo G
+      { code: 'BEL', name: 'Bélgica',         conf: 'Grupo G', c1: '#FAE042', c2: '#ED2939' },
+      { code: 'EGY', name: 'Egito',           conf: 'Grupo G', c1: '#CE1126', c2: '#FFFFFF' },
+      { code: 'IRN', name: 'Irã',             conf: 'Grupo G', c1: '#239F40', c2: '#DA0000' },
+      { code: 'NZL', name: 'Nova Zelândia',   conf: 'Grupo G', c1: '#FFFFFF', c2: '#012169' },
+
+      // Grupo H
+      { code: 'ESP', name: 'Espanha',         conf: 'Grupo H', c1: '#AA151B', c2: '#F1BF00' },
+      { code: 'CPV', name: 'Cabo Verde',      conf: 'Grupo H', c1: '#003893', c2: '#F7D116' },
+      { code: 'KSA', name: 'Arábia Saudita',  conf: 'Grupo H', c1: '#006C35', c2: '#FFFFFF' },
+      { code: 'URU', name: 'Uruguai',         conf: 'Grupo H', c1: '#7BB6E1', c2: '#FFFFFF' },
+
+      // Grupo I
+      { code: 'FRA', name: 'França',          conf: 'Grupo I', c1: '#0055A4', c2: '#EF4135' },
+      { code: 'SEN', name: 'Senegal',         conf: 'Grupo I', c1: '#00853F', c2: '#FDEF42' },
+      { code: 'IRQ', name: 'Iraque',          conf: 'Grupo I', c1: '#CE1126', c2: '#000000' },
+      { code: 'NOR', name: 'Noruega',         conf: 'Grupo I', c1: '#EF2B2D', c2: '#002868' },
+
+      // Grupo J
+      { code: 'ARG', name: 'Argentina',       conf: 'Grupo J', c1: '#75AADB', c2: '#FFFFFF' },
+      { code: 'ALG', name: 'Argélia',         conf: 'Grupo J', c1: '#006233', c2: '#FFFFFF' },
+      { code: 'AUT', name: 'Áustria',         conf: 'Grupo J', c1: '#ED2939', c2: '#FFFFFF' },
+      { code: 'JOR', name: 'Jordânia',        conf: 'Grupo J', c1: '#000000', c2: '#CE1126' },
+
+      // Grupo K
+      { code: 'POR', name: 'Portugal',        conf: 'Grupo K', c1: '#006600', c2: '#FF0000' },
+      { code: 'COD', name: 'Congo',           conf: 'Grupo K', c1: '#007FFF', c2: '#F7D618' },
+      { code: 'UZB', name: 'Uzbequistão',     conf: 'Grupo K', c1: '#1EB53A', c2: '#0099B5' },
+      { code: 'COL', name: 'Colômbia',        conf: 'Grupo K', c1: '#FCD116', c2: '#003893' },
+
+      // Grupo L
+      { code: 'ENG', name: 'Inglaterra',      conf: 'Grupo L', c1: '#FFFFFF', c2: '#CE1124' },
+      { code: 'CRO', name: 'Croácia',         conf: 'Grupo L', c1: '#FF0000', c2: '#FFFFFF' },
+      { code: 'GHA', name: 'Gana',            conf: 'Grupo L', c1: '#006B3F', c2: '#FCD116' },
+      { code: 'PAN', name: 'Panamá',          conf: 'Grupo L', c1: '#005AA7', c2: '#D21034' },
     ];
 
     const STICKERS_PER_TEAM = 20;
     const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM;
     const STORAGE_KEY = 'figurinhas-copa-2026-v1';
     const LEGACY_STORAGE_KEY = 'figurinhas-devjuninho-v1';
+    const DATA_VERSION = 3;
     const DEFAULT_PROFILE = {
       name: 'Colecionador',
       handle: '@album2026',
@@ -1065,15 +1078,261 @@
       avatarData: ''
     };
     const FLAG_ISO = {
-      CAN: 'ca', MEX: 'mx', USA: 'us', CRC: 'cr', PAN: 'pa', JAM: 'jm',
-      ARG: 'ar', BRA: 'br', URU: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
-      ENG: 'gb-eng', FRA: 'fr', ESP: 'es', GER: 'de', POR: 'pt', ITA: 'it',
-      NED: 'nl', BEL: 'be', CRO: 'hr', SUI: 'ch', AUT: 'at', POL: 'pl',
-      SRB: 'rs', DEN: 'dk', TUR: 'tr', NOR: 'no',
-      JPN: 'jp', KOR: 'kr', IRN: 'ir', AUS: 'au', KSA: 'sa', QAT: 'qa',
-      UZB: 'uz', JOR: 'jo', MAR: 'ma', SEN: 'sn', EGY: 'eg', ALG: 'dz',
-      TUN: 'tn', NGA: 'ng', CMR: 'cm', CIV: 'ci', RSA: 'za',
-      NZL: 'nz', BOL: 'bo', IRQ: 'iq'
+      MEX: 'mx', RSA: 'za', KOR: 'kr', CZE: 'cz',
+      CAN: 'ca', BIH: 'ba', QAT: 'qa', SUI: 'ch',
+      BRA: 'br', MAR: 'ma', HAI: 'ht', SCO: 'gb-sct',
+      USA: 'us', PAR: 'py', AUS: 'au', TUR: 'tr',
+      GER: 'de', CUW: 'cw', CIV: 'ci', ECU: 'ec',
+      NED: 'nl', JPN: 'jp', SWE: 'se', TUN: 'tn',
+      BEL: 'be', EGY: 'eg', IRN: 'ir', NZL: 'nz',
+      ESP: 'es', CPV: 'cv', KSA: 'sa', URU: 'uy',
+      FRA: 'fr', SEN: 'sn', IRQ: 'iq', NOR: 'no',
+      ARG: 'ar', ALG: 'dz', AUT: 'at', JOR: 'jo',
+      POR: 'pt', COD: 'cd', UZB: 'uz', COL: 'co',
+      ENG: 'gb-eng', CRO: 'hr', GHA: 'gh', PAN: 'pa'
+    };
+
+    const PLAYER_NAMES = {
+      MEX: [
+        "Luis Malagón", "Johan Vásquez", "Jorge Sánchez", "César Montes", "Jesús Gallardo", "Israel Reyes",
+        "Diego Lainez", "Carlos Rodríguez", "Edson Álvarez", "Orbelín Pineda", "Marcel Ruiz", "Érick Sánchez",
+        "Hirving Lozano", "Santiago Giménez", "Raúl Jiménez", "Alexis Vega", "Roberto Alvarado", "César Huerta"
+      ],
+      RSA: [
+        "Ronwen Williams", "Sipho Chaine", "Aubrey Modiba", "Samukele Kabini", "Mbekezeli Mbokazi", "Khulumani Ndamane",
+        "Siyabonga Ngezana", "Khuliso Mudau", "Nkosinathi Sibisi", "Teboho Mokoena", "Thalente Mbatha", "Bathuisi Aubaas",
+        "Yaya Sithole", "Sipho Mbule", "Lyle Foster", "Ioraam Rayners", "Mohau Nkota", "Oswin Appolis"
+      ],
+      KOR: [
+        "Hyeon-woo Jo", "Seung-Gyu Kim", "Min-jae Kim", "Yu-min Cho", "Young-woo Seol", "Han-beom Lee",
+        "Tae-seok Lee", "Myung-jae Lee", "Jae-sung Lee", "In-beom Hwang", "Kang-in Lee", "Seung-ho Paik",
+        "Jens Castrop", "Dong-gyeong Lee", "Gue-sung Cho", "Heung-min Son", "Hee-chan Hwang", "Hyeon-Gyu Oh"
+      ],
+      CZE: [
+        "Matěj Kovář", "Jindřich Staněk", "Ladislav Krejčí", "Vladimír Coufal", "Jaroslav Zelený", "Tomáš Holeš",
+        "David Zima", "Michal Sadílek", "Lukáš Provod", "Lukáš Červ", "Tomáš Souček", "Pavel Šulc",
+        "Matěj Vydra", "Vasil Kušej", "Tomáš Chorý", "Václav Černý", "Adam Hložek", "Patrik Schick"
+      ],
+      CAN: [
+        "Dayne St. Clair", "Alphonso Davies", "Alistair Johnston", "Samuel Adekugbe", "Richie Laryea", "Derek Cornelius",
+        "Moïse Bombito", "Kamal Miller", "Stephen Eustáquio", "Ismaël Koné", "Jonathan Osorio", "Jacob Shaffelburg",
+        "Mathieu Choinière", "Niko Sigur", "Tajon Buchanan", "Liam Millar", "Cyle Larin", "Jonathan David"
+      ],
+      BIH: [
+        "Nikola Vasilj", "Amar Dedić", "Sead Kolašinac", "Tarik Muharemović", "Nihad Mujakić", "Nikola Katić",
+        "Amir Hadžiahmetović", "Benjamin Tahirović", "Armin Gigović", "Ivan Šunjić", "Ivan Bašić", "Dženis Burnić",
+        "Esmir Bajraktarević", "Amar Memić", "Ermedin Demirović", "Edin Džeko", "Samed Baždar", "Haris Tabaković"
+      ],
+      QAT: [
+        "Meshaal Barsham", "Sultan Albrake", "Lucas Mendes", "Homam Ahmed", "Boualem Khoukhi", "Pedro Miguel",
+        "Tarek Salman", "Mohamed Al-Mannai", "Karim Boudiaf", "Assim Madibo", "Ahmed Fatehi", "Mohammed Waad",
+        "Abdulaziz Hatem", "Hassan Al-Haydos", "Edmilson Junior", "Akram Hassan Afif", "Ahmed Al Ganehi", "Almoez Ali"
+      ],
+      SUI: [
+        "Gregor Kobel", "Yvon Mvogo", "Manuel Akanji", "Ricardo Rodriguez", "Nico Elvedi", "Aurèle Amenda",
+        "Silvan Widmer", "Granit Xhaka", "Denis Zakaria", "Remo Freuler", "Fabian Rieder", "Ardon Jashari",
+        "Johan Manzambi", "Michel Aebischer", "Breel Embolo", "Ruben Vargas", "Dan Ndoye", "Zeki Amdouni"
+      ],
+      BRA: [
+        "Alisson", "Bento", "Marquinhos", "Éder Militão", "Gabriel Magalhães", "Danilo",
+        "Wesley", "Lucas Paquetá", "Casemiro", "Bruno Guimarães", "Luiz Henrique", "Vinícius Júnior",
+        "Rodrygo", "João Pedro", "Matheus Cunha", "Gabriel Martinelli", "Raphinha", "Estêvão"
+      ],
+      MAR: [
+        "Yassine Bounou", "Munir El Kajoui", "Achraf Hakimi", "Noussair Mazraoui", "Nayef Aguerd", "Romain Saïss",
+        "Jawad El Yamiq", "Adam Masina", "Sofyan Amrabat", "Azzedine Ounahi", "Eliesse Ben Seghir", "Bilal El Khannouss",
+        "Ismael Saibari", "Youssef En-Nesyri", "Abde Ezzalzouli", "Soufiane Rahimi", "Brahim Díaz", "Ayoub El Kaabi"
+      ],
+      HAI: [
+        "Johny Placide", "Carlens Arcus", "Martin Expérience", "Jean-Kevin Duverne", "Ricardo Adé", "Duke Lacroix",
+        "Garven Metusala", "Hannes Delcroix", "Leverton Pierre", "Danley Jean Jacques", "Jean-Ricner Bellegarde", "Christopher Attys",
+        "Derrick Etienne Jr.", "Josué Casimir", "Ruben Providence", "Duckens Nazon", "Louicius Deedson", "Frantzdy Pierrot"
+      ],
+      SCO: [
+        "Angus Gunn", "Jack Hendry", "Kieran Tierney", "Aaron Hickey", "Andrew Robertson", "Scott McKenna",
+        "John Souttar", "Anthony Ralston", "Grant Hanley", "Scott McTominay", "Billy Gilmour", "Lewis Ferguson",
+        "Ryan Christie", "Kenny McLean", "John McGinn", "Lyndon Dykes", "Che Adams", "Ben Gannon-Doak"
+      ],
+      USA: [
+        "Math Freese", "Chris Richards", "Tim Ream", "Mark McKenzie", "Alex Freeman", "Antonee Robinson",
+        "Tyler Adams", "Tanner Tessmann", "Weston McKenny", "Christian Roldan", "Timothy Weah", "Diego Luna",
+        "Malim Tillman", "Christian Pulisic", "Brenden Aaronson", "Ricardo Pepi", "Haji Wright", "Folarin Balogun"
+      ],
+      PAR: [
+        "Roberto Fernández", "Orlando Gill", "Gustavo Gómez", "Fabián Balbuena", "Juan José Cáceres", "Omar Alderete",
+        "Junior Alonso", "Mathías Villasanti", "Diego Gómez", "Damián Bobadilla", "Andrés Cubas", "Matías Galarza Fonda",
+        "Julio Enciso", "Alejandro Romero Gamarra", "Miguel Almirón", "Ramón Sosa", "Ángel Romero", "Antonio Sanabria"
+      ],
+      AUS: [
+        "Mathew Ryan", "Joe Gauci", "Harry Souttar", "Alessandro Circati", "Jordan Bos", "Aziz Behich",
+        "Cameron Burgess", "Lewis Miller", "Milos Degenek", "Jackson Irvine", "Riley McGree", "Aiden O’Neill",
+        "Connor Metcalfe", "Patrick Yazbek", "Craig Goodwin", "Kusini Yengi", "Nestory Irankunda", "Mohamed Touré"
+      ],
+      TUR: [
+        "Ugurcan Cakir", "Mert Muldur", "Zeki Celik", "Abdulkerim Bardakci", "Caglar Soyunku", "Merih Demiral",
+        "Ferdi Kadioglu", "Kaan Ayhan", "Ismail Yuksek", "Hakan Calhanoglu", "Orkun Kokcu", "Arda Güler",
+        "Irfan Can Kahvecu", "Yunus Akgun", "Can Uzun", "Baris Alper Yilmaz", "Kerem Akturkoglu", "Kenan Yildiz"
+      ],
+      GER: [
+        "Marc-André ter Stegen", "Jonathan Tah", "David Raum", "Nico Schlotterbeck", "Antonio Rüdiger", "Waldemar Anton",
+        "Ridle Baku", "Maximilian Mittelstädt", "Joshua Kimmich", "Florian Wirtz", "Felix Nmecha", "Leon Goretzka",
+        "Jamal Musiala", "Serge Gnabry", "Kai Havertz", "Leroy Sané", "Karim Adeyemi", "Nick Woltemade"
+      ],
+      CUW: [
+        "Eloy Room", "Armando Obispo", "Sherel Floranus", "Jurien Gaari", "Joshua Brenet", "Roshon Van Eijma",
+        "Shurandy Sambo", "Livano Comenencia", "Godfried Roemeratoe", "Juninho Bacuna", "Leandro Bacuna", "Tahith Chong",
+        "Kenji Gorré", "Jearl Margaritha", "Jurgen Locadia", "Jeremy Antonisse", "Gervane Kastaneer", "Sontje Hansen"
+      ],
+      CIV: [
+        "Yahia Fofana", "Ghislain Konan", "Wilfried Singo", "Odilon Kossounou", "Evan Ndicka", "Willy Boly",
+        "Emmanuel Agbadou", "Ousmane Diomande", "Franck Kessié", "Seko Fofana", "Ibrahim Sangaré", "Jean-Philippe Gbamin",
+        "Amad Diallo", "Sébastien Haller", "Simon Adingra", "Yan Diomande", "Evann Guessand", "Oumar Diakité"
+      ],
+      ECU: [
+        "Hernán Galíndez", "Gonzalo Valle", "Piero Hincapié", "Pervis Estupiñán", "Willian Pacho", "Ángelo Preciado",
+        "Joel Ordóñez", "Moisés Caicedo", "Alan Franco", "Kendry Páez", "Pedro Vite", "John Veboah",
+        "Leonardo Campana", "Gonzalo Plata", "Nilson Angulo", "Alan Minda", "Kevin Rodríguez", "Enner Valencia"
+      ],
+      NED: [
+        "Bart Verbruggen", "Virgil van Dijk", "Micky van de Ven", "Jurriën Timber", "Denzel Dumfries", "Nathan Aké",
+        "Jeremie Frimpong", "Jan Paul van Hecke", "Tijjani Reijnders", "Ryan Gravenberch", "Teun Koopmeiners", "Frenkie de Jong",
+        "Xavi Simons", "Justin Kluivert", "Memphis Depay", "Donyell Malen", "Wout Weghorst", "Cody Gakpo"
+      ],
+      JPN: [
+        "Zion Suzuki", "Henry Heroki Mochizuki", "Ayumu Seko", "Junnosuke Suzuki", "Shogo Taniguchi", "Tsuyoshi Watanabe",
+        "Kaishu Sano", "Yuki Soma", "Ao Tanaka", "Daichi Kamada", "Takefusa Kubo", "Ritsu Doan",
+        "Keito Nakamura", "Takumi Minamino", "Shuto Machino", "Junya Ito", "Koki Ogawa", "Ayase Ueda"
+      ],
+      SWE: [
+        "Victor Johansson", "Isak Hien", "Gabriel Gudmundsson", "Emil Holm", "Victor Nilsson Lindelöf", "Gustaf Lagerbielke",
+        "Lucas Bergvall", "Hugo Larsson", "Jesper Karlström", "Yasin Ayari", "Mattias Svanberg", "Daniel Svensson",
+        "Ken Sema", "Roony Bardghji", "Dejan Kulusevski", "Anthony Elanga", "Alexander Isak", "Viktor Gyökeres"
+      ],
+      TUN: [
+        "Bechir Ben Said", "Aymen Dahmen", "Van Valery", "Montassar Talbi", "Yassine Meriah", "Ali Abdi",
+        "Dylan Bronn", "Ellyes Skhiri", "Aissa Laidouni", "Ferjani Sassi", "Mohamed Ali Ben Romdhane", "Hannibal Mejbri",
+        "Elias Achouri", "Elias Saad", "Hazem Mastouri", "Ismael Gharbi", "Sayfallah Ltaief", "Naim Sliti"
+      ],
+      BEL: [
+        "Thibaut Courtois", "Arthur Theate", "Timothy Castagne", "Zeno Debast", "Brandon Mechele", "Maxim De Cuyper",
+        "Thomas Meunier", "Youri Tielemans", "Amadou Onana", "Nicolas Raskin", "Alexis Saelemaekers", "Hans Vanaken",
+        "Kevin De Bruyne", "Jérémy Doku", "Charles De Ketelaere", "Leandro Trossard", "Loïs Openda", "Romelu Lukaku"
+      ],
+      EGY: [
+        "Mohamed El Shenawy", "Mohamed Hany", "Mohamed Hamdy", "Yasser Ibrahim", "Khaled Sobhi", "Ramy Rabia",
+        "Hossam Abdelmaguid", "Ahmed Fatouh", "Marwan Attia", "Zizo", "Hamdy Fathy", "Mohamed Lasheen",
+        "Emam Ashour", "Osama Faisal", "Mohamed Salah", "Mostafa Mohamed", "Trezeguet", "Omar Marmoush"
+      ],
+      IRN: [
+        "Alireza Beiranvand", "Morteza Pouraliganji", "Ehsan Hajsafi", "Milad Mohammadi", "Shoja Khalilzadeh", "Ramin Rezaeian",
+        "Hossein Kanaani", "Sadegh Moharrami", "Saleh Hardani", "Saeed Ezatolahi", "Saman Ghoddos", "Omid Noorafkan",
+        "Roozbeh Cheshmi", "Mohammad Mohebi", "Sardar Azmoun", "Mehdi Taremi", "Alireza Jahanbakhsh", "Ali Gholizadeh"
+      ],
+      NZL: [
+        "Max Crocombe-Payne", "Alex Paulsen", "Michael Boxall", "Liberato Cacace", "Tim Payne", "Tyler Bindon",
+        "Francis de Vries", "Finn Surman", "Joe Bell", "Sarpreet Singh", "Ryan Thomas", "Matthew Garbett",
+        "Marko Stamenić", "Ben Old", "Chris Wood", "Elijah Just", "Callum McCowatt", "Kosta Barbarouses"
+      ],
+      ESP: [
+        "Unai Simón", "Robin Le Normand", "Aymeric Laporte", "Dean Huijsen", "Pedro Porro", "Dani Carvajal",
+        "Marc Cucurella", "Martín Zubimendi", "Rodri", "Pedri", "Fabián Ruiz", "Mikel Merino",
+        "Lamine Yamal", "Dani Olmo", "Nico Williams", "Ferran Torres", "Álvaro Morata", "Mikel Oyarzabal"
+      ],
+      CPV: [
+        "Vozinha", "Logan Costa", "Pico", "Diney", "Steven Moreira", "Wagner Pina",
+        "João Paulo", "Yannick Semedo", "Kevin Pina", "Patrick Andrade", "Jamiro Monteiro", "Deroy Duarte",
+        "Garry Rodrigues", "Jovane Cabral", "Ryan Mendes", "Dailon Livramento", "Willy Semedo", "Bebé"
+      ],
+      KSA: [
+        "Nawaf Alaqidi", "Abdulrahman Al-Sanbi", "Saud Abdulhamid", "Nawaf Boushal", "Jihad Thakri", "Moteb Al-Harbi",
+        "Hassan Altambakti", "Musab Aljuwayr", "Ziyad Aljohani", "Abdullah Alkhaibari", "Nasser Aldawsari", "Saleh Abu Alshamat",
+        "Marwan Alsahafi", "Salem Aldawsari", "Abdulrahman Al-Aboud", "Feras Albrikan", "Saleh Alshehri", "Abdullah Al-Hamdan"
+      ],
+      URU: [
+        "Sergio Rochet", "Santiago Mele", "Ronald Araujo", "José María Giménez", "Sebastian Caceres", "Mathias Olivera",
+        "Guillermo Varela", "Nahitan Nandez", "Federico Valverde", "Giorgian De Arrascaeta", "Rodrigo Bentancur", "Manuel Ugarte",
+        "Nicolás de la Cruz", "Maxi Araujo", "Darwin Núñez", "Federico Viñas", "Rodrigo Aguirre", "Facundo Pellistri"
+      ],
+      FRA: [
+        "Mike Maignan", "Theo Hernández", "William Saliba", "Jules Koundé", "Ibrahima Konaté", "Dayot Upamecano",
+        "Lucas Digne", "Aurélien Tchouaméni", "Eduardo Camavinga", "Manu Koné", "Adrien Rabiot", "Michael Olise",
+        "Ousmane Dembélé", "Bradley Barcola", "Désiré Doué", "Kingsley Coman", "Hugo Ekitike", "Kylian Mbappé"
+      ],
+      SEN: [
+        "Eduardo Mendy", "Yehvann Diouf", "Moussa Niakhaté", "Abdoulaye Seck", "Ismail Jakobs", "El Hadji Malick Diouf",
+        "Kalidou Koulibaly", "Idrissa Gana Gueye", "Pape Matar Sarr", "Pape Gueye", "Habib Diarra", "Lamine Camara",
+        "Sadio Mane", "Ismaïla Sarr", "Boulaye Dia", "Iliman Ndiaye", "Nicolas Jackson", "Krepin Diatta"
+      ],
+      IRQ: [
+        "Jalal Hassan", "Rebin Sulaka", "Hussein Ali", "Akam Hashem", "Merchas Doski", "Zaid Tahseen",
+        "Manaf Younis", "Zidane Iqbal", "Amir Al-Ammari", "Ibrahim Bayesh", "Ali Jasim", "Youssef Amyn",
+        "Aimar Sher", "Marko Farji", "Osama Rashid", "Ali Al-Hamadi", "Aymen Hussein", "Mohanad Ali"
+      ],
+      NOR: [
+        "Ørjan Nyland", "Julian Ryerson", "Leo Østigård", "Kristoffer Ajer", "Marcus Holmgren Pedersen", "David Møller Wolfe",
+        "Torbjørn Heggem", "Morten Thorsby", "Martin Ødegaard", "Sander Berge", "Andreas Schjelderup", "Patrick Berg",
+        "Erling Haaland", "Alexander Sørloth", "Aron Dønnum", "Jørgen Strand Larsen", "Antonio Nusa", "Oscar Bobb"
+      ],
+      ARG: [
+        "Emiliano Martínez", "Nahuel Molina", "Cristian Romero", "Nicolás Otamendi", "Nicolás Tagliafico", "Leonardo Balerdi",
+        "Enzo Fernández", "Alexis Mac Allister", "Rodrigo De Paul", "Exequiel Palacios", "Leandro Paredes", "Nico Paz",
+        "Franco Mastantuono", "Nico González", "Lionel Messi", "Lautaro Martínez", "Julián Álvarez", "Giuliano Simeone"
+      ],
+      ALG: [
+        "Alexis Guendouz", "Ramy Bensebaini", "Youcef Atal", "Rayan Aït-Nouri", "Mohamed Amine Tougai", "Aïssa Mandi",
+        "Ismael Bennacer", "Houssem Aouar", "Hicham Boudaoui", "Ramiz Zerrouki", "Nabil Bentaleb", "Farés Chaibi",
+        "Riyad Mahrez", "Said Benrahma", "Anis Hadj Moussa", "Amine Gouiri", "Baghdad Bounedjah", "Mohammed Amoura"
+      ],
+      AUT: [
+        "Alexander Schlager", "Patrick Pentz", "David Alaba", "Kevin Danso", "Philipp Lienhart", "Stefan Posch",
+        "Phillipp Mwene", "Alexander Prass", "Xaver Schlager", "Marcel Sabitzer", "Konrad Laimer", "Florian Grillitsch",
+        "Nicolas Seiwald", "Romano Schmid", "Patrick Wimmer", "Christoph Baumgartner", "Michael Gregoritsch", "Marko Arnautović"
+      ],
+      JOR: [
+        "Yazeed Abulaila", "Ihsan Haddad", "Mohammad Abu Hashish", "Yazan Al-Arab", "Abdallah Nasib", "Saleem Obaid",
+        "Mohammad Abualnadi", "Ibrahim Saadeh", "Nizar Al-Rashdan", "Noor Al-Rawabdeh", "Mohannad Abu Taha", "Amer Jamous",
+        "Musa Al-Taamari", "Yazan Al-Naimat", "Mahmoud Al-Mardi", "Ali Olwan", "Mohammad Abu Zrayq", "Ibrahim Sabra"
+      ],
+      POR: [
+        "Diogo Costa", "Jose Sa", "Ruben Dias", "João Cancelo", "Diogo Dalot", "Nuno Mendes",
+        "Gonçalo Inácio", "Bernardo Silva", "Bruno Fernandes", "Ruben Neves", "Vitinha", "João Neves",
+        "Cristiano Ronaldo", "Francisco Trincão", "João Felix", "Gonçalo Ramos", "Pedro Neto", "Rafael Leão"
+      ],
+      COD: [
+        "Lionel Mpasi", "Aaron Wan-Bissaka", "Axel Tuanzebe", "Arthur Masuaku", "Chancel Mbemba", "Joris Kayembe",
+        "Charles Pickel", "Ngal’ayel Mukau", "Edo Kayembe", "Samuel Moutoussamy", "Noah Sadiki", "Théo Bongonda",
+        "Meschack Elia", "Yoane Wissa", "Brian Cipenga", "Fiston Mayele", "Cédric Bakambu", "Nathanaël Mbuku"
+      ],
+      UZB: [
+        "Utkir Yusupov", "Farrukh Savfiev", "Sherzod Nasrullaev", "Umar Eshmurodov", "Husniddin Aliqulov", "Rustamjon Ashurmatov",
+        "Khojiakbar Alijonov", "Abdukodir Khusanov", "Odiljon Hamrobekov", "Otabek Shukurov", "Jamshid Iskanderov", "Azizbek Turgunboev",
+        "Khojimat Erkinov", "Eldor Shomurodov", "Oston Urunov", "Jaloliddin Masharipov", "Igor Sergeev", "Abbosbek Fayzullaev"
+      ],
+      COL: [
+        "Camilo Vargas", "David Ospina", "Dávinson Sánchez", "Yerry Mina", "Daniel Muñoz", "Johan Mojica",
+        "Jhon Lucumí", "Santiago Arias", "Jefferson Lerma", "Kevin Castaño", "Richard Ríos", "James Rodríguez",
+        "Juan Fernando Quintero", "Jorge Carrascal", "Jhon Arias", "Jhon Córdoba", "Luis Suárez", "Luis Díaz"
+      ],
+      ENG: [
+        "Jordan Pickford", "John Stones", "Marc Guéhi", "Ezri Konsa", "Trent Alexander-Arnold", "Reece James",
+        "Dan Burn", "Jordan Henderson", "Declan Rice", "Jude Bellingham", "Cole Palmer", "Morgan Rogers",
+        "Anthony Gordon", "Phil Foden", "Bukayo Saka", "Harry Kane", "Marcus Rashford", "Ollie Watkins"
+      ],
+      CRO: [
+        "Dominik Livaković", "Duje Ćaleta-Car", "Joško Gvardiol", "Josip Stanišić", "Luka Vušković", "Josip Šutalo",
+        "Kristijan Jakić", "Luka Modrić", "Mateo Kovačić", "Martin Baturina", "Lovro Majer", "Mario Pašalić",
+        "Petar Sučić", "Ivan Perišić", "Marco Pašalić", "Ante Budimir", "Andrej Kramarić", "Franjo Ivanović"
+      ],
+      GHA: [
+        "Lawrence Ati Zigi", "Tariq Lamptey", "Mohammed Salisu", "Alidu Seidu", "Alexander Djiku", "Gideon Mensah",
+        "Caleb Yirenkyi", "Abdul Fatawu Issahaku", "Thomas Partey", "Salis Abdul Samed", "Kamaldeen Sulemana", "Mohammed Kudus",
+        "Iñaki Williams", "Jordan Ayew", "André Ayew", "Joseph Paintsil", "Osman Bukari", "Antoine Semenyo"
+      ],
+      PAN: [
+        "Orlando Mosquera", "Luis Mejía", "Fidel Escobar", "Andrés Andrade", "Michael Amir Murillo", "Eric Davis",
+        "José Córdoba", "César Blackman", "Cristian Martínez", "Aníbal Godoy", "Adalberto Carrasquilla", "Édgar Bárcenas",
+        "Carlos Harvey", "Ismael Díaz", "José Fajardo", "Cecilio Waterman", "José Luis Rodríguez", "Alberto Quintero"
+      ]
     };
 
     /* ================== STATE ================== */
@@ -1083,14 +1342,15 @@
       history: [],    // { id, action, with, date }
       spending: [],   // { amount, date }
       profile: { ...DEFAULT_PROFILE },
-      version: 1
+      version: DATA_VERSION
     };
 
     function buildEmptyStickers() {
       const map = {};
       state.teams.forEach(t => {
         for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
-          map[`${t.code}${i}`] = { owned: false, dups: 0, name: '' };
+          const id = `${t.code}${i}`;
+          map[id] = { owned: false, dups: 0, name: defaultStickerName(id) };
         }
       });
       return map;
@@ -1104,13 +1364,22 @@
           state = { ...state, ...parsed };
         }
       } catch(e) { console.warn('load failed', e); }
-      state.profile = { ...DEFAULT_PROFILE, ...(state.profile || {}) };
+      normalizeLoadedState();
       // ensure all stickers exist (in case team list changed)
       const fresh = buildEmptyStickers();
       Object.keys(fresh).forEach(id => {
         if (!state.stickers[id]) state.stickers[id] = fresh[id];
+        else if (!state.stickers[id].name && fresh[id].name) state.stickers[id].name = fresh[id].name;
       });
       saveState();
+    }
+
+    function normalizeLoadedState() {
+      state.profile = { ...DEFAULT_PROFILE, ...(state.profile || {}) };
+      if (Number(state.version || 1) < DATA_VERSION) {
+        state.teams = TEAMS.map(t => ({ ...t }));
+        state.version = DATA_VERSION;
+      }
     }
 
     function saveState() {
@@ -1132,6 +1401,15 @@
     function flagSrcset(code) {
       const iso = FLAG_ISO[code] || code.toLowerCase();
       return `https://flagcdn.com/w80/${iso}.png 1x, https://flagcdn.com/w160/${iso}.png 2x`;
+    }
+
+    function defaultStickerName(id) {
+      const team = TEAMS.find(t => id.startsWith(t.code));
+      if (!team) return '';
+      const num = Number(id.slice(team.code.length));
+      if (num === 1 || num === 13) return '';
+      const playerIndex = num < 13 ? num - 2 : num - 3;
+      return PLAYER_NAMES[team.code]?.[playerIndex] || '';
     }
 
     function normalizeHandle(value) {
@@ -1213,11 +1491,21 @@
       });
     }
 
+    function currentTeamForStickerId(id) {
+      return state.teams.find(t => {
+        if (!id.startsWith(t.code)) return false;
+        const num = Number(id.slice(t.code.length));
+        return Number.isInteger(num) && num >= 1 && num <= STICKERS_PER_TEAM;
+      });
+    }
+    function currentStickerEntries() {
+      return Object.entries(state.stickers).filter(([id]) => currentTeamForStickerId(id));
+    }
     function ownedCount() {
-      return Object.values(state.stickers).filter(s => s.owned).length;
+      return currentStickerEntries().filter(([_, s]) => s.owned).length;
     }
     function dupsCount() {
-      return Object.values(state.stickers).reduce((a, s) => a + (s.dups || 0), 0);
+      return currentStickerEntries().reduce((a, [_, s]) => a + (s.dups || 0), 0);
     }
     function teamProgress(code) {
       let owned = 0, dups = 0;
@@ -1322,7 +1610,7 @@
       $('#s-owned-sub').textContent = `de ${TOTAL_STICKERS}`;
       $('#s-missing').textContent = TOTAL_STICKERS - owned;
       $('#s-dups').textContent = dups;
-      const uniqueDups = Object.values(state.stickers).filter(s => s.dups > 0).length;
+      const uniqueDups = currentStickerEntries().filter(([_, s]) => s.dups > 0).length;
       $('#s-dups-sub').textContent = `${uniqueDups} únicas`;
       $('#s-teams-done').textContent = done;
 
@@ -1335,7 +1623,7 @@
       }).join('');
       $('#milestones').innerHTML = html;
 
-      // confederations
+      // groups
       const confs = [...new Set(state.teams.map(t => t.conf))];
       const confHtml = confs.map(c => {
         const teams = state.teams.filter(t => t.conf === c);
@@ -1538,7 +1826,7 @@
     function renderDupsTab() {
       const q = ($('#dup-search')?.value || '').toLowerCase().trim();
       const dups = [];
-      Object.entries(state.stickers).forEach(([id, s]) => {
+      currentStickerEntries().forEach(([id, s]) => {
         if (s.dups > 0) {
           if (q && !id.toLowerCase().includes(q) && !(s.name || '').toLowerCase().includes(q)) return;
           dups.push({ id, ...s });
@@ -1557,7 +1845,7 @@
       }
 
       c.innerHTML = dups.map(d => {
-        const team = state.teams.find(t => d.id.startsWith(t.code));
+        const team = currentTeamForStickerId(d.id);
         return `
           <div class="dup-item" data-id="${d.id}">
             ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
@@ -1596,7 +1884,7 @@
       const got = prompt('Qual figurinha você recebeu? (ex: ARG3)');
       if (got) {
         const cleanId = got.trim().toUpperCase();
-        if (state.stickers[cleanId]) {
+        if (state.stickers[cleanId] && currentTeamForStickerId(cleanId)) {
           if (!state.stickers[cleanId].owned) {
             state.stickers[cleanId].owned = true;
           } else {
@@ -1622,7 +1910,7 @@
       const c = $('#swap-container');
 
       if (swapView === 'bate') {
-        const items = Object.entries(state.stickers)
+        const items = currentStickerEntries()
           .filter(([_, s]) => s.dups > 0)
           .sort(([a], [b]) => a.localeCompare(b));
         if (items.length === 0) {
@@ -1630,7 +1918,7 @@
           return;
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
-          const team = state.teams.find(t => id.startsWith(t.code));
+          const team = currentTeamForStickerId(id);
           return `<div class="swap-item">
             ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
             <div class="dup-info">
@@ -1641,7 +1929,7 @@
           </div>`;
         }).join('') + '</div>';
       } else if (swapView === 'falta') {
-        const items = Object.entries(state.stickers)
+        const items = currentStickerEntries()
           .filter(([_, s]) => !s.owned)
           .sort(([a], [b]) => a.localeCompare(b));
         if (items.length === 0) {
@@ -1649,7 +1937,7 @@
           return;
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
-          const team = state.teams.find(t => id.startsWith(t.code));
+          const team = currentTeamForStickerId(id);
           return `<div class="swap-item">
             ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
             <div class="dup-info">
@@ -1679,13 +1967,13 @@
     }
 
     function buildBateText() {
-      const items = Object.entries(state.stickers)
+      const items = currentStickerEntries()
         .filter(([_, s]) => s.dups > 0)
         .sort(([a], [b]) => a.localeCompare(b));
       if (items.length === 0) return 'Sem repetidas!';
       const grouped = {};
       items.forEach(([id, s]) => {
-        const team = state.teams.find(t => id.startsWith(t.code));
+        const team = currentTeamForStickerId(id);
         const key = team ? `${team.name} (${team.code})` : 'Outras';
         if (!grouped[key]) grouped[key] = [];
         const num = id.replace(/^[A-Z]+/, '');
@@ -1700,13 +1988,13 @@
     }
 
     function buildFaltaText() {
-      const items = Object.entries(state.stickers)
+      const items = currentStickerEntries()
         .filter(([_, s]) => !s.owned)
         .sort(([a], [b]) => a.localeCompare(b));
       if (items.length === 0) return 'Álbum completo!';
       const grouped = {};
       items.forEach(([id]) => {
-        const team = state.teams.find(t => id.startsWith(t.code));
+        const team = currentTeamForStickerId(id);
         const key = team ? `${team.name} (${team.code})` : 'Outras';
         if (!grouped[key]) grouped[key] = [];
         const num = id.replace(/^[A-Z]+/, '');
@@ -1943,11 +2231,12 @@
           const ok = await confirmDialog('Importar backup', 'Isso vai substituir TODOS os seus dados atuais. Continuar?');
           if (!ok) return;
           state = { ...state, ...data };
-          state.profile = { ...DEFAULT_PROFILE, ...(state.profile || {}) };
+          normalizeLoadedState();
           // ensure stickers exist
           const fresh = buildEmptyStickers();
           Object.keys(fresh).forEach(id => {
             if (!state.stickers[id]) state.stickers[id] = fresh[id];
+            else if (!state.stickers[id].name && fresh[id].name) state.stickers[id].name = fresh[id].name;
           });
           saveState();
           renderAll();
