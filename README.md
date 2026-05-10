@@ -25,6 +25,11 @@ http://127.0.0.1:4173/index.html
 
 Tudo fica salvo no navegador, via `localStorage`.
 
+O álbum está modelado com 980 figurinhas:
+
+- 20 especiais de abertura (`FWC 00` a `FWC 19`);
+- 960 das seleções (`48 seleções x 20 figurinhas`).
+
 Use `Configurações` para:
 
 - editar nome, usuário, bio e foto de perfil;

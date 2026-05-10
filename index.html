@@ -310,6 +310,16 @@
       font-size: 9px; font-weight: 800; background: var(--text); color: var(--bg);
       padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;
     }
+    .team-card.special::after {
+      content: 'ESPECIAL'; position: absolute; top: 8px; right: 8px;
+      font-size: 9px; font-weight: 800; background: var(--warning); color: #000;
+      padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;
+    }
+    .team-card .team-flag.special-flag, .dup-flag.special-flag {
+      display: flex; align-items: center; justify-content: center;
+      background: var(--warning); color: #000; font-weight: 900;
+      font-size: 11px; letter-spacing: 0.04em;
+    }
 
     /* MODAL */
     .modal-backdrop {
@@ -695,7 +705,7 @@
         <div class="profile-meta">
           <span><strong id="global-count">0</strong> coladas</span>
           <span><strong id="global-pct">0%</strong> completo</span>
-          <span><strong id="global-total">960</strong> total</span>
+          <span><strong id="global-total">980</strong> total</span>
         </div>
       </div>
     </div>
@@ -781,7 +791,7 @@
     <section class="tab" id="tab-teams">
       <div class="tab-heading">
         <h2 class="tab-title">Seleções</h2>
-        <p class="tab-sub">48 seleções na Copa 2026. Toque para ver as figurinhas.</p>
+        <p class="tab-sub">48 seleções e especiais da Copa 2026. Toque para ver as figurinhas.</p>
       </div>
 
       <div class="filters-row hidden">
@@ -911,7 +921,7 @@
       <div class="section-card" style="margin-top: 14px;">
         <h3>Sobre</h3>
         <p style="font-size: 13px; color: var(--text-2); line-height: 1.5;">
-          App local para controle do álbum Panini Copa do Mundo 2026. 960 figurinhas, 48 seleções, numeração 1–20 por equipe. Dados salvos no seu navegador.
+          App local para controle do álbum Panini Copa do Mundo 2026. 980 figurinhas, 48 seleções e especiais FWC. Dados salvos no seu navegador.
         </p>
       </div>
     </section>
@@ -1095,11 +1105,41 @@
       { code: 'PAN', name: 'Panamá',          conf: 'Grupo L', c1: '#005AA7', c2: '#D21034' },
     ];
 
+    const SPECIAL_GROUP = {
+      code: 'FWC',
+      name: 'Especiais',
+      conf: 'Introdução',
+      c1: '#ffd400',
+      c2: '#ffffff',
+      special: true
+    };
+    const SPECIAL_STICKERS = [
+      { id: 'FWC00', num: '00', name: 'Pôster Oficial do Torneio / Panini Logo' },
+      { id: 'FWC1', num: '1', name: 'Emblema Oficial' },
+      { id: 'FWC2', num: '2', name: 'Emblema Oficial' },
+      { id: 'FWC3', num: '3', name: 'Mascotes Oficiais' },
+      { id: 'FWC4', num: '4', name: 'Slogan Oficial' },
+      { id: 'FWC5', num: '5', name: 'Bola Oficial' },
+      { id: 'FWC6', num: '6', name: 'Emblema do país-sede CAN' },
+      { id: 'FWC7', num: '7', name: 'Emblema do país-sede MEX' },
+      { id: 'FWC8', num: '8', name: 'Emblema do país-sede USA' },
+      { id: 'FWC9', num: '9', name: 'FIFA World Cup Sweden 1958' },
+      { id: 'FWC10', num: '10', name: 'FIFA World Cup Chile 1962' },
+      { id: 'FWC11', num: '11', name: 'FIFA World Cup England 1966' },
+      { id: 'FWC12', num: '12', name: 'FIFA World Cup Argentina 1978' },
+      { id: 'FWC13', num: '13', name: 'FIFA World Cup Spain 1982' },
+      { id: 'FWC14', num: '14', name: 'FIFA World Cup Mexico 1986' },
+      { id: 'FWC15', num: '15', name: 'FIFA World Cup USA 1994' },
+      { id: 'FWC16', num: '16', name: 'FIFA World Cup Korea/Japan 2002' },
+      { id: 'FWC17', num: '17', name: 'FIFA World Cup Germany 2006' },
+      { id: 'FWC18', num: '18', name: 'FIFA World Cup Brazil 2014' },
+      { id: 'FWC19', num: '19', name: 'FIFA World Cup Qatar 2022' }
+    ];
     const STICKERS_PER_TEAM = 20;
-    const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM;
+    const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM + SPECIAL_STICKERS.length;
     const STORAGE_KEY = 'figurinhas-copa-2026-v1';
     const LEGACY_STORAGE_KEY = 'figurinhas-devjuninho-v1';
-    const DATA_VERSION = 3;
+    const DATA_VERSION = 4;
     const DEFAULT_PROFILE = {
       name: 'Colecionador',
       handle: '@album2026',
@@ -1377,6 +1417,9 @@
 
     function buildEmptyStickers() {
       const map = {};
+      SPECIAL_STICKERS.forEach(sticker => {
+        map[sticker.id] = { owned: false, dups: 0, name: sticker.name };
+      });
       state.teams.forEach(t => {
         for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
           const id = `${t.code}${i}`;
@@ -1434,6 +1477,8 @@
     }
 
     function defaultStickerName(id) {
+      const special = specialStickerForId(id);
+      if (special) return special.name;
       const team = TEAMS.find(t => id.startsWith(t.code));
       if (!team) return '';
       const num = Number(id.slice(team.code.length));
@@ -1528,8 +1573,23 @@
         return Number.isInteger(num) && num >= 1 && num <= STICKERS_PER_TEAM;
       });
     }
+    function stickerCollectionForId(id) {
+      return specialStickerForId(id) ? SPECIAL_GROUP : currentTeamForStickerId(id);
+    }
+    function stickerThumbHtml(id) {
+      const team = currentTeamForStickerId(id);
+      if (team) {
+        return `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />`;
+      }
+      if (specialStickerForId(id)) return '<div class="dup-flag special-flag">FWC</div>';
+      return '<div class="dup-flag"></div>';
+    }
+    function stickerDisplayLabel(id) {
+      const collection = stickerCollectionForId(id);
+      return `${stickerListLine(id, state.stickers[id] || {})}${collection ? ` · ${collection.name}` : ''}`;
+    }
     function currentStickerEntries() {
-      return Object.entries(state.stickers).filter(([id]) => currentTeamForStickerId(id));
+      return Object.entries(state.stickers).filter(([id]) => isKnownStickerId(id));
     }
     function ownedCount() {
       return currentStickerEntries().filter(([_, s]) => s.owned).length;
@@ -1546,6 +1606,18 @@
       }
       return { owned, dups, total: STICKERS_PER_TEAM, pct: (owned / STICKERS_PER_TEAM) * 100 };
     }
+    function specialProgress() {
+      let owned = 0, dups = 0;
+      SPECIAL_STICKERS.forEach(sticker => {
+        const s = state.stickers[sticker.id];
+        if (s && s.owned) owned++;
+        if (s && s.dups) dups += s.dups;
+      });
+      return { owned, dups, total: SPECIAL_STICKERS.length, pct: (owned / SPECIAL_STICKERS.length) * 100 };
+    }
+    function collectionProgress(code) {
+      return code === SPECIAL_GROUP.code ? specialProgress() : teamProgress(code);
+    }
     function teamsCompleted() {
       return state.teams.filter(t => teamProgress(t.code).owned === STICKERS_PER_TEAM).length;
     }
@@ -1553,7 +1625,7 @@
       return state.spending.reduce((a, s) => a + (Number(s.amount) || 0), 0);
     }
 
-    // Coupon collector estimate: pacotes de 5, ainda preciso de N únicas de 980
+    // Coupon collector estimate: pacotes de 5, ainda preciso de N únicas do álbum
     function packsEstimate() {
       const owned = ownedCount();
       const total = TOTAL_STICKERS;
@@ -1573,6 +1645,14 @@
       return d.toISOString().slice(0, 10);
     }
 
+    function specialStickerForId(id) {
+      return SPECIAL_STICKERS.find(sticker => sticker.id === id);
+    }
+
+    function isKnownStickerId(id) {
+      return Boolean(currentTeamForStickerId(id) || specialStickerForId(id));
+    }
+
     function profileShareLabel() {
       const profile = state.profile || DEFAULT_PROFILE;
       const name = profile.name || DEFAULT_PROFILE.name;
@@ -1580,12 +1660,45 @@
       return `${name} (${handle})`;
     }
 
-    function stickerNumber(id) {
-      return id.replace(/^[A-Z]+/, '');
+    function stickerParts(id) {
+      const special = specialStickerForId(id);
+      if (special) return { code: SPECIAL_GROUP.code, num: special.num };
+      const team = currentTeamForStickerId(id);
+      if (team) return { code: team.code, num: id.slice(team.code.length) };
+      const match = String(id).match(/^([A-Z]+)([0-9]+)$/);
+      return { code: match?.[1] || id, num: match?.[2] || '' };
+    }
+
+    function stickerListLine(id, sticker, includeDups = false) {
+      const parts = stickerParts(id);
+      const suffix = includeDups && sticker.dups > 1 ? ` x${sticker.dups}` : '';
+      return `${parts.code} ${parts.num}${suffix}`.trim();
+    }
+
+    function allStickerEntriesInAlbumOrder() {
+      const entries = [];
+      SPECIAL_STICKERS.forEach(sticker => {
+        if (state.stickers[sticker.id]) entries.push([sticker.id, state.stickers[sticker.id]]);
+      });
+      state.teams.forEach(team => {
+        for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+          const id = `${team.code}${i}`;
+          if (state.stickers[id]) entries.push([id, state.stickers[id]]);
+        }
+      });
+      return entries;
     }
 
     function groupedStickerLines(predicate, formatNumber) {
       const lines = [];
+      const specialNums = [];
+      SPECIAL_STICKERS.forEach(sticker => {
+        const stateSticker = state.stickers[sticker.id];
+        if (stateSticker && predicate(sticker.id, stateSticker, SPECIAL_GROUP)) {
+          specialNums.push(formatNumber(sticker.id, stateSticker, SPECIAL_GROUP));
+        }
+      });
+      if (specialNums.length) lines.push(`${SPECIAL_GROUP.name} (${SPECIAL_GROUP.code}): ${specialNums.join(', ')}`);
       state.teams.forEach(team => {
         const nums = [];
         for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
@@ -1601,53 +1714,46 @@
     }
 
     function buildOwnedText() {
-      const total = ownedCount();
-      if (total === 0) {
+      const lines = allStickerEntriesInAlbumOrder()
+        .filter(([_, sticker]) => sticker.owned)
+        .map(([id, sticker]) => stickerListLine(id, sticker));
+      if (lines.length === 0) {
         return `Figurinhas que já tenho - Álbum Copa 2026\n${profileShareLabel()}\n\nSem figurinhas marcadas como já tenho.`;
       }
-      const lines = groupedStickerLines(
-        (_, sticker) => sticker.owned,
-        id => stickerNumber(id)
-      );
       return [
         'Figurinhas que já tenho - Álbum Copa 2026',
         profileShareLabel(),
         '',
         ...lines,
         '',
-        `Total já tenho: ${total}/${TOTAL_STICKERS} figurinhas`
+        `Total já tenho: ${lines.length}/${TOTAL_STICKERS} figurinhas`
       ].join('\n');
     }
 
     function buildMissingText() {
-      const total = TOTAL_STICKERS - ownedCount();
-      if (total === 0) {
+      const lines = allStickerEntriesInAlbumOrder()
+        .filter(([_, sticker]) => !sticker.owned)
+        .map(([id, sticker]) => stickerListLine(id, sticker));
+      if (lines.length === 0) {
         return `Figurinhas faltantes - Álbum Copa 2026\n${profileShareLabel()}\n\nÁlbum completo.`;
       }
-      const lines = groupedStickerLines(
-        (_, sticker) => !sticker.owned,
-        id => stickerNumber(id)
-      );
       return [
         'Figurinhas faltantes - Álbum Copa 2026',
         profileShareLabel(),
         '',
         ...lines,
         '',
-        `Total faltante: ${total}/${TOTAL_STICKERS} figurinhas`
+        `Total faltante: ${lines.length}/${TOTAL_STICKERS} figurinhas`
       ].join('\n');
     }
 
     function buildDupsText() {
-      const items = currentStickerEntries().filter(([_, sticker]) => sticker.dups > 0);
+      const items = allStickerEntriesInAlbumOrder().filter(([_, sticker]) => sticker.dups > 0);
+      const lines = items.map(([id, sticker]) => stickerListLine(id, sticker, true));
       const total = items.reduce((sum, [_, sticker]) => sum + sticker.dups, 0);
       if (total === 0) {
         return `Figurinhas repetidas - Álbum Copa 2026\n${profileShareLabel()}\n\nSem figurinhas repetidas no momento.`;
       }
-      const lines = groupedStickerLines(
-        (_, sticker) => sticker.dups > 0,
-        (id, sticker) => `${stickerNumber(id)}${sticker.dups > 1 ? ` (x${sticker.dups})` : ''}`
-      );
       return [
         'Figurinhas repetidas - Álbum Copa 2026',
         profileShareLabel(),
@@ -1787,7 +1893,23 @@
         return true;
       });
 
-      $('#teams-grid').innerHTML = filtered.map(t => {
+      const cards = [];
+      const specialSearch = `${SPECIAL_GROUP.name} ${SPECIAL_GROUP.code} especiais figurinhas metalizadas`.toLowerCase();
+      if (teamFilter.conf === 'all' && (!q || specialSearch.includes(q))) {
+        const p = specialProgress();
+        cards.push(`
+          <div class="team-card special" style="--c1:${SPECIAL_GROUP.c1};--c2:${SPECIAL_GROUP.c2};" data-code="${SPECIAL_GROUP.code}">
+            <div class="team-flag special-flag">FWC</div>
+            <div class="team-code">${SPECIAL_GROUP.code}</div>
+            <div class="team-name">${SPECIAL_GROUP.name}</div>
+            <div class="team-progress"><div style="width:${p.pct}%"></div></div>
+            <div class="team-meta">
+              <span>${p.owned}/${p.total}</span>
+              ${p.dups > 0 ? `<span class="dups-badge">+${p.dups} rep</span>` : ''}
+            </div>
+          </div>`);
+      }
+      cards.push(...filtered.map(t => {
         const p = teamProgress(t.code);
         return `
           <div class="team-card ${t.host ? 'host' : ''}" style="--c1:${t.c1};--c2:${t.c2};" data-code="${t.code}">
@@ -1800,7 +1922,8 @@
               ${p.dups > 0 ? `<span class="dups-badge">+${p.dups} rep</span>` : ''}
             </div>
           </div>`;
-      }).join('');
+      }));
+      $('#teams-grid').innerHTML = cards.join('');
 
       $$('#teams-grid .team-card').forEach(c => {
         c.addEventListener('click', () => openTeamModal(c.dataset.code));
@@ -1812,14 +1935,20 @@
     let currentSticker = null;
 
     function openTeamModal(code) {
-      currentTeam = state.teams.find(t => t.code === code);
+      currentTeam = code === SPECIAL_GROUP.code ? SPECIAL_GROUP : state.teams.find(t => t.code === code);
       if (!currentTeam) return;
-      const p = teamProgress(code);
+      const p = collectionProgress(code);
       $('#m-name').textContent = currentTeam.name;
       $('#m-meta').textContent = `${currentTeam.conf} · ${p.owned}/${p.total} figurinhas${currentTeam.host ? ' · SEDE' : ''}`;
-      $('#m-flag').src = flagUrl(currentTeam.code);
-      $('#m-flag').srcset = flagSrcset(currentTeam.code);
-      $('#m-flag').alt = `Bandeira do ${currentTeam.name}`;
+      if (currentTeam.special) {
+        $('#m-flag').src = 'icon.svg';
+        $('#m-flag').removeAttribute('srcset');
+        $('#m-flag').alt = 'Especiais FWC';
+      } else {
+        $('#m-flag').src = flagUrl(currentTeam.code);
+        $('#m-flag').srcset = flagSrcset(currentTeam.code);
+        $('#m-flag').alt = `Bandeira do ${currentTeam.name}`;
+      }
       renderStickersGrid();
       $('#modal').classList.add('open');
       $('#modal-backdrop').classList.add('open');
@@ -1840,18 +1969,28 @@
       if (!currentTeam) return;
       const accent = currentTeam.c1;
       let html = '';
-      for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
-        const id = `${currentTeam.code}${i}`;
+      const stickers = currentTeam.special
+        ? SPECIAL_STICKERS.map(sticker => ({ ...sticker, label: 'Especial' }))
+        : Array.from({ length: STICKERS_PER_TEAM }, (_, idx) => {
+            const num = String(idx + 1);
+            return {
+              id: `${currentTeam.code}${num}`,
+              num,
+              label: idx + 1 === 1 ? 'Escudo' : idx + 1 === 13 ? 'Equipe' : ''
+            };
+          });
+      stickers.forEach(sticker => {
+        const id = sticker.id;
         const s = state.stickers[id];
-        const label = i === 1 ? 'Escudo' : i === 13 ? 'Equipe' : '';
+        const label = sticker.label || '';
         html += `
           <div class="sticker ${s.owned ? 'owned' : ''}" data-id="${id}" style="--accent-team:${accent}">
             ${s.dups > 0 ? `<div class="sticker-dups">×${s.dups}</div>` : ''}
-            <div class="sticker-num">${i}</div>
+            <div class="sticker-num">${sticker.num}</div>
             ${label ? `<div class="sticker-label">${label}</div>` : ''}
             ${s.name ? `<div class="sticker-name">${s.name}</div>` : ''}
           </div>`;
-      }
+      });
       $('#m-stickers').innerHTML = html;
       $$('#m-stickers .sticker').forEach(el => {
         el.addEventListener('click', () => handleStickerTap(el.dataset.id));
@@ -1941,13 +2080,13 @@
     function renderDupsTab() {
       const q = ($('#dup-search')?.value || '').toLowerCase().trim();
       const dups = [];
-      currentStickerEntries().forEach(([id, s]) => {
+      allStickerEntriesInAlbumOrder().forEach(([id, s]) => {
         if (s.dups > 0) {
-          if (q && !id.toLowerCase().includes(q) && !(s.name || '').toLowerCase().includes(q)) return;
+          const display = stickerListLine(id, s).toLowerCase();
+          if (q && !id.toLowerCase().includes(q) && !display.includes(q) && !(s.name || '').toLowerCase().includes(q)) return;
           dups.push({ id, ...s });
         }
       });
-      dups.sort((a, b) => a.id.localeCompare(b.id));
 
       const c = $('#dups-container');
       if (dups.length === 0) {
@@ -1960,12 +2099,11 @@
       }
 
       c.innerHTML = dups.map(d => {
-        const team = currentTeamForStickerId(d.id);
         return `
           <div class="dup-item" data-id="${d.id}">
-            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
+            ${stickerThumbHtml(d.id)}
             <div class="dup-info">
-              <div class="dup-id">${d.id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-id">${stickerDisplayLabel(d.id)}</div>
               <div class="dup-name">${d.name || '—'}</div>
             </div>
             <div class="dup-controls">
@@ -1998,8 +2136,8 @@
       const withWho = prompt('Trocou com quem? (opcional)') || '';
       const got = prompt('Qual figurinha você recebeu? (ex: ARG3)');
       if (got) {
-        const cleanId = got.trim().toUpperCase();
-        if (state.stickers[cleanId] && currentTeamForStickerId(cleanId)) {
+        const cleanId = got.trim().toUpperCase().replace(/[\s-]+/g, '');
+        if (state.stickers[cleanId] && isKnownStickerId(cleanId)) {
           if (!state.stickers[cleanId].owned) {
             state.stickers[cleanId].owned = true;
           } else {
@@ -2025,38 +2163,34 @@
       const c = $('#swap-container');
 
       if (swapView === 'bate') {
-        const items = currentStickerEntries()
-          .filter(([_, s]) => s.dups > 0)
-          .sort(([a], [b]) => a.localeCompare(b));
+        const items = allStickerEntriesInAlbumOrder()
+          .filter(([_, s]) => s.dups > 0);
         if (items.length === 0) {
           c.innerHTML = `<div class="empty-state"><div class="icon">📤</div><p>Sem repetidas no momento.</p></div>`;
           return;
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
-          const team = currentTeamForStickerId(id);
           return `<div class="swap-item">
-            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
+            ${stickerThumbHtml(id)}
             <div class="dup-info">
-              <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-id">${stickerDisplayLabel(id)}</div>
               <div class="dup-name">${s.name || 'sem nome'}</div>
             </div>
             <div style="font-weight:800;color:var(--warning)">×${s.dups}</div>
           </div>`;
         }).join('') + '</div>';
       } else if (swapView === 'falta') {
-        const items = currentStickerEntries()
-          .filter(([_, s]) => !s.owned)
-          .sort(([a], [b]) => a.localeCompare(b));
+        const items = allStickerEntriesInAlbumOrder()
+          .filter(([_, s]) => !s.owned);
         if (items.length === 0) {
           c.innerHTML = `<div class="empty-state"><div class="icon">🏆</div><p>Não falta nenhuma! Álbum completo.</p></div>`;
           return;
         }
         c.innerHTML = '<div class="swap-list">' + items.map(([id, s]) => {
-          const team = currentTeamForStickerId(id);
           return `<div class="swap-item">
-            ${team ? `<img class="dup-flag" src="${flagUrl(team.code)}" srcset="${flagSrcset(team.code)}" alt="Bandeira do ${team.name}" loading="lazy" />` : '<div class="dup-flag"></div>'}
+            ${stickerThumbHtml(id)}
             <div class="dup-info">
-              <div class="dup-id">${id}${team ? ` · ${team.name}` : ''}</div>
+              <div class="dup-id">${stickerDisplayLabel(id)}</div>
               <div class="dup-name">${s.name || '—'}</div>
             </div>
           </div>`;
