@@ -2830,7 +2830,7 @@
     }
 
     /* ================== TABS ================== */
-    function switchTab(name) {
+    function switchTab(name, fromHistory = false) {
       $$('.tab').forEach(t => t.classList.remove('active'));
       $$('.tab-btn').forEach(b => b.classList.remove('active'));
       $('#tab-' + name).classList.add('active');
@@ -2838,11 +2838,15 @@
       closeSideMenu();
       syncGlobalSearch(name);
       window.scrollTo({ top: 0, behavior: 'instant' });
+      if (!fromHistory) {
+        history.pushState({ tab: name }, '', '#' + name);
+      }
       // refresh content
       if (name === 'home') renderHome();
       if (name === 'teams') renderTeamsTab();
       if (name === 'dups') renderDupsTab();
       if (name === 'swap') renderSwapTab();
+      if (name === 'settings') renderProfileSettings();
     }
 
     function activeTabName() {
@@ -2918,6 +2922,11 @@
 
       $$('.tab-btn').forEach(b => {
         b.addEventListener('click', () => switchTab(b.dataset.tab));
+      });
+
+      window.addEventListener('popstate', e => {
+        const tab = e.state?.tab || 'home';
+        switchTab(tab, true);
       });
 
       $('#menu-toggle').addEventListener('click', openSideMenu);
@@ -3103,6 +3112,7 @@
       loadState();
       bindEvents();
       renderAll();
+      history.replaceState({ tab: 'home' }, '', '#home');
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(e => console.warn('sw failed', e));
