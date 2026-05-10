@@ -37,6 +37,21 @@ Use `Configurações` para:
 - importar backup;
 - resetar dados locais.
 
+## Firebase
+
+O app inicializa Firebase pelo SDK Web modular via CDN, sem build step.
+
+Serviços preparados no frontend:
+
+- Firebase Analytics;
+- Firebase Authentication;
+- Cloud Firestore;
+- Realtime Database.
+
+As instâncias ficam disponíveis em `window.FigurinhasFirebase` para a próxima etapa de login e sincronização dos dados.
+
+Em desenvolvimento local, o Analytics não é iniciado para evitar erros de rede no navegador; ele fica pronto para ativar em HTTPS.
+
 ## Distribuição
 
 O app não precisa de backend. Para distribuir, publique estes arquivos em qualquer hospedagem estática, como Vercel, GitHub Pages, Netlify ou um servidor local.

@@ -911,6 +911,12 @@
         </div>
         <div class="setting-item">
           <div>
+            <div class="label">Firebase</div>
+            <div class="desc" id="firebase-status">Conectando ao projeto figurinhas2026-9bd5b...</div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <div>
             <div class="label" style="color: var(--danger)">Resetar tudo</div>
             <div class="desc">Apaga todos os dados (figurinhas, repetidas, histórico)</div>
           </div>
@@ -1028,6 +1034,67 @@
       </div>
     </div>
   </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js';
+    import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js';
+    import { getDatabase } from 'https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDSw00VgqOxULKNYRqGQ6fdZumXKWsd19Q',
+      authDomain: 'figurinhas2026-9bd5b.firebaseapp.com',
+      projectId: 'figurinhas2026-9bd5b',
+      storageBucket: 'figurinhas2026-9bd5b.firebasestorage.app',
+      messagingSenderId: '452659666470',
+      appId: '1:452659666470:web:8b411bb9e3f5e6d7ea10e7',
+      measurementId: 'G-0YW5HPKYHT'
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const firebaseAuth = getAuth(firebaseApp);
+    const firestoreDb = getFirestore(firebaseApp);
+    const realtimeDb = getDatabase(firebaseApp);
+
+    window.FigurinhasFirebase = {
+      app: firebaseApp,
+      auth: firebaseAuth,
+      db: firestoreDb,
+      firestore: firestoreDb,
+      realtimeDb,
+      analytics: null,
+      config: firebaseConfig
+    };
+
+    const setFirebaseStatus = (message) => {
+      const el = document.getElementById('firebase-status');
+      if (el) el.textContent = message;
+    };
+
+    const isLocalHost = ['localhost', '127.0.0.1', '::1', ''].includes(window.location.hostname);
+    const canUseAnalytics = window.location.protocol === 'https:' && !isLocalHost;
+
+    setFirebaseStatus(canUseAnalytics
+      ? 'Firebase conectado: Auth, Firestore e Realtime Database prontos. Ativando Analytics...'
+      : 'Firebase conectado: Auth, Firestore e Realtime Database prontos. Analytics fica ativo em HTTPS.');
+
+    if (canUseAnalytics) {
+      isAnalyticsSupported()
+        .then((supported) => {
+          if (!supported) {
+            setFirebaseStatus('Firebase conectado. Analytics indisponível neste navegador.');
+            return;
+          }
+          window.FigurinhasFirebase.analytics = getAnalytics(firebaseApp);
+          setFirebaseStatus('Firebase conectado: Auth, Firestore, Realtime Database e Analytics prontos.');
+        })
+        .catch((err) => {
+          console.warn('Firebase Analytics indisponível', err);
+          setFirebaseStatus('Firebase conectado. Analytics indisponível neste ambiente.');
+        });
+    }
+  </script>
 
   <script>
     /* ================== DATA ================== */
