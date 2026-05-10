@@ -1,10 +1,11 @@
-const CACHE = 'figurinhas-copa-2026-v11';
+const CACHE = 'figurinhas-copa-2026-v12';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './imagemapp.png',
+  './imagemoficial.png',
   './icon.svg',
+  './assets/logo-login.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/apple-touch-icon.png'
