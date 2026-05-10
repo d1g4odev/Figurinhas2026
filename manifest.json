@@ -1,7 +1,7 @@
 {
-  "name": "Figurinhas do @devjuninho",
-  "short_name": "Figurinhas",
-  "description": "Controle do álbum Panini Copa 2026",
+  "name": "Figurinhas Copa 2026",
+  "short_name": "Copa 2026",
+  "description": "Controle local de álbum de figurinhas da Copa 2026",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

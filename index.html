@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Figurinhas" />
+  <meta name="apple-mobile-web-app-title" content="Figurinhas Copa 2026" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <title>Figurinhas do @devjuninho</title>
+  <title>Figurinhas Copa 2026</title>
   <style>
     :root {
       /* X / Twitter palette (pure B&W) */
@@ -480,6 +480,36 @@
     .setting-item .label { font-size: 14px; font-weight: 600; }
     .setting-item .desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
     .setting-item .btn { flex: 0 0 auto; }
+    .profile-form {
+      display: grid; gap: 10px;
+    }
+    .profile-form label {
+      display: grid; gap: 6px;
+      font-size: 12px; color: var(--text-2); font-weight: 700;
+    }
+    .profile-form input {
+      width: 100%;
+    }
+    .profile-form .actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .profile-form .actions .btn {
+      flex: 1 1 150px;
+    }
+    .profile-preview {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+    .profile-preview-avatar {
+      width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900;
+    }
+    .profile-preview-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-preview strong { display: block; font-size: 14px; }
+    .profile-preview span { color: var(--text-2); font-size: 12px; }
 
     /* BOTTOM DOCK */
     .bottom-dock {
@@ -642,11 +672,11 @@
       </div>
       <div class="profile-info">
         <div class="profile-name-row">
-          <span>dev juninho</span>
+          <span id="profile-name">Colecionador</span>
           <svg class="verified" viewBox="0 0 22 22" aria-label="Verificado"><g><path fill="currentColor" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></g></svg>
         </div>
-        <div class="profile-handle">@devjuninho</div>
-        <div class="profile-bio">colecionando 🎴 Copa 2026 · álbum Panini</div>
+        <div class="profile-handle" id="profile-handle">@album2026</div>
+        <div class="profile-bio" id="profile-bio">colecionando 🎴 Copa 2026 · álbum Panini</div>
         <div class="profile-meta">
           <span><strong id="global-count">0</strong> coladas</span>
           <span><strong id="global-pct">0%</strong> completo</span>
@@ -779,7 +809,41 @@
     <section class="tab" id="tab-settings">
       <div class="tab-heading">
         <h2 class="tab-title">Configurações</h2>
-        <p class="tab-sub">Backup e gestão dos dados.</p>
+        <p class="tab-sub">Perfil, backup e gestão dos dados.</p>
+      </div>
+
+      <div class="section-card">
+        <h3>Perfil <small>local</small></h3>
+        <div class="profile-form">
+          <div class="profile-preview">
+            <div class="profile-preview-avatar" id="profile-preview-avatar">C</div>
+            <div>
+              <strong id="profile-preview-name">Colecionador</strong>
+              <span id="profile-preview-handle">@album2026</span>
+            </div>
+          </div>
+          <label>
+            Nome exibido
+            <input type="text" id="profile-name-input" maxlength="40" placeholder="Colecionador" />
+          </label>
+          <label>
+            Usuário
+            <input type="text" id="profile-handle-input" maxlength="32" placeholder="@album2026" />
+          </label>
+          <label>
+            Bio
+            <input type="text" id="profile-bio-input" maxlength="90" placeholder="colecionando 🎴 Copa 2026 · álbum Panini" />
+          </label>
+          <label>
+            Foto de perfil por URL
+            <input type="url" id="profile-avatar-url-input" placeholder="https://..." />
+          </label>
+          <input type="file" id="profile-avatar-file" accept="image/*" style="display:none" />
+          <div class="actions">
+            <button class="btn" id="btn-profile-upload">Escolher foto</button>
+            <button class="btn" id="btn-profile-reset">Restaurar padrão</button>
+          </div>
+        </div>
       </div>
 
       <div class="settings-list">
@@ -817,7 +881,7 @@
       <div class="section-card" style="margin-top: 14px;">
         <h3>Sobre</h3>
         <p style="font-size: 13px; color: var(--text-2); line-height: 1.5;">
-          App pessoal pra controle do álbum Panini Copa do Mundo 2026. 980 figurinhas, 48 seleções, numeração 1–20 por equipe. Dados salvos no seu navegador.
+          App local para controle do álbum Panini Copa do Mundo 2026. 960 figurinhas, 48 seleções, numeração 1–20 por equipe. Dados salvos no seu navegador.
         </p>
       </div>
     </section>
@@ -991,7 +1055,15 @@
 
     const STICKERS_PER_TEAM = 20;
     const TOTAL_STICKERS = TEAMS.length * STICKERS_PER_TEAM;
-    const STORAGE_KEY = 'figurinhas-devjuninho-v1';
+    const STORAGE_KEY = 'figurinhas-copa-2026-v1';
+    const LEGACY_STORAGE_KEY = 'figurinhas-devjuninho-v1';
+    const DEFAULT_PROFILE = {
+      name: 'Colecionador',
+      handle: '@album2026',
+      bio: 'colecionando 🎴 Copa 2026 · álbum Panini',
+      avatarUrl: '',
+      avatarData: ''
+    };
     const FLAG_ISO = {
       CAN: 'ca', MEX: 'mx', USA: 'us', CRC: 'cr', PAN: 'pa', JAM: 'jm',
       ARG: 'ar', BRA: 'br', URU: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
@@ -1010,6 +1082,7 @@
       stickers: {},   // id -> { owned: bool, dups: int, name: string }
       history: [],    // { id, action, with, date }
       spending: [],   // { amount, date }
+      profile: { ...DEFAULT_PROFILE },
       version: 1
     };
 
@@ -1025,22 +1098,25 @@
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
           state = { ...state, ...parsed };
         }
       } catch(e) { console.warn('load failed', e); }
+      state.profile = { ...DEFAULT_PROFILE, ...(state.profile || {}) };
       // ensure all stickers exist (in case team list changed)
       const fresh = buildEmptyStickers();
       Object.keys(fresh).forEach(id => {
         if (!state.stickers[id]) state.stickers[id] = fresh[id];
       });
+      saveState();
     }
 
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (localStorage.getItem(LEGACY_STORAGE_KEY)) localStorage.removeItem(LEGACY_STORAGE_KEY);
       } catch(e) { console.warn('save failed', e); }
     }
 
@@ -1056,6 +1132,21 @@
     function flagSrcset(code) {
       const iso = FLAG_ISO[code] || code.toLowerCase();
       return `https://flagcdn.com/w80/${iso}.png 1x, https://flagcdn.com/w160/${iso}.png 2x`;
+    }
+
+    function normalizeHandle(value) {
+      const clean = (value || '').trim().replace(/\s+/g, '');
+      if (!clean) return DEFAULT_PROFILE.handle;
+      return clean.startsWith('@') ? clean : '@' + clean;
+    }
+
+    function initialsFromName(name) {
+      const parts = (name || DEFAULT_PROFILE.name).trim().split(/\s+/).filter(Boolean);
+      return (parts[0]?.[0] || 'C').toUpperCase() + (parts[1]?.[0] || '').toUpperCase();
+    }
+
+    function backupSlug() {
+      return normalizeHandle(state.profile.handle).replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_-]+/g, '-') || 'album2026';
     }
 
     function toast(msg) {
@@ -1168,10 +1259,59 @@
     function renderHeader() {
       const owned = ownedCount();
       const pct = (owned / TOTAL_STICKERS) * 100;
+      const profile = state.profile || DEFAULT_PROFILE;
+      $('#profile-name').textContent = profile.name || DEFAULT_PROFILE.name;
+      $('#profile-handle').textContent = normalizeHandle(profile.handle);
+      $('#profile-bio').textContent = profile.bio || DEFAULT_PROFILE.bio;
+      renderAvatar();
       $('#global-fill').style.width = pct + '%';
       $('#global-pct').textContent = pct.toFixed(1) + '%';
       $('#global-count').textContent = owned;
       $('#global-total').textContent = TOTAL_STICKERS;
+    }
+
+    function renderAvatar() {
+      const el = document.getElementById('avatar');
+      if (!el) return;
+      const src = state.profile?.avatarData || state.profile?.avatarUrl || '';
+      el.innerHTML = '';
+      if (src) {
+        const img = new Image();
+        img.alt = `Foto de ${state.profile.name || DEFAULT_PROFILE.name}`;
+        img.onload = () => {
+          el.innerHTML = '';
+          el.appendChild(img);
+        };
+        img.onerror = () => {
+          el.innerHTML = `<div class="initials">${initialsFromName(state.profile?.name)}</div>`;
+        };
+        img.src = src;
+        return;
+      }
+      el.innerHTML = `<div class="initials">${initialsFromName(state.profile?.name)}</div>`;
+    }
+
+    function renderProfileSettings() {
+      const profile = state.profile || DEFAULT_PROFILE;
+      const name = profile.name || DEFAULT_PROFILE.name;
+      const handle = normalizeHandle(profile.handle);
+      $('#profile-name-input').value = name;
+      $('#profile-handle-input').value = handle;
+      $('#profile-bio-input').value = profile.bio || DEFAULT_PROFILE.bio;
+      $('#profile-avatar-url-input').value = profile.avatarUrl || '';
+      renderProfilePreview();
+    }
+
+    function renderProfilePreview() {
+      const profile = state.profile || DEFAULT_PROFILE;
+      const name = profile.name || DEFAULT_PROFILE.name;
+      const handle = normalizeHandle(profile.handle);
+      const avatar = profile.avatarData || profile.avatarUrl || '';
+      $('#profile-preview-name').textContent = name;
+      $('#profile-preview-handle').textContent = handle;
+      $('#profile-preview-avatar').innerHTML = avatar
+        ? `<img src="${avatar}" alt="Prévia da foto de perfil">`
+        : initialsFromName(name);
     }
 
     function renderHome() {
@@ -1551,7 +1691,7 @@
         const num = id.replace(/^[A-Z]+/, '');
         grouped[key].push(`${num}${s.dups > 1 ? `(×${s.dups})` : ''}`);
       });
-      let out = '🎴 BATE — @devjuninho\n\n';
+      let out = `🎴 BATE — ${normalizeHandle(state.profile.handle)}\n\n`;
       Object.entries(grouped).forEach(([k, arr]) => {
         out += `${k}: ${arr.join(', ')}\n`;
       });
@@ -1572,7 +1712,7 @@
         const num = id.replace(/^[A-Z]+/, '');
         grouped[key].push(num);
       });
-      let out = '🔍 FALTA — @devjuninho\n\n';
+      let out = `🔍 FALTA — ${normalizeHandle(state.profile.handle)}\n\n`;
       Object.entries(grouped).forEach(([k, arr]) => {
         out += `${k}: ${arr.join(', ')}\n`;
       });
@@ -1668,6 +1808,7 @@
       if (name === 'teams') renderTeamsTab();
       if (name === 'dups') renderDupsTab();
       if (name === 'swap') renderSwapTab();
+      if (name === 'settings') renderProfileSettings();
       syncGlobalSearch(name);
       // also refresh modal grid if open
       if (currentTeam) renderStickersGrid();
@@ -1690,6 +1831,47 @@
 
       // Settings
       $('#btn-settings').addEventListener('click', () => switchTab('settings'));
+
+      // Profile
+      const profileFields = [
+        ['#profile-name-input', 'name', value => value.trim() || DEFAULT_PROFILE.name],
+        ['#profile-handle-input', 'handle', value => value.trim() || DEFAULT_PROFILE.handle],
+        ['#profile-bio-input', 'bio', value => value.trim() || DEFAULT_PROFILE.bio],
+        ['#profile-avatar-url-input', 'avatarUrl', value => value.trim()]
+      ];
+      profileFields.forEach(([selector, key, normalize]) => {
+        $(selector).addEventListener('input', e => {
+          state.profile[key] = normalize(e.target.value);
+          if (key === 'avatarUrl' && state.profile.avatarData) state.profile.avatarData = '';
+          saveState();
+          renderHeader();
+          renderProfilePreview();
+        });
+      });
+      $('#btn-profile-upload').addEventListener('click', () => $('#profile-avatar-file').click());
+      $('#profile-avatar-file').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.profile.avatarData = String(reader.result || '');
+          state.profile.avatarUrl = '';
+          saveState();
+          renderHeader();
+          renderProfileSettings();
+          toast('Foto atualizada');
+        };
+        reader.onerror = () => toast('Erro ao ler a imagem');
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      });
+      $('#btn-profile-reset').addEventListener('click', () => {
+        state.profile = { ...DEFAULT_PROFILE };
+        saveState();
+        renderHeader();
+        renderProfileSettings();
+        toast('Perfil restaurado');
+      });
 
       // Modal
       $('#m-close').addEventListener('click', closeTeamModal);
@@ -1745,7 +1927,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `figurinhas-devjuninho-${todayStr()}.json`;
+        a.download = `figurinhas-copa-2026-${backupSlug()}-${todayStr()}.json`;
         a.click();
         URL.revokeObjectURL(url);
         toast('Backup exportado');
@@ -1761,6 +1943,7 @@
           const ok = await confirmDialog('Importar backup', 'Isso vai substituir TODOS os seus dados atuais. Continuar?');
           if (!ok) return;
           state = { ...state, ...data };
+          state.profile = { ...DEFAULT_PROFILE, ...(state.profile || {}) };
           // ensure stickers exist
           const fresh = buildEmptyStickers();
           Object.keys(fresh).forEach(id => {
@@ -1778,9 +1961,11 @@
         const ok = await confirmDialog('Resetar tudo', 'Apaga todas as figurinhas, repetidas e histórico. Não dá pra desfazer.');
         if (!ok) return;
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
         state.stickers = buildEmptyStickers();
         state.history = [];
         state.spending = [];
+        state.profile = { ...DEFAULT_PROFILE };
         saveState();
         renderAll();
         toast('Tudo resetado');
@@ -1807,37 +1992,11 @@
       });
     }
 
-    /* ================== AVATAR LOADER ================== */
-    function loadAvatar() {
-      const el = document.getElementById('avatar');
-      if (!el) return;
-      // try avatar.png → .jpg → .jpeg → .webp → .svg → fallback (initials já no DOM)
-      const candidates = ['avatar.png', 'avatar.jpg', 'avatar.jpeg', 'avatar.webp', 'avatar.svg'];
-      let i = 0;
-      const tryNext = () => {
-        if (i >= candidates.length) return; // mantém initials
-        const src = candidates[i++];
-        const img = new Image();
-        img.onload = () => {
-          el.innerHTML = '';
-          img.style.width = '100%';
-          img.style.height = '100%';
-          img.style.objectFit = 'cover';
-          img.style.display = 'block';
-          el.appendChild(img);
-        };
-        img.onerror = tryNext;
-        img.src = src + '?v=' + Date.now();
-      };
-      tryNext();
-    }
-
     /* ================== INIT ================== */
     function init() {
       loadState();
       bindEvents();
       renderAll();
-      loadAvatar();
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(e => console.warn('sw failed', e));
