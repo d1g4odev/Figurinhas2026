@@ -229,6 +229,18 @@
     .section-card h3 small { font-size: 11px; color: var(--text-2); font-weight: 500; }
     .section-card p { line-height: 1.5; }
 
+    .share-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .share-actions .btn {
+      min-width: 0;
+      white-space: normal;
+      line-height: 1.2;
+    }
+    .share-actions .btn:only-child { grid-column: 1 / -1; }
+
     .conf-list { display: flex; flex-direction: column; gap: 10px; }
     .conf-row { display: flex; align-items: center; gap: 10px; }
     .conf-row .conf-name { width: 90px; font-size: 12px; color: var(--text-2); font-weight: 600; }
@@ -652,6 +664,9 @@
       .teams-grid { grid-template-columns: repeat(4, 1fr); }
       .stickers-grid { grid-template-columns: repeat(5, 1fr); }
     }
+    @media (max-width: 420px) {
+      .share-actions { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -721,6 +736,14 @@
       </div>
 
       <div class="section-card">
+        <h3>Compartilhar <small>listas</small></h3>
+        <div class="share-actions">
+          <button class="btn btn-primary" id="btn-copy-owned">Copiar já tenho</button>
+          <button class="btn" id="btn-copy-missing">Copiar faltantes</button>
+        </div>
+      </div>
+
+      <div class="section-card">
         <h3>Marcos <small>conquistas</small></h3>
         <div class="milestones" id="milestones"></div>
       </div>
@@ -781,6 +804,13 @@
         <input type="search" id="dup-search" placeholder="Buscar (ex: BRA, ARG3)..." />
       </div>
 
+      <div class="section-card">
+        <h3>Compartilhar <small>trocas</small></h3>
+        <div class="share-actions">
+          <button class="btn btn-primary" id="btn-copy-dups">Copiar repetidas</button>
+        </div>
+      </div>
+
       <div id="dups-container"></div>
     </section>
 
@@ -788,12 +818,12 @@
     <section class="tab" id="tab-swap">
       <div class="tab-heading">
         <h2 class="tab-title">Trocas</h2>
-        <p class="tab-sub">Bate, falta e histórico. Compartilhe sua lista no zap.</p>
+        <p class="tab-sub">Bate, falta e histórico. Copie sua lista para enviar onde quiser.</p>
       </div>
 
-      <div class="swap-toolbar">
-        <button class="btn btn-primary" id="btn-share-bate">📋 Copiar BATE</button>
-        <button class="btn" id="btn-share-falta">📋 Copiar FALTA</button>
+      <div class="swap-toolbar share-actions">
+        <button class="btn btn-primary" id="btn-share-bate">Copiar repetidas</button>
+        <button class="btn" id="btn-share-falta">Copiar faltantes</button>
       </div>
 
       <div class="swap-tabs">
@@ -1543,6 +1573,91 @@
       return d.toISOString().slice(0, 10);
     }
 
+    function profileShareLabel() {
+      const profile = state.profile || DEFAULT_PROFILE;
+      const name = profile.name || DEFAULT_PROFILE.name;
+      const handle = normalizeHandle(profile.handle);
+      return `${name} (${handle})`;
+    }
+
+    function stickerNumber(id) {
+      return id.replace(/^[A-Z]+/, '');
+    }
+
+    function groupedStickerLines(predicate, formatNumber) {
+      const lines = [];
+      state.teams.forEach(team => {
+        const nums = [];
+        for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+          const id = `${team.code}${i}`;
+          const sticker = state.stickers[id];
+          if (sticker && predicate(id, sticker, team)) {
+            nums.push(formatNumber(id, sticker, team));
+          }
+        }
+        if (nums.length) lines.push(`${team.name} (${team.code}): ${nums.join(', ')}`);
+      });
+      return lines;
+    }
+
+    function buildOwnedText() {
+      const total = ownedCount();
+      if (total === 0) {
+        return `Figurinhas que já tenho - Álbum Copa 2026\n${profileShareLabel()}\n\nSem figurinhas marcadas como já tenho.`;
+      }
+      const lines = groupedStickerLines(
+        (_, sticker) => sticker.owned,
+        id => stickerNumber(id)
+      );
+      return [
+        'Figurinhas que já tenho - Álbum Copa 2026',
+        profileShareLabel(),
+        '',
+        ...lines,
+        '',
+        `Total já tenho: ${total}/${TOTAL_STICKERS} figurinhas`
+      ].join('\n');
+    }
+
+    function buildMissingText() {
+      const total = TOTAL_STICKERS - ownedCount();
+      if (total === 0) {
+        return `Figurinhas faltantes - Álbum Copa 2026\n${profileShareLabel()}\n\nÁlbum completo.`;
+      }
+      const lines = groupedStickerLines(
+        (_, sticker) => !sticker.owned,
+        id => stickerNumber(id)
+      );
+      return [
+        'Figurinhas faltantes - Álbum Copa 2026',
+        profileShareLabel(),
+        '',
+        ...lines,
+        '',
+        `Total faltante: ${total}/${TOTAL_STICKERS} figurinhas`
+      ].join('\n');
+    }
+
+    function buildDupsText() {
+      const items = currentStickerEntries().filter(([_, sticker]) => sticker.dups > 0);
+      const total = items.reduce((sum, [_, sticker]) => sum + sticker.dups, 0);
+      if (total === 0) {
+        return `Figurinhas repetidas - Álbum Copa 2026\n${profileShareLabel()}\n\nSem figurinhas repetidas no momento.`;
+      }
+      const lines = groupedStickerLines(
+        (_, sticker) => sticker.dups > 0,
+        (id, sticker) => `${stickerNumber(id)}${sticker.dups > 1 ? ` (x${sticker.dups})` : ''}`
+      );
+      return [
+        'Figurinhas repetidas - Álbum Copa 2026',
+        profileShareLabel(),
+        '',
+        ...lines,
+        '',
+        `Total repetidas: ${total} figurinhas (${items.length} tipos)`
+      ].join('\n');
+    }
+
     /* ================== RENDERING ================== */
     function renderHeader() {
       const owned = ownedCount();
@@ -1967,58 +2082,52 @@
     }
 
     function buildBateText() {
-      const items = currentStickerEntries()
-        .filter(([_, s]) => s.dups > 0)
-        .sort(([a], [b]) => a.localeCompare(b));
-      if (items.length === 0) return 'Sem repetidas!';
-      const grouped = {};
-      items.forEach(([id, s]) => {
-        const team = currentTeamForStickerId(id);
-        const key = team ? `${team.name} (${team.code})` : 'Outras';
-        if (!grouped[key]) grouped[key] = [];
-        const num = id.replace(/^[A-Z]+/, '');
-        grouped[key].push(`${num}${s.dups > 1 ? `(×${s.dups})` : ''}`);
-      });
-      let out = `🎴 BATE — ${normalizeHandle(state.profile.handle)}\n\n`;
-      Object.entries(grouped).forEach(([k, arr]) => {
-        out += `${k}: ${arr.join(', ')}\n`;
-      });
-      out += `\nTotal: ${items.reduce((a, [_, s]) => a + s.dups, 0)} figurinhas`;
-      return out;
+      return buildDupsText();
     }
 
     function buildFaltaText() {
-      const items = currentStickerEntries()
-        .filter(([_, s]) => !s.owned)
-        .sort(([a], [b]) => a.localeCompare(b));
-      if (items.length === 0) return 'Álbum completo!';
-      const grouped = {};
-      items.forEach(([id]) => {
-        const team = currentTeamForStickerId(id);
-        const key = team ? `${team.name} (${team.code})` : 'Outras';
-        if (!grouped[key]) grouped[key] = [];
-        const num = id.replace(/^[A-Z]+/, '');
-        grouped[key].push(num);
-      });
-      let out = `🔍 FALTA — ${normalizeHandle(state.profile.handle)}\n\n`;
-      Object.entries(grouped).forEach(([k, arr]) => {
-        out += `${k}: ${arr.join(', ')}\n`;
-      });
-      out += `\nTotal: ${items.length} figurinhas`;
-      return out;
+      return buildMissingText();
     }
 
-    async function copyToClip(text) {
+    function copyWithTextarea(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '-9999px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const copied = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (!copied) throw new Error('copy command failed');
+    }
+
+    async function copyToClip(text, message = 'Copiado pro clipboard!') {
+      const safeText = String(text || '').trim();
+      if (!safeText) {
+        toast('Nada para copiar');
+        return;
+      }
       try {
-        await navigator.clipboard.writeText(text);
-        toast('Copiado pro clipboard!');
-      } catch {
-        // fallback
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta);
-        toast('Copiado!');
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(safeText);
+        } else {
+          copyWithTextarea(safeText);
+        }
+        toast(message);
+      } catch (err) {
+        try {
+          copyWithTextarea(safeText);
+          toast(message);
+        } catch (fallbackErr) {
+          console.warn('copy failed', err, fallbackErr);
+          window.prompt('Não consegui copiar automaticamente. Selecione e copie este texto:', safeText);
+          toast('Texto pronto para copiar');
+        }
       }
     }
 
@@ -2199,6 +2308,11 @@
         toast(`+R$ ${v.toFixed(2).replace('.', ',')} registrados`);
       });
 
+      // Share lists
+      $('#btn-copy-owned').addEventListener('click', () => copyToClip(buildOwnedText(), 'Lista das que você já tem copiada!'));
+      $('#btn-copy-missing').addEventListener('click', () => copyToClip(buildMissingText(), 'Lista de faltantes copiada!'));
+      $('#btn-copy-dups').addEventListener('click', () => copyToClip(buildDupsText(), 'Lista de repetidas copiada!'));
+
       // Swap tabs
       $$('#tab-swap .swap-tab').forEach(b => {
         b.addEventListener('click', () => {
@@ -2206,8 +2320,8 @@
           renderSwapTab();
         });
       });
-      $('#btn-share-bate').addEventListener('click', () => copyToClip(buildBateText()));
-      $('#btn-share-falta').addEventListener('click', () => copyToClip(buildFaltaText()));
+      $('#btn-share-bate').addEventListener('click', () => copyToClip(buildBateText(), 'Lista de repetidas copiada!'));
+      $('#btn-share-falta').addEventListener('click', () => copyToClip(buildFaltaText(), 'Lista de faltantes copiada!'));
 
       // Settings actions
       $('#btn-export').addEventListener('click', () => {
