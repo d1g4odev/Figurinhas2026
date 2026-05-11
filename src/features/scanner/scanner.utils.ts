@@ -29,6 +29,13 @@ type StickerMatch = {
   confidence: number;
 };
 
+export type StickerCandidate = {
+  stickerId: string;
+  reason: 'code' | 'front' | 'visual';
+  confidence: number;
+  score: number;
+};
+
 const visualIndex = visualIndexData as VisualIndexFile;
 
 function normalizeText(value: string) {
@@ -90,41 +97,59 @@ function scoreFrontSticker(text: string, sticker: Sticker) {
 }
 
 export function extractStickerMatchFromFrontText(rawText: string): StickerMatch {
-  const codeMatch = extractStickerIdFromText(rawText);
-  if (codeMatch) {
-    return { stickerId: codeMatch, reason: 'code', confidence: 1 };
-  }
-
-  const normalizedText = normalizeText(rawText);
-  if (!normalizedText) {
+  const [bestCandidate] = extractStickerCandidatesFromFrontText(rawText, 1);
+  if (!bestCandidate) {
     return { stickerId: null, reason: 'none', confidence: 0 };
   }
 
-  let bestSticker: Sticker | null = null;
-  let bestScore = 0;
-  let secondScore = 0;
-
-  for (const sticker of catalog) {
-    const score = scoreFrontSticker(normalizedText, sticker);
-    if (score > bestScore) {
-      secondScore = bestScore;
-      bestScore = score;
-      bestSticker = sticker;
-    } else if (score > secondScore) {
-      secondScore = score;
-    }
-  }
-
-  if (!bestSticker || bestScore < 40) {
-    return { stickerId: null, reason: 'none', confidence: 0 };
-  }
-
-  const confidence = secondScore ? Math.min(0.99, bestScore / (bestScore + secondScore)) : 0.99;
-  return { stickerId: bestSticker.id, reason: 'front', confidence };
+  return {
+    stickerId: bestCandidate.stickerId,
+    reason: bestCandidate.reason,
+    confidence: bestCandidate.confidence
+  };
 }
 
 export function getStickerById(stickerId: string) {
   return catalogById.get(stickerId) || null;
+}
+
+export function extractStickerCandidatesFromFrontText(rawText: string, limit = 3): StickerCandidate[] {
+  const codeMatch = extractStickerIdFromText(rawText);
+  if (codeMatch) {
+    return [{ stickerId: codeMatch, reason: 'code', confidence: 1, score: 999 }];
+  }
+
+  const normalizedText = normalizeText(rawText);
+  if (!normalizedText) {
+    return [];
+  }
+
+  const scored = catalog
+    .map((sticker) => ({
+      stickerId: sticker.id,
+      reason: 'front' as const,
+      score: scoreFrontSticker(normalizedText, sticker)
+    }))
+    .filter((item) => item.score >= 40)
+    .sort((a, b) => b.score - a.score);
+
+  if (!scored.length) {
+    return [];
+  }
+
+  return scored.slice(0, limit).map((candidate, index) => {
+    const nextScore = scored[index + 1]?.score || 0;
+    const confidence = nextScore
+      ? Math.min(0.99, candidate.score / (candidate.score + nextScore))
+      : 0.99;
+
+    return {
+      stickerId: candidate.stickerId,
+      reason: candidate.reason,
+      confidence,
+      score: candidate.score
+    };
+  });
 }
 
 function computeHashFromContext(
@@ -206,8 +231,26 @@ export function matchStickerByVisualHashes(
   hashes: { fullHash: string | null; portraitHash: string | null },
   expectedType?: Sticker['stickerType'] | null
 ): StickerMatch {
-  if (!hashes.fullHash || !hashes.portraitHash) {
+  const [bestCandidate] = matchStickerCandidatesByVisualHashes(hashes, expectedType, 1);
+  if (!bestCandidate) {
     return { stickerId: null, reason: 'none', confidence: 0 };
+  }
+
+  return {
+    stickerId: bestCandidate.stickerId,
+    reason: bestCandidate.reason,
+    confidence: bestCandidate.confidence
+  };
+}
+
+export function matchStickerCandidatesByVisualHashes(
+  hashes: { fullHash: string | null; portraitHash: string | null },
+  expectedType?: Sticker['stickerType'] | null,
+  limit = 3
+): StickerCandidate[] {
+  const { fullHash, portraitHash } = hashes;
+  if (!fullHash || !portraitHash) {
+    return [];
   }
 
   const candidates = expectedType
@@ -215,42 +258,37 @@ export function matchStickerByVisualHashes(
     : visualIndex.items;
 
   if (!candidates.length) {
-    return { stickerId: null, reason: 'none', confidence: 0 };
+    return [];
   }
 
-  let best: VisualIndexEntry | null = null;
-  let bestScore = Number.POSITIVE_INFINITY;
-  let secondScore = Number.POSITIVE_INFINITY;
+  const ranked = candidates
+    .map((item) => {
+      const fullDistance = hammingDistance(fullHash, item.fullHash);
+      const portraitDistance = hammingDistance(portraitHash, item.portraitHash);
+      const score = fullDistance * 0.4 + portraitDistance * 0.6;
+      return { item, score };
+    })
+    .filter((entry) => Number.isFinite(entry.score))
+    .sort((a, b) => a.score - b.score);
 
-  for (const item of candidates) {
-    const fullDistance = hammingDistance(hashes.fullHash, item.fullHash);
-    const portraitDistance = hammingDistance(hashes.portraitHash, item.portraitHash);
-    const score = fullDistance * 0.4 + portraitDistance * 0.6;
+  return ranked
+    .slice(0, limit)
+    .map<StickerCandidate>((entry, index) => {
+      const nextScore = ranked[index + 1]?.score ?? entry.score + 40;
+      const separation = Math.max(0, nextScore - entry.score);
+      const confidence = Math.max(
+        0,
+        Math.min(0.99, 0.45 + separation / 40 - Math.min(entry.score, 48) / 96)
+      );
 
-    if (score < bestScore) {
-      secondScore = bestScore;
-      bestScore = score;
-      best = item;
-    } else if (score < secondScore) {
-      secondScore = score;
-    }
-  }
-
-  if (!best || !Number.isFinite(bestScore)) {
-    return { stickerId: null, reason: 'none', confidence: 0 };
-  }
-
-  const separation = Number.isFinite(secondScore) ? Math.max(0, secondScore - bestScore) : 40;
-  const confidence = Math.max(
-    0,
-    Math.min(0.99, 0.45 + separation / 40 - Math.min(bestScore, 48) / 96)
-  );
-
-  if (confidence < 0.62) {
-    return { stickerId: null, reason: 'none', confidence };
-  }
-
-  return { stickerId: best.id, reason: 'visual', confidence };
+      return {
+        stickerId: entry.item.id,
+        reason: 'visual',
+        confidence,
+        score: Math.max(0, 100 - entry.score)
+      };
+    })
+    .filter((candidate) => candidate.confidence >= 0.42);
 }
 
 export function getVisualIndexStats() {
