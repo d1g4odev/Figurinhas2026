@@ -3,22 +3,30 @@ import {
   getAuth,
   getRedirectResult,
   GoogleAuthProvider,
+  indexedDBLocalPersistence,
+  initializeAuth,
   onAuthStateChanged,
-  setPersistence,
   signInWithPopup,
   signOut,
   type User
 } from 'firebase/auth';
 import { firebaseApp } from './firebase.app';
 
-export const auth = getAuth(firebaseApp);
+export const auth = (() => {
+  try {
+    return initializeAuth(firebaseApp, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+    });
+  } catch {
+    // Auth may already be initialized (for example during HMR).
+    return getAuth(firebaseApp);
+  }
+})();
 export const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-const persistenceReady = setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.warn('Firebase Auth persistence indisponível', error);
-});
+const persistenceReady = Promise.resolve();
 
 export function authErrorMessage(error: unknown) {
   const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
@@ -44,11 +52,7 @@ export function signOutUser() {
 
 export async function resolveRedirectLogin() {
   await persistenceReady;
-  try {
-    return await getRedirectResult(auth);
-  } finally {
-    sessionStorage.removeItem('figurinhas-auth-redirect-started');
-  }
+  return getRedirectResult(auth);
 }
 
 export function subscribeToAuth(callback: (user: User | null) => void) {
