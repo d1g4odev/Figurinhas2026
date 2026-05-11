@@ -1,4 +1,5 @@
 import {
+  browserSessionPersistence,
   browserLocalPersistence,
   getAuth,
   getRedirectResult,
@@ -7,13 +8,32 @@ import {
   initializeAuth,
   linkWithRedirect,
   onAuthStateChanged,
-  signInAnonymously,
+  setPersistence,
+  signInWithCustomToken,
   signInWithCredential,
   signInWithRedirect,
   signOut,
   type User
 } from 'firebase/auth';
 import { firebaseApp } from './firebase.app';
+
+const REMEMBER_DEVICE_KEY = 'figs2026.remember-device';
+
+type UsernameAuthPayload = {
+  username: string;
+  pin: string;
+  rememberDevice: boolean;
+};
+
+type UsernameAuthResponse = {
+  token: string;
+  user: {
+    uid: string;
+    memberId: string;
+    username: string;
+    authMethod: 'pin';
+  };
+};
 
 export const auth = (() => {
   try {
@@ -28,6 +48,22 @@ export const auth = (() => {
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+export function getRememberDeviceDefault() {
+  return localStorage.getItem(REMEMBER_DEVICE_KEY) !== '0';
+}
+
+export function saveRememberDevicePreference(rememberDevice: boolean) {
+  localStorage.setItem(REMEMBER_DEVICE_KEY, rememberDevice ? '1' : '0');
+}
+
+async function configurePersistence(rememberDevice: boolean) {
+  saveRememberDevicePreference(rememberDevice);
+  await setPersistence(
+    auth,
+    rememberDevice ? indexedDBLocalPersistence : browserSessionPersistence
+  );
+}
+
 export function authErrorMessage(error: unknown) {
   const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
   if (code === 'auth/operation-not-allowed') return 'Ative o provedor Google no Firebase Authentication.';
@@ -35,12 +71,42 @@ export function authErrorMessage(error: unknown) {
   if (code === 'auth/web-storage-unsupported') return 'O navegador bloqueou cookies/armazenamento. Libere para este site e tente novamente.';
   if (code === 'auth/network-request-failed') return 'Falha de rede ao falar com o Firebase. Confira sua conexão.';
   if (code === 'auth/credential-already-in-use') return 'Essa conta Google já tem um álbum salvo. Vamos entrar nela.';
-  if (code === 'auth/admin-restricted-operation') return 'Login anônimo desabilitado. Ative em Firebase Authentication > Sign-in method > Anonymous.';
+  if (code === 'auth/invalid-custom-token') return 'Seu token de acesso não foi aceito. Verifique a configuração do backend.';
+  if (code === 'auth/custom-token-mismatch') return 'O token foi gerado para outro projeto Firebase.';
+  if (code === 'auth/too-many-requests') return 'Muitas tentativas. Aguarde um pouco antes de tentar novamente.';
+  if (typeof error === 'object' && error && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
   return `Não consegui concluir o login${code ? ` (${code})` : ''}.`;
 }
 
-export function signInAnonymousUser() {
-  return signInAnonymously(auth);
+async function postAuthEndpoint(path: string, payload: UsernameAuthPayload) {
+  const response = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const data = (await response.json().catch(() => ({}))) as Partial<UsernameAuthResponse> & { error?: string };
+  if (!response.ok || !data.token) {
+    throw new Error(data.error || 'Não consegui validar sua conta.');
+  }
+
+  return data as UsernameAuthResponse;
+}
+
+export async function signInWithUsernamePin(payload: UsernameAuthPayload) {
+  await configurePersistence(payload.rememberDevice);
+  const data = await postAuthEndpoint('/api/auth/login', payload);
+  await signInWithCustomToken(auth, data.token);
+  return data.user;
+}
+
+export async function registerWithUsernamePin(payload: UsernameAuthPayload) {
+  await configurePersistence(payload.rememberDevice);
+  const data = await postAuthEndpoint('/api/auth/register', payload);
+  await signInWithCustomToken(auth, data.token);
+  return data.user;
 }
 
 /**
@@ -54,9 +120,11 @@ export function signInAnonymousUser() {
  * The page navigates to Google. The promise never resolves. The result is
  * processed by resolvePendingGoogleLogin() on the next app load.
  */
-export async function linkOrSignInWithGoogle() {
+export async function linkOrSignInWithGoogle(rememberDevice = true) {
+  await configurePersistence(rememberDevice);
   const current = auth.currentUser;
-  if (current && current.isAnonymous) {
+  const alreadyLinkedToGoogle = !!current?.providerData.some((provider) => provider.providerId === 'google.com');
+  if (current && !alreadyLinkedToGoogle) {
     return linkWithRedirect(current, googleProvider);
   }
   return signInWithRedirect(auth, googleProvider);

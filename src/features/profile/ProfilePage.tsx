@@ -6,12 +6,10 @@ import { useAlbum } from '../album/useAlbum';
 import { useAuth } from '../auth/useAuth';
 
 export function ProfilePage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { summary } = useAlbum();
   const [busy, setBusy] = useState(false);
   const [linkError, setLinkError] = useState('');
-
-  const isAnonymous = !!user?.isAnonymous;
 
   async function handleLinkGoogle() {
     setBusy(true);
@@ -30,12 +28,10 @@ export function ProfilePage() {
       <div className="profile-card">
         <img src={user?.photoURL || '/icons/icon-192.png'} alt="" />
         <div>
-          <span className="eyebrow">{isAnonymous ? 'Modo convidado' : 'Conta Google'}</span>
-          <h2>{user?.displayName || (isAnonymous ? 'Colecionador anônimo' : 'Colecionador')}</h2>
+          <span className="eyebrow">{profile?.providerId === 'google.com' ? 'Conta Google' : 'Conta com PIN'}</span>
+          <h2>{profile?.username || user?.displayName || 'Colecionador'}</h2>
           <p>
-            {isAnonymous
-              ? 'Seu álbum está salvo só nesse dispositivo. Sincronize com Google pra usar em qualquer celular.'
-              : user?.email}
+            ID {profile?.memberId || '----'} {profile?.providerId === 'google.com' ? `· ${user?.email || ''}` : '· login com nome de usuário e PIN'}
           </p>
         </div>
       </div>
@@ -47,10 +43,10 @@ export function ProfilePage() {
         <div><strong>R$ {summary.totalSpent.toFixed(2)}</strong><span>Gastos</span></div>
       </div>
 
-      {isAnonymous ? (
+      {profile?.providerId !== 'google.com' ? (
         <Button variant="primary" onClick={handleLinkGoogle} disabled={busy}>
           <Cloud size={18} />
-          {busy ? 'Abrindo Google...' : 'Sincronizar com Google'}
+          {busy ? 'Abrindo Google...' : 'Conectar Google também'}
         </Button>
       ) : (
         <Button variant="danger" onClick={() => signOutUser()}>

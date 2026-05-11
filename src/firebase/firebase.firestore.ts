@@ -6,17 +6,35 @@ import type { AlbumState, AlbumSummary } from '../features/album/album.types';
 const userRef = (uid: string) => doc(firestore, 'users', uid);
 const albumRef = (uid: string) => doc(firestore, 'users', uid, 'albums', 'default');
 
+export type UserProfile = {
+  uid: string;
+  memberId?: string;
+  username?: string;
+  displayName?: string;
+  email?: string;
+  photoURL?: string;
+  providerId?: string;
+};
+
 export async function upsertUser(user: User) {
   const snap = await getDoc(userRef(user.uid));
+  const providerId = user.providerData.some((provider) => provider.providerId === 'google.com')
+    ? 'google.com'
+    : user.providerData[0]?.providerId || 'custom';
   await setDoc(userRef(user.uid), {
     uid: user.uid,
-    email: user.email || '',
-    displayName: user.displayName || '',
-    photoURL: user.photoURL || '',
-    providerId: 'google.com',
+    email: user.email || snap.data()?.email || '',
+    displayName: user.displayName || snap.data()?.displayName || '',
+    photoURL: user.photoURL || snap.data()?.photoURL || '',
+    providerId,
     createdAt: snap.exists() ? snap.data().createdAt || serverTimestamp() : serverTimestamp(),
     updatedAt: serverTimestamp()
   }, { merge: true });
+}
+
+export async function loadUserProfile(uid: string) {
+  const snap = await getDoc(userRef(uid));
+  return snap.exists() ? (snap.data() as UserProfile) : null;
 }
 
 export async function loadAlbumState(user: User) {

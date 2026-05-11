@@ -1,9 +1,15 @@
-import { Chrome, Sparkles } from 'lucide-react';
+import { Chrome, KeyRound, Sparkles, UserRound } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { authErrorMessage, linkOrSignInWithGoogle } from '../../firebase/firebase.auth';
+import {
+  authErrorMessage,
+  getRememberDeviceDefault,
+  linkOrSignInWithGoogle,
+  registerWithUsernamePin,
+  signInWithUsernamePin
+} from '../../firebase/firebase.auth';
 import { useAlbumStore } from '../album/album.store';
 import { catalog, createEmptyAlbum } from '../album/album.utils';
 import { useAuth } from './useAuth';
@@ -32,26 +38,55 @@ function activatePreviewMode() {
 }
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const { user, loading, error: authError } = useAuth();
   const [localError, setLocalError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [username, setUsername] = useState('');
+  const [pin, setPin] = useState('');
+  const [pinConfirm, setPinConfirm] = useState('');
+  const [rememberDevice, setRememberDevice] = useState(getRememberDeviceDefault());
 
-  const isAnonymous = !!user?.isAnonymous;
-  const buttonLabel = isAnonymous ? 'Sincronizar com Google' : 'Entrar com Google';
-  const tagline = isAnonymous
-    ? 'Conecte sua conta Google pra salvar o álbum em todos os seus dispositivos.'
-    : 'Controle suas figurinhas, repetidas e faltantes com backup na sua conta Google.';
+  const tagline =
+    mode === 'register'
+      ? 'Crie sua conta com nome de usuário e PIN de 4 dígitos. Seus dados ficam salvos no seu álbum na nuvem.'
+      : 'Entre com seu usuário e PIN, ou conecte com Google para ter backup e acesso em outros dispositivos.';
 
-  if (!loading && user && !user.isAnonymous && user.uid !== '__preview__') {
+  if (!loading && user && user.uid !== '__preview__') {
     return <Navigate to="/album" replace />;
   }
 
-  async function handleLogin() {
+  async function handleGoogleLogin() {
     setBusy(true);
     setLocalError('');
     try {
-      await linkOrSignInWithGoogle();
+      await linkOrSignInWithGoogle(rememberDevice);
+    } catch (err) {
+      setLocalError(authErrorMessage(err));
+      setBusy(false);
+    }
+  }
+
+  async function handlePinSubmit() {
+    const trimmedPin = pin.trim();
+    if (!/^\d{4}$/.test(trimmedPin)) {
+      setLocalError('Use um PIN com exatamente 4 números.');
+      return;
+    }
+
+    if (mode === 'register' && trimmedPin !== pinConfirm.trim()) {
+      setLocalError('Os PINs não conferem.');
+      return;
+    }
+
+    setBusy(true);
+    setLocalError('');
+    try {
+      if (mode === 'register') {
+        await registerWithUsernamePin({ username, pin: trimmedPin, rememberDevice });
+      } else {
+        await signInWithUsernamePin({ username, pin: trimmedPin, rememberDevice });
+      }
     } catch (err) {
       setLocalError(authErrorMessage(err));
       setBusy(false);
@@ -69,19 +104,93 @@ export function LoginPage() {
           <h1>Figurinhas Copa 2026</h1>
           <p>{tagline}</p>
         </div>
-        <Button variant="primary" onClick={handleLogin} disabled={busy || loading}>
-          <Chrome size={18} />
-          {busy ? 'Abrindo Google...' : buttonLabel}
-        </Button>
-        {!isAnonymous && (
+        <div className="auth-mode-switch" role="tablist" aria-label="Modo de acesso">
           <button
             type="button"
-            className="dev-preview-link"
-            onClick={() => navigate('/album')}
+            className={mode === 'login' ? 'active' : ''}
+            onClick={() => setMode('login')}
           >
-            Continuar sem login
+            Entrar
           </button>
-        )}
+          <button
+            type="button"
+            className={mode === 'register' ? 'active' : ''}
+            onClick={() => setMode('register')}
+          >
+            Criar conta
+          </button>
+        </div>
+        <div className="auth-form">
+          <label className="auth-field">
+            <span>Nome de usuário</span>
+            <div className="auth-input">
+              <UserRound size={16} />
+              <input
+                value={username}
+                onChange={(event) => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                placeholder="ex: rodrigo_10"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                maxLength={20}
+              />
+            </div>
+          </label>
+
+          <label className="auth-field">
+            <span>PIN de 4 dígitos</span>
+            <div className="auth-input">
+              <KeyRound size={16} />
+              <input
+                value={pin}
+                onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="0000"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={4}
+              />
+            </div>
+          </label>
+
+          {mode === 'register' && (
+            <label className="auth-field">
+              <span>Confirmar PIN</span>
+              <div className="auth-input">
+                <KeyRound size={16} />
+                <input
+                  value={pinConfirm}
+                  onChange={(event) => setPinConfirm(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="0000"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={4}
+                />
+              </div>
+            </label>
+          )}
+
+          <label className="remember-toggle">
+            <input
+              type="checkbox"
+              checked={rememberDevice}
+              onChange={(event) => setRememberDevice(event.target.checked)}
+            />
+            <span>Lembrar este dispositivo</span>
+          </label>
+        </div>
+
+        <Button variant="primary" onClick={handlePinSubmit} disabled={busy || loading}>
+          <KeyRound size={18} />
+          {busy ? (mode === 'register' ? 'Criando conta...' : 'Entrando...') : mode === 'register' ? 'Criar conta' : 'Entrar com PIN'}
+        </Button>
+
+        <div className="auth-divider"><span>ou</span></div>
+
+        <Button variant="secondary" onClick={handleGoogleLogin} disabled={busy || loading}>
+          <Chrome size={18} />
+          {busy ? 'Abrindo Google...' : 'Entrar com Google'}
+        </Button>
+
         {error && <p className="form-error">{error}</p>}
         {import.meta.env.DEV && (
           <button type="button" className="dev-preview-link" onClick={activatePreviewMode}>
