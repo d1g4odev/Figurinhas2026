@@ -2,33 +2,28 @@ import { Chrome, ShieldCheck, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { signInWithGoogle } from '../../firebase/firebase.auth';
+import { authErrorMessage, signInWithGoogle } from '../../firebase/firebase.auth';
 import { useAuth } from './useAuth';
 
-function authMessage(error: unknown) {
-  const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
-  if (code === 'auth/operation-not-allowed') return 'Ative o provedor Google no Firebase Authentication.';
-  if (code === 'auth/unauthorized-domain') return 'Adicione localhost, 127.0.0.1 e o domínio publicado nos domínios autorizados do Firebase.';
-  return 'Não consegui concluir o login com Google. Tente novamente.';
-}
-
 export function LoginPage() {
-  const { user, loading } = useAuth();
-  const [error, setError] = useState('');
+  const { user, loading, error: authError } = useAuth();
+  const [localError, setLocalError] = useState('');
   const [busy, setBusy] = useState(false);
 
   if (!loading && user) return <Navigate to="/album" replace />;
 
   async function handleLogin() {
     setBusy(true);
-    setError('');
+    setLocalError('');
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError(authMessage(err));
+      setLocalError(authErrorMessage(err));
       setBusy(false);
     }
   }
+
+  const error = localError || authError;
 
   return (
     <main className="login-page">

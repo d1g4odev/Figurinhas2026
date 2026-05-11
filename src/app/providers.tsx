@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, type PropsWithChildren } from 'react';
 import { useAuthStore } from '../features/auth/auth.store';
-import { subscribeToAuth } from '../firebase/firebase.auth';
+import { authErrorMessage, resolveRedirectLogin, subscribeToAuth } from '../firebase/firebase.auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,8 +23,16 @@ export function AppProviders({ children }: PropsWithChildren) {
 
 function AuthObserver() {
   const setUser = useAuthStore((state) => state.setUser);
+  const setError = useAuthStore((state) => state.setError);
 
-  useEffect(() => subscribeToAuth(setUser), [setUser]);
+  useEffect(() => {
+    resolveRedirectLogin().catch((error) => {
+      console.warn('Erro ao finalizar login Google', error);
+      setError(authErrorMessage(error));
+    });
+
+    return subscribeToAuth(setUser);
+  }, [setError, setUser]);
 
   return null;
 }
