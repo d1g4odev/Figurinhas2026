@@ -1,7 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { useAuthStore } from '../features/auth/auth.store';
-import { signInAnonymousUser, subscribeToAuth } from '../firebase/firebase.auth';
+import {
+  resolvePendingGoogleLogin,
+  signInAnonymousUser,
+  subscribeToAuth
+} from '../firebase/firebase.auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,8 +29,14 @@ function AuthObserver() {
   const setUser = useAuthStore((state) => state.setUser);
   const setError = useAuthStore((state) => state.setError);
   const signingInRef = useRef(false);
+  const resolvedRedirectRef = useRef(false);
 
   useEffect(() => {
+    if (!resolvedRedirectRef.current) {
+      resolvedRedirectRef.current = true;
+      resolvePendingGoogleLogin().catch(() => undefined);
+    }
+
     const unsubscribe = subscribeToAuth((user) => {
       if (user) {
         setUser(user);

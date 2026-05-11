@@ -1,7 +1,7 @@
 import { Chrome, Sparkles } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { authErrorMessage, linkOrSignInWithGoogle } from '../../firebase/firebase.auth';
 import { useAlbumStore } from '../album/album.store';
@@ -43,12 +43,15 @@ export function LoginPage() {
     ? 'Conecte sua conta Google pra salvar o álbum em todos os seus dispositivos.'
     : 'Controle suas figurinhas, repetidas e faltantes com backup na sua conta Google.';
 
+  if (!loading && user && !user.isAnonymous && user.uid !== '__preview__') {
+    return <Navigate to="/album" replace />;
+  }
+
   async function handleLogin() {
     setBusy(true);
     setLocalError('');
     try {
       await linkOrSignInWithGoogle();
-      navigate('/album');
     } catch (err) {
       setLocalError(authErrorMessage(err));
       setBusy(false);
