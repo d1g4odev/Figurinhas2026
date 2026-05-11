@@ -4,12 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { catalog } from '../album/album.utils';
 import { useAlbum } from '../album/useAlbum';
 import { flagUrl } from '../../data/worldCup2026';
-import { extractStickerIdFromText, extractStickerMatchFromFrontText } from './scanner.utils';
+import {
+  createFrameHashes,
+  extractStickerIdFromText,
+  extractStickerMatchFromFrontText,
+  getVisualIndexStats,
+  matchStickerByVisualHashes
+} from './scanner.utils';
 
 const catalogById = new Map(catalog.map((sticker) => [sticker.id, sticker]));
 
 const AUTO_SCAN_INTERVAL = 1100;
 const SAME_STICKER_COOLDOWN = 4000;
+const visualIndexStats = getVisualIndexStats();
 
 export function ScannerPage() {
   const navigate = useNavigate();
@@ -142,6 +149,13 @@ export function ScannerPage() {
       if (!croppedContext) return;
       croppedContext.drawImage(canvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
 
+      const visualMatch = matchStickerByVisualHashes(createFrameHashes(croppedContext, cropWidth, cropHeight));
+      if (visualMatch.stickerId) {
+        setStatus(`Visual reconhecido · confiança ${Math.round(visualMatch.confidence * 100)}%`);
+        applyStickerDetection(visualMatch.stickerId);
+        return;
+      }
+
       const fullBitmap = await createImageBitmap(canvas);
       const cropBitmap = await createImageBitmap(cropped);
       const [cropBlocks, fullBlocks] = await Promise.all([
@@ -158,8 +172,9 @@ export function ScannerPage() {
       const match = extractStickerMatchFromFrontText(combinedText);
       if (!match.stickerId) return;
 
-      if (match.reason === 'front') {
-        setStatus(`Frente reconhecida · confiança ${Math.round(match.confidence * 100)}%`);
+      if (match.reason === 'front' || match.reason === 'code') {
+        const label = match.reason === 'code' ? 'Código reconhecido' : 'Frente reconhecida';
+        setStatus(`${label} · confiança ${Math.round(match.confidence * 100)}%`);
       }
       applyStickerDetection(match.stickerId);
     } catch {
@@ -228,7 +243,9 @@ export function ScannerPage() {
     mode === 'photo'
       ? quickMode
         ? 'Auto-scan ligado · Quick mode marca direto'
-        : 'Auto-scan ligado · captura sozinho quando encontra'
+        : visualIndexStats.count
+          ? `Auto-scan visual ligado · índice com ${visualIndexStats.count} figurinhas`
+          : 'Auto-scan ligado · visual em preparo, OCR segue como apoio'
       : status;
 
   return (
