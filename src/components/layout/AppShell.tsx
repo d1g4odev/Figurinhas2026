@@ -1,7 +1,7 @@
 import type { User } from 'firebase/auth';
 import { BookOpenText, Camera, CopyCheck, LayoutGrid, UserRound } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const navItems = [
   { to: '/album', label: 'Coleção', icon: LayoutGrid },
@@ -12,6 +12,13 @@ const navItems = [
 ];
 
 export function AppShell({ children, user }: PropsWithChildren<{ user: User }>) {
+  const location = useLocation();
+  const isFullscreen = location.pathname === '/scanner';
+
+  if (isFullscreen) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -29,7 +36,7 @@ export function AppShell({ children, user }: PropsWithChildren<{ user: User }>) 
           const Icon = item.icon;
           return (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? 'active' : ''}>
-              <Icon size={20} />
+              <Icon size={18} />
               <span>{item.label}</span>
             </NavLink>
           );

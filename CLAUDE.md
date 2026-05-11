@@ -105,7 +105,16 @@ src/
 
 ## Onde estamos (estado atual)
 
-- **2026-05-10** — Direção estética trocada para **Retro Panini Anos 70/80** (a primeira tentativa "Estádio × Panini" foi rejeitada por não comprometer com a era 70s/80s). Reescrita completa do `globals.css`. Build limpo (`npm run build` OK: 0 erros TS, CSS final 27.34 kB / 6.14 kB gzip).
+- **2026-05-11** — **Scanner v2 fullscreen dark UI** (modelo solicitado pelo usuário via screenshot de referência). Mudanças:
+  - `ScannerPage.tsx` totalmente reescrita com layout fullscreen: camera `position: absolute inset:0`, top bar com `X` + status "Pronto/Escaneando" + ghost, mode toggle pílula flutuante centrada com verde-fluorescente quando ativa, helper text colorido (verde em destaque + mustard no status), painel "Quick mode" com switch iOS-style, botão "Escanear" pílula verde grande.
+  - **Quick mode novo**: quando ligado, detecção marca direto no álbum (ou adiciona repetida se já tinha) sem mostrar overlay de confirmação. Estado em `useState`, ephemeral por sessão.
+  - **Modo Código** mantido: surface dark com radial glow verde + input dentro de glass-card translúcido (Sansita uppercase grande).
+  - **Modais de confirmação** envolvidos em `.scanner-modal-backdrop` com blur + backdrop preto, mantendo a `overlay-card` cream do retro Panini por dentro (contraste editorial).
+  - **`AppShell.tsx`** detecta `location.pathname === '/scanner'` via `useLocation` e renderiza só `{children}` (sem header nem bottom-nav). Scanner ocupa viewport inteiro.
+  - **`useNavigate`** no botão `X` retorna pra `/album`.
+  - Estética: dark `#050608` base, verde `#4ADE80` para frame/active/CTA, glass-cards `rgba(15,23,42,0.78)` com `backdrop-filter: blur(14px)`. Resto do app permanece light cream retro Panini.
+- **2026-05-11** — Pass de **escala apertada** sobre o retro Panini: tamanhos reduzidos pra faixa 14-16px no corpo, headings menores, bottom nav 78→64px, sombras de carimbo 4-5px→3px.
+- **2026-05-10** — Direção estética trocada para **Retro Panini Anos 70/80** (a primeira tentativa "Estádio × Panini" foi rejeitada por não comprometer com a era 70s/80s). Reescrita completa do `globals.css`.
 - Todas as 6 telas adotam o novo visual sem mudança de TSX:
   - `/login` — capa de almanaque cream com selo "Nº 47 / 2026" rotacionado + listras coloridas de selo postal na base + medalhões mostarda/olive com raios concêntricos
   - `/album` — hero brick com halftone explodindo do canto + progress ring rosette + pie chart com notches + expense tracker mostarda + chips ticket-stub + grid de figurinhas
@@ -156,6 +165,8 @@ Possíveis próximos passos (a confirmar com o usuário):
 
 ## Histórico
 
+- **2026-05-11** — Scanner v2 fullscreen dark UI. ScannerPage.tsx reescrita com camera fullscreen, frame verde grande, top bar com X + status, mode toggle flutuante, helper text destacado, painel Quick mode com switch iOS-style. AppShell.tsx esconde header/nav em `/scanner` via useLocation. Quick mode adicionado: marca direto sem overlay. Substituiu antigas classes `.scanner-head/-view/-modes/-stage/-code-actions` por novas `.scanner-screen/-camera/-top/-icon-btn/-status/-mode-toggle/-helper/-bottom/-quick/-switch/-shoot/-modal-backdrop`. Build OK.
+- **2026-05-11** — Escala apertada (v1 do scanner). Reescrita `globals.css` mantendo estética retro Panini mas com tamanhos menores (body 15px, H1 26-32px, H2 22-28px, bottom nav 64px). Sombras de carimbo 4-5px → 3px. Scanner: wrapper `.scanner-stage` + frame absoluto pra fix iOS. Ícones bottom nav 20 → 18.
 - **2026-05-11** — Faltantes drill-down: `MissingPage.tsx` reescrita pra grid de cards-por-seleção (bandeira + código + nome + badge "5/20"); click → detalhe com botão Voltar + Copiar escopado àquela seleção. Novas classes: `.missing-team-grid`, `.missing-team-card`, `.missing-team-count`, `.missing-team-info`, `.missing-back-bar`, `.missing-back`, `.missing-back-title`. Build OK.
 - **2026-05-11** — Organização de figurinhas v1: filtro de status (4 chips), per-team progress nas chips, agrupamento por Grupo A–L quando ALL selecionado (com Especiais para FWC). Empty state. Mudanças em `AlbumPage.tsx` + novas classes `.chips--status`, `.chip-count`, `.album-group`, `.album-group-head`, `.album-empty`. Build OK.
 - **2026-05-11** — Adicionado **modo Preview dev-only**: link na LoginPage (`import.meta.env.DEV` only) que injeta usuário fake `__preview__` + seed do álbum (40 owned, 8 duplicatas, 3 gastos). App.tsx gateia Firestore com `isPreview`. Permite revisão visual de todas as telas sem Google login local. Tipos `import.meta.env` via novo `src/vite-env.d.ts`.
