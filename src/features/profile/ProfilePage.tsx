@@ -1,21 +1,42 @@
-import { LogOut } from 'lucide-react';
+import { Cloud, LogOut } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '../../components/ui/Button';
-import { signOutUser } from '../../firebase/firebase.auth';
+import { authErrorMessage, linkOrSignInWithGoogle, signOutUser } from '../../firebase/firebase.auth';
 import { useAlbum } from '../album/useAlbum';
 import { useAuth } from '../auth/useAuth';
 
 export function ProfilePage() {
   const { user } = useAuth();
   const { summary } = useAlbum();
+  const [busy, setBusy] = useState(false);
+  const [linkError, setLinkError] = useState('');
+
+  const isAnonymous = !!user?.isAnonymous;
+
+  async function handleLinkGoogle() {
+    setBusy(true);
+    setLinkError('');
+    try {
+      await linkOrSignInWithGoogle();
+    } catch (err) {
+      setLinkError(authErrorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <section className="page-stack">
       <div className="profile-card">
         <img src={user?.photoURL || '/icons/icon-192.png'} alt="" />
         <div>
-          <span className="eyebrow">Conta Google</span>
-          <h2>{user?.displayName || 'Colecionador'}</h2>
-          <p>{user?.email}</p>
+          <span className="eyebrow">{isAnonymous ? 'Modo convidado' : 'Conta Google'}</span>
+          <h2>{user?.displayName || (isAnonymous ? 'Colecionador anônimo' : 'Colecionador')}</h2>
+          <p>
+            {isAnonymous
+              ? 'Seu álbum está salvo só nesse dispositivo. Sincronize com Google pra usar em qualquer celular.'
+              : user?.email}
+          </p>
         </div>
       </div>
 
@@ -26,10 +47,19 @@ export function ProfilePage() {
         <div><strong>R$ {summary.totalSpent.toFixed(2)}</strong><span>Gastos</span></div>
       </div>
 
-      <Button variant="danger" onClick={() => signOutUser()}>
-        <LogOut size={18} />
-        Sair da conta
-      </Button>
+      {isAnonymous ? (
+        <Button variant="primary" onClick={handleLinkGoogle} disabled={busy}>
+          <Cloud size={18} />
+          {busy ? 'Abrindo Google...' : 'Sincronizar com Google'}
+        </Button>
+      ) : (
+        <Button variant="danger" onClick={() => signOutUser()}>
+          <LogOut size={18} />
+          Sair da conta
+        </Button>
+      )}
+
+      {linkError && <p className="form-error">{linkError}</p>}
     </section>
   );
 }

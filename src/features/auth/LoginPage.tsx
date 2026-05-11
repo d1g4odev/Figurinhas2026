@@ -1,9 +1,9 @@
-import { Chrome, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Chrome, Sparkles } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
-import { authErrorMessage, signInWithGoogle } from '../../firebase/firebase.auth';
+import { authErrorMessage, linkOrSignInWithGoogle } from '../../firebase/firebase.auth';
 import { useAlbumStore } from '../album/album.store';
 import { catalog, createEmptyAlbum } from '../album/album.utils';
 import { useAuth } from './useAuth';
@@ -32,17 +32,23 @@ function activatePreviewMode() {
 }
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const { user, loading, error: authError } = useAuth();
   const [localError, setLocalError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (!loading && user) return <Navigate to="/album" replace />;
+  const isAnonymous = !!user?.isAnonymous;
+  const buttonLabel = isAnonymous ? 'Sincronizar com Google' : 'Entrar com Google';
+  const tagline = isAnonymous
+    ? 'Conecte sua conta Google pra salvar o álbum em todos os seus dispositivos.'
+    : 'Controle suas figurinhas, repetidas e faltantes com backup na sua conta Google.';
 
   async function handleLogin() {
     setBusy(true);
     setLocalError('');
     try {
-      await signInWithGoogle();
+      await linkOrSignInWithGoogle();
+      navigate('/album');
     } catch (err) {
       setLocalError(authErrorMessage(err));
       setBusy(false);
@@ -53,19 +59,26 @@ export function LoginPage() {
 
   return (
     <main className="login-page">
-      <div className="float-ball ball-one"><Trophy size={26} /></div>
-      <div className="float-ball ball-two"><ShieldCheck size={24} /></div>
       <div className="login-card">
         <img src="/imagemoficial.png" alt="Figurinhas Copa 2026" className="login-logo" />
         <div className="login-copy">
           <span className="eyebrow">Álbum conectado</span>
           <h1>Figurinhas Copa 2026</h1>
-          <p>Controle suas figurinhas, repetidas e faltantes com backup na sua conta Google.</p>
+          <p>{tagline}</p>
         </div>
         <Button variant="primary" onClick={handleLogin} disabled={busy || loading}>
-          <Chrome size={20} />
-          {busy ? 'Abrindo Google...' : 'Entrar com Google'}
+          <Chrome size={18} />
+          {busy ? 'Abrindo Google...' : buttonLabel}
         </Button>
+        {!isAnonymous && (
+          <button
+            type="button"
+            className="dev-preview-link"
+            onClick={() => navigate('/album')}
+          >
+            Continuar sem login
+          </button>
+        )}
         {error && <p className="form-error">{error}</p>}
         {import.meta.env.DEV && (
           <button type="button" className="dev-preview-link" onClick={activatePreviewMode}>

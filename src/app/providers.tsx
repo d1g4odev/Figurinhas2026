@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, type PropsWithChildren } from 'react';
+import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { useAuthStore } from '../features/auth/auth.store';
-import { authErrorMessage, resolveRedirectLogin, subscribeToAuth } from '../firebase/firebase.auth';
+import { signInAnonymousUser, subscribeToAuth } from '../firebase/firebase.auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,14 +24,27 @@ export function AppProviders({ children }: PropsWithChildren) {
 function AuthObserver() {
   const setUser = useAuthStore((state) => state.setUser);
   const setError = useAuthStore((state) => state.setError);
+  const signingInRef = useRef(false);
 
   useEffect(() => {
-    resolveRedirectLogin().catch((error) => {
-      console.warn('Erro ao finalizar login Google', error);
-      setError(authErrorMessage(error));
+    const unsubscribe = subscribeToAuth((user) => {
+      if (user) {
+        setUser(user);
+        return;
+      }
+      setUser(null);
+      if (signingInRef.current) return;
+      signingInRef.current = true;
+      signInAnonymousUser()
+        .catch((err) => {
+          console.warn('Falha no login anônimo', err);
+          setError('Não consegui criar sua sessão. Verifique sua conexão.');
+        })
+        .finally(() => {
+          signingInRef.current = false;
+        });
     });
-
-    return subscribeToAuth(setUser);
+    return unsubscribe;
   }, [setError, setUser]);
 
   return null;

@@ -105,6 +105,14 @@ src/
 
 ## Onde estamos (estado atual)
 
+- **2026-05-11** — **Auth refeito: Anonymous-first + Google linking opcional**.
+  - Novo fluxo: `AuthObserver` em `providers.tsx` detecta `null user` e chama `signInAnonymousUser()` automaticamente. Usuário entra direto na Coleção sem login.
+  - `App.tsx` não redireciona mais pra `/login` por padrão; redirect só se houve erro real na sessão anônima. Splash adicional "Preparando seu álbum..." enquanto anon sign-in roda.
+  - `linkOrSignInWithGoogle()` em `firebase.auth.ts`: se usuário atual é anônimo, faz `linkWithPopup` (preserva todo o álbum + UID); se já é permanente ou ocorre `auth/credential-already-in-use`, faz `signInWithCredential`/`signInWithPopup` direto (Google existente prevalece).
+  - `LoginPage` continua existindo como entrada manual mas botão muda label baseado em estado (`Sincronizar com Google` se anon, `Entrar com Google` se sem user). Adicionado "Continuar sem login" como saída se user já está autenticado de algum jeito.
+  - `ProfilePage` mostra "Modo convidado" + botão `Sincronizar com Google` quando anônimo; mostra email + "Sair da conta" quando permanente. Logout cai automaticamente em anon de novo (AuthObserver re-dispara).
+  - Removido `resolveRedirectLogin()` morto (era ele que jogava `auth/argument-error` em sessões com state antigo).
+  - **Importante**: precisa **habilitar Anonymous auth** no Firebase Console (Authentication > Sign-in method > Anonymous > Enable) senão usa cai em `auth/admin-restricted-operation`.
 - **2026-05-11** — **Scanner v2 fullscreen dark UI** (modelo solicitado pelo usuário via screenshot de referência). Mudanças:
   - `ScannerPage.tsx` totalmente reescrita com layout fullscreen: camera `position: absolute inset:0`, top bar com `X` + status "Pronto/Escaneando" + ghost, mode toggle pílula flutuante centrada com verde-fluorescente quando ativa, helper text colorido (verde em destaque + mustard no status), painel "Quick mode" com switch iOS-style, botão "Escanear" pílula verde grande.
   - **Quick mode novo**: quando ligado, detecção marca direto no álbum (ou adiciona repetida se já tinha) sem mostrar overlay de confirmação. Estado em `useState`, ephemeral por sessão.
@@ -165,6 +173,7 @@ Possíveis próximos passos (a confirmar com o usuário):
 
 ## Histórico
 
+- **2026-05-11** — Auth Anonymous-first + Google linking. AuthObserver auto-anônimo, `linkOrSignInWithGoogle` smart (link se anon, sign-in se não), ProfilePage condicional (anon vs Google), LoginPage opcional (label dinâmico, botão "Continuar sem login"). Removido `resolveRedirectLogin()` morto que jogava `auth/argument-error`. Build OK.
 - **2026-05-11** — Fix layout missing-team-card: 2-col grid no mobile colapsava a coluna do team-info (`<strong>FWC</strong>` sem overflow handling vazava por baixo do badge brick "20/20"). Mudou pra 1-col default (full-width row tipo lista iOS Settings), 2-col a partir de 520px, 3-col a partir de 820px. Adicionado `overflow: hidden` + `white-space: nowrap` em `.missing-team-info strong` pra blindar. Flag um pouco maior (44×32). Build OK.
 - **2026-05-11** — Scanner v2 fullscreen dark UI. ScannerPage.tsx reescrita com camera fullscreen, frame verde grande, top bar com X + status, mode toggle flutuante, helper text destacado, painel Quick mode com switch iOS-style. AppShell.tsx esconde header/nav em `/scanner` via useLocation. Quick mode adicionado: marca direto sem overlay. Substituiu antigas classes `.scanner-head/-view/-modes/-stage/-code-actions` por novas `.scanner-screen/-camera/-top/-icon-btn/-status/-mode-toggle/-helper/-bottom/-quick/-switch/-shoot/-modal-backdrop`. Build OK.
 - **2026-05-11** — Escala apertada (v1 do scanner). Reescrita `globals.css` mantendo estética retro Panini mas com tamanhos menores (body 15px, H1 26-32px, H2 22-28px, bottom nav 64px). Sombras de carimbo 4-5px → 3px. Scanner: wrapper `.scanner-stage` + frame absoluto pra fix iOS. Ícones bottom nav 20 → 18.

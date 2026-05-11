@@ -7,7 +7,7 @@ import { useAuth } from '../features/auth/useAuth';
 import { loadAlbumState, saveAlbumState } from '../firebase/firebase.firestore';
 
 export function App() {
-  const { user, loading } = useAuth();
+  const { user, loading, error } = useAuth();
   const album = useAlbumStore((state) => state.album);
   const hydrate = useAlbumStore((state) => state.hydrate);
   const replaceAlbum = useAlbumStore((state) => state.replaceAlbum);
@@ -21,28 +21,28 @@ export function App() {
 
   useEffect(() => {
     if (!user || isPreview) return;
-
     loadAlbumState(user)
       .then((cloudAlbum) => {
         if (cloudAlbum) replaceAlbum(cloudAlbum);
       })
-      .catch((error) => {
-        console.warn('Não consegui carregar o álbum do Firestore', error);
+      .catch((err) => {
+        console.warn('Não consegui carregar o álbum do Firestore', err);
       });
   }, [isPreview, replaceAlbum, user]);
 
   useEffect(() => {
     if (!user || isPreview || !hasHydrated) return;
     const timer = window.setTimeout(() => {
-      saveAlbumState(user, album, summarizeAlbum(album)).catch((error) => {
-        console.warn('Não consegui sincronizar com Firestore', error);
+      saveAlbumState(user, album, summarizeAlbum(album)).catch((err) => {
+        console.warn('Não consegui sincronizar com Firestore', err);
       });
     }, 800);
     return () => window.clearTimeout(timer);
   }, [album, hasHydrated, isPreview, user]);
 
   if (loading) return <div className="splash">Carregando...</div>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user && error) return <Navigate to="/login" replace />;
+  if (!user) return <div className="splash">Preparando seu álbum...</div>;
 
   return (
     <AppShell user={user}>
