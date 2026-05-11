@@ -963,20 +963,20 @@ h1, h2, h3 {
   font-variation-settings: "SOFT" 100;
 }
 
-/* ── Missing — grid de seleções + drill-down ────────────────────────────── */
+/* ── Missing — lista de seleções + drill-down ───────────────────────────── */
 .missing-team-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 
 .missing-team-card {
   position: relative;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  gap: 12px;
+  padding: 12px 14px;
   border: 2px solid var(--ink);
   border-radius: var(--r-md);
   background:
@@ -1013,8 +1013,8 @@ h1, h2, h3 {
 .missing-team-card > * { position: relative; z-index: 1; }
 
 .missing-team-card > img {
-  width: 40px;
-  height: 30px;
+  width: 44px;
+  height: 32px;
   border-radius: 4px;
   box-shadow: 0 0 0 1.5px var(--ink), 2px 2px 0 var(--cocoa);
   object-fit: cover;
@@ -1022,20 +1022,25 @@ h1, h2, h3 {
 
 .missing-team-info {
   display: grid;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .missing-team-info strong {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 18px;
   color: var(--ink);
   line-height: 1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .missing-team-info small {
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.10em;
   text-transform: uppercase;
@@ -1972,15 +1977,19 @@ h1, h2, h3 {
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (min-width: 520px) {
+  .missing-team-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (min-width: 620px) {
   .sticker-grid       { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .plain-list         { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .stats-grid         { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .missing-team-grid  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-@media (min-width: 860px) {
-  .sticker-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 820px) {
+  .sticker-grid       { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .missing-team-grid  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
