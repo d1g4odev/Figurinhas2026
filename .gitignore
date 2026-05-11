@@ -1,8 +1,5 @@
+node_modules
+dist
 .DS_Store
-Thumbs.db
-*.log
-node_modules/
-.vscode/
-.idea/
-
-.vercel
+.claude
+*.local

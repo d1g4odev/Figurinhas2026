@@ -1,86 +1,52 @@
 # Figurinhas Copa 2026
 
-Web app local para controlar um álbum de figurinhas da Copa 2026.
+App web mobile-first para controlar o álbum de figurinhas da Copa 2026.
 
-## Como usar localmente
+## Stack
 
-Opção simples:
+- Vite
+- React
+- TypeScript
+- Firebase Auth com Google
+- Cloud Firestore
+- Zustand
+- TanStack Query
+- Vite PWA
+- CSS moderno com design mobile-first
 
-1. Baixe ou clone este projeto.
-2. Abra `index.html` no navegador.
+## Scripts
 
-Opção recomendada, com PWA e service worker:
-
-```powershell
-python -m http.server 4173 --bind 127.0.0.1
+```bash
+npm install
+npm run dev
+npm run build
 ```
 
-Depois acesse:
+## Arquitetura
 
-```text
-http://127.0.0.1:4173/index.html
+```txt
+src/
+  app/              # providers, rotas e shell principal
+  components/       # UI reutilizável e layout
+  data/             # catálogo Copa 2026
+  features/         # módulos do produto
+    album/
+    auth/
+    duplicates/
+    missing/
+    profile/
+    stickers/
+  firebase/         # config, Auth e Firestore
+  hooks/            # hooks compartilhados
+  lib/              # helpers puros
+  styles/           # CSS global
 ```
 
-## Dados
+## Firestore
 
-Tudo fica salvo no navegador, via `localStorage`.
-
-O álbum está modelado com 980 figurinhas:
-
-- 20 especiais de abertura (`FWC 00` a `FWC 19`);
-- 960 das seleções (`48 seleções x 20 figurinhas`).
-
-Use `Configurações` para:
-
-- editar nome, usuário, bio e foto de perfil;
-- exportar backup em JSON;
-- importar backup;
-- resetar dados locais.
-
-## Firebase
-
-O app inicializa Firebase pelo SDK Web modular via CDN, sem build step.
-
-Serviços preparados no frontend:
-
-- Firebase Analytics;
-- Firebase Authentication;
-- Cloud Firestore;
-- Realtime Database.
-
-As instâncias ficam disponíveis em `window.FigurinhasFirebase` para a próxima etapa de login e sincronização dos dados.
-
-Em desenvolvimento local, o Analytics não é iniciado para evitar erros de rede no navegador; ele fica pronto para ativar em HTTPS.
-
-Estrutura criada no Firestore após login:
-
-- `users/{uid}`: dados da conta Google;
-- `users/{uid}/albums/default`: estado completo do álbum e resumo;
-- `users/{uid}/albums/default/stickers/{stickerId}`: estado por figurinha;
-- `users/{uid}/albums/default/history/log`: histórico de trocas;
-- `users/{uid}/albums/default/spending/log`: gastos registrados.
-
-Regras recomendadas para Firestore:
-
-```js
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
+```txt
+users/{uid}
+users/{uid}/albums/default
 ```
 
-## Distribuição
-
-O app não precisa de backend. Para distribuir, publique estes arquivos em qualquer hospedagem estática, como Vercel, GitHub Pages, Netlify ou um servidor local.
-
-Arquivos principais:
-
-- `index.html`: app inteiro;
-- `manifest.json`: instalação como PWA;
-- `sw.js`: cache offline básico;
-- `icon.svg`: ícone do app.
+O documento do álbum salva o estado completo do usuário e um resumo com totais para leitura rápida.
