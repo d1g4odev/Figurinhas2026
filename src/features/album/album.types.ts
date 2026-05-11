@@ -7,6 +7,8 @@ export type Team = {
   flagCode: string;
 };
 
+export type StickerType = 'player' | 'logo' | 'team_photo' | 'intro';
+
 export type Sticker = {
   id: string;
   teamCode: string;
@@ -14,6 +16,9 @@ export type Sticker = {
   label: string;
   teamNameEn: string;
   flagCode: string;
+  playerName?: string | null;
+  stickerType?: StickerType;
+  imageUrl?: string | null;
 };
 
 export type StickerState = {

@@ -3,3 +3,7 @@ dist
 .DS_Store
 .claude
 *.local
+
+# JSONs originais (já preprocessados em src/data/panini2026.json)
+/panini-world-cup-2026-full.json
+/panini-world-cup-2026-full-with-sticker-images.json

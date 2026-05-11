@@ -104,7 +104,7 @@ export function MissingPage() {
               <span key={sticker.id}>
                 <img src={flagUrl(sticker.flagCode, 40)} alt="" />
                 <b>{sticker.teamCode} {sticker.number}</b>
-                <small>{sticker.teamNameEn}</small>
+                <small>{sticker.playerName || sticker.label}</small>
               </span>
             ))}
           </div>

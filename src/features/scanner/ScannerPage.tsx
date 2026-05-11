@@ -314,7 +314,15 @@ export function ScannerPage() {
             </button>
             <div className="scanner-preview">
               <div className="scanner-preview-card">
-                <img src={flagUrl(previewSticker.flagCode, 160)} alt="" />
+                {previewSticker.imageUrl ? (
+                  <img
+                    src={previewSticker.imageUrl}
+                    alt=""
+                    className="scanner-preview-card-image"
+                  />
+                ) : (
+                  <img src={flagUrl(previewSticker.flagCode, 160)} alt="" />
+                )}
                 <span className="scanner-preview-card-code">
                   {previewSticker.teamCode} {previewSticker.number}
                 </span>
@@ -322,7 +330,11 @@ export function ScannerPage() {
               <h3 className="scanner-preview-code">
                 {previewSticker.teamCode}{previewSticker.number}
               </h3>
-              <p className="scanner-preview-name">{previewSticker.teamNameEn}</p>
+              <p className="scanner-preview-name">
+                {previewSticker.playerName
+                  ? `${previewSticker.playerName} · ${previewSticker.teamNameEn}`
+                  : previewSticker.label}
+              </p>
             </div>
             <input
               className="scanner-modal-input"
@@ -367,7 +379,15 @@ export function ScannerPage() {
             </button>
             <div className="scanner-preview">
               <div className="scanner-preview-card">
-                <img src={flagUrl(duplicateSticker.flagCode, 160)} alt="" />
+                {duplicateSticker.imageUrl ? (
+                  <img
+                    src={duplicateSticker.imageUrl}
+                    alt=""
+                    className="scanner-preview-card-image"
+                  />
+                ) : (
+                  <img src={flagUrl(duplicateSticker.flagCode, 160)} alt="" />
+                )}
                 <span className="scanner-preview-card-code">
                   {duplicateSticker.teamCode} {duplicateSticker.number}
                 </span>

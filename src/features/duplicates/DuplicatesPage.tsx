@@ -30,7 +30,7 @@ export function DuplicatesPage() {
               {sticker.teamCode} {sticker.number}
               {(album.stickers[sticker.id]?.duplicates || 0) > 1 ? ` x${album.stickers[sticker.id].duplicates}` : ''}
             </b>
-            <small>{sticker.teamNameEn}</small>
+            <small>{sticker.playerName || sticker.label}</small>
           </span>
         ))}
       </div>

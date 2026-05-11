@@ -1,7 +1,28 @@
-import type { Sticker, Team } from '../features/album/album.types';
+import type { Sticker, StickerType, Team } from '../features/album/album.types';
+import paniniData from './panini2026.json';
 
 export const STICKERS_PER_TEAM = 20;
-export const DATA_VERSION = 6;
+export const DATA_VERSION = 7;
+
+type PaniniIntroEntry = {
+  code: string;
+  name: string | null;
+  type: string;
+  imageUrl: string | null;
+};
+
+type PaniniBaseEntry = {
+  code: string;
+  teamCode: string;
+  number: string;
+  name: string | null;
+  team: string;
+  type: string;
+  imageUrl: string | null;
+};
+
+const introData = paniniData.intro as PaniniIntroEntry[];
+const baseData = paniniData.base as PaniniBaseEntry[];
 
 export const teams: Team[] = [
   { code: 'MEX', name: 'Mexico', nameEn: 'Mexico', group: 'Group A', host: true, flagCode: 'mx' },
@@ -56,37 +77,42 @@ export const teams: Team[] = [
 
 export const teamByCode = new Map(teams.map((team) => [team.code, team]));
 
-export const specialStickers: Sticker[] = [
-  { id: 'FWC00', teamCode: 'FWC', number: '00', label: 'Official Poster', teamNameEn: 'FIFA World Cup 2026', flagCode: 'un' },
-  ...Array.from({ length: 19 }, (_, index) => {
-    const number = String(index + 1);
-    return {
-      id: `FWC${number}`,
-      teamCode: 'FWC',
-      number,
-      label: 'FIFA World Cup Special',
-      teamNameEn: 'FIFA World Cup 2026',
-      flagCode: 'un'
-    };
-  })
-];
+function labelForBase(item: PaniniBaseEntry): string {
+  if (item.name) return item.name;
+  if (item.type === 'logo') return `Escudo · ${item.team}`;
+  if (item.type === 'team_photo') return `Time · ${item.team}`;
+  return `${item.team} ${item.number}`;
+}
 
-export const TOTAL_STICKERS = teams.length * STICKERS_PER_TEAM + specialStickers.length;
+export const specialStickers: Sticker[] = introData.map((item) => ({
+  id: item.code,
+  teamCode: 'FWC',
+  number: item.code === 'FWC00' ? '00' : item.code.replace(/^FWC/, ''),
+  label: item.name || 'Especial',
+  teamNameEn: 'FIFA World Cup 2026',
+  flagCode: 'un',
+  playerName: item.name,
+  stickerType: (item.type as StickerType) ?? 'intro',
+  imageUrl: item.imageUrl
+}));
+
+export const TOTAL_STICKERS = introData.length + baseData.length;
 
 export function createCatalog(): Sticker[] {
-  const teamStickers = teams.flatMap((team) =>
-    Array.from({ length: STICKERS_PER_TEAM }, (_, index) => {
-      const number = String(index + 1);
-      return {
-        id: `${team.code}${number}`,
-        teamCode: team.code,
-        number,
-        label: `${team.code} ${number}`,
-        teamNameEn: team.nameEn,
-        flagCode: team.flagCode
-      };
-    })
-  );
+  const teamStickers: Sticker[] = baseData.map((item) => {
+    const team = teamByCode.get(item.teamCode);
+    return {
+      id: item.code,
+      teamCode: item.teamCode,
+      number: item.number,
+      label: labelForBase(item),
+      teamNameEn: team?.nameEn || item.team,
+      flagCode: team?.flagCode || 'un',
+      playerName: item.name,
+      stickerType: (item.type as StickerType) ?? 'player',
+      imageUrl: item.imageUrl
+    };
+  });
 
   return [...specialStickers, ...teamStickers];
 }

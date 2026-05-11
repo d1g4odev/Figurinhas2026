@@ -19,7 +19,9 @@ export function StickerCard({ sticker, state, onToggleOwned, onIncrementDuplicat
           <img src={flagUrl(sticker.flagCode, 40)} alt="" />
           <strong>{formatStickerCode(sticker)}</strong>
         </div>
-        <span className="sticker-country">{sticker.teamNameEn}</span>
+        <span className="sticker-country">
+          {sticker.playerName || sticker.label}
+        </span>
         <span>{state.owned ? 'Tenho' : 'Falta'}</span>
       </button>
       <div className="duplicate-stepper">
