@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { catalog } from '../album/album.utils';
 import { useAlbum } from '../album/useAlbum';
 import { flagUrl } from '../../data/worldCup2026';
-import { extractStickerIdFromText } from './scanner.utils';
+import { extractStickerIdFromText, extractStickerMatchFromFrontText } from './scanner.utils';
 
 const catalogById = new Map(catalog.map((sticker) => [sticker.id, sticker]));
 
@@ -112,11 +112,13 @@ export function ScannerPage() {
 
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth || 1280;
-      canvas.height = videoRef.current.videoHeight || 720;
+      const sourceWidth = videoRef.current.videoWidth || 1280;
+      const sourceHeight = videoRef.current.videoHeight || 720;
+      canvas.width = sourceWidth;
+      canvas.height = sourceHeight;
       const context = canvas.getContext('2d');
       if (!context) return;
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      context.drawImage(videoRef.current, 0, 0, sourceWidth, sourceHeight);
 
       const DetectorCtor = (window as unknown as {
         TextDetector?: new () => { detect: (source: ImageBitmap) => Promise<Array<{ rawValue?: string; text?: string }>> };
@@ -128,14 +130,38 @@ export function ScannerPage() {
       }
 
       const detector = new DetectorCtor();
-      const bitmap = await createImageBitmap(canvas);
-      const blocks = await detector.detect(bitmap);
-      bitmap.close();
-      const combinedText = blocks.map((item) => item.rawValue || item.text || '').join(' ');
-      const stickerId = extractStickerIdFromText(combinedText);
+      const cropWidth = Math.round(sourceWidth * 0.6);
+      const cropHeight = Math.round(sourceHeight * 0.72);
+      const cropX = Math.round((sourceWidth - cropWidth) / 2);
+      const cropY = Math.round((sourceHeight - cropHeight) / 2);
 
-      if (!stickerId) return;
-      applyStickerDetection(stickerId);
+      const cropped = document.createElement('canvas');
+      cropped.width = cropWidth;
+      cropped.height = cropHeight;
+      const croppedContext = cropped.getContext('2d');
+      if (!croppedContext) return;
+      croppedContext.drawImage(canvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+      const fullBitmap = await createImageBitmap(canvas);
+      const cropBitmap = await createImageBitmap(cropped);
+      const [cropBlocks, fullBlocks] = await Promise.all([
+        detector.detect(cropBitmap),
+        detector.detect(fullBitmap)
+      ]);
+      cropBitmap.close();
+      fullBitmap.close();
+
+      const combinedText = [...cropBlocks, ...fullBlocks]
+        .map((item) => item.rawValue || item.text || '')
+        .join(' ');
+
+      const match = extractStickerMatchFromFrontText(combinedText);
+      if (!match.stickerId) return;
+
+      if (match.reason === 'front') {
+        setStatus(`Frente reconhecida · confiança ${Math.round(match.confidence * 100)}%`);
+      }
+      applyStickerDetection(match.stickerId);
     } catch {
       // ignore — auto-scan will retry
     } finally {
@@ -195,7 +221,7 @@ export function ScannerPage() {
 
   const helperLine =
     mode === 'photo'
-      ? <>Aponte pra <em>frente</em> da figurinha</>
+      ? <>Aponte para a <em>frente da figurinha</em></>
       : <>Digite o <em>código</em> da figurinha</>;
 
   const helperSub =
