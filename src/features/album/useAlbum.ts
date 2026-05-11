@@ -4,15 +4,15 @@ import { duplicateStickers, missingStickers, ownedStickers, summarizeAlbum } fro
 
 export function useAlbum() {
   const album = useAlbumStore((state) => state.album);
-  const actions = useAlbumStore((state) => ({
-    toggleOwned: state.toggleOwned,
-    incrementDuplicate: state.incrementDuplicate,
-    decrementDuplicate: state.decrementDuplicate
-  }));
+  const toggleOwned = useAlbumStore((state) => state.toggleOwned);
+  const incrementDuplicate = useAlbumStore((state) => state.incrementDuplicate);
+  const decrementDuplicate = useAlbumStore((state) => state.decrementDuplicate);
 
   return {
     album,
-    ...actions,
+    toggleOwned,
+    incrementDuplicate,
+    decrementDuplicate,
     summary: useMemo(() => summarizeAlbum(album), [album]),
     owned: useMemo(() => ownedStickers(album), [album]),
     missing: useMemo(() => missingStickers(album), [album]),
