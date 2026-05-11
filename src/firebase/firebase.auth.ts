@@ -5,7 +5,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
-  signInWithRedirect,
+  signInWithPopup,
   signOut,
   type User
 } from 'firebase/auth';
@@ -26,14 +26,16 @@ export function authErrorMessage(error: unknown) {
   if (code === 'auth/unauthorized-domain') return 'Domínio não autorizado. Adicione localhost, 127.0.0.1 e o domínio publicado em Authentication > Settings > Authorized domains.';
   if (code === 'auth/web-storage-unsupported') return 'O navegador bloqueou cookies/armazenamento. Libere para este site e tente novamente.';
   if (code === 'auth/network-request-failed') return 'Falha de rede ao falar com o Firebase. Confira sua conexão e tente de novo.';
+  if (code === 'auth/popup-blocked') return 'O navegador bloqueou a janela de login. Libere popups para este site e tente novamente.';
   if (code === 'auth/popup-closed-by-user') return 'A janela do Google foi fechada antes de concluir o login.';
   return `Não consegui concluir o login com Google${code ? ` (${code})` : ''}.`;
 }
 
 export async function signInWithGoogle() {
   await persistenceReady;
-  sessionStorage.setItem('figurinhas-auth-redirect-started', window.location.href);
-  return signInWithRedirect(auth, googleProvider);
+  // For apps hosted outside Firebase Hosting (like Vercel), popup flow avoids
+  // redirect storage-partition issues in privacy-focused browsers/incognito.
+  return signInWithPopup(auth, googleProvider);
 }
 
 export function signOutUser() {
