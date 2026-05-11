@@ -1263,11 +1263,33 @@
     const firebaseAuth = getAuth(firebaseApp);
     const firestoreDb = getFirestore(firebaseApp);
     const googleProvider = new GoogleAuthProvider();
+    const AUTH_PENDING_KEY = 'figurinhas-google-login-pending';
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    setPersistence(firebaseAuth, browserLocalPersistence).catch((err) => {
+    const authPersistenceReady = setPersistence(firebaseAuth, browserLocalPersistence).catch((err) => {
       console.warn('Firebase Auth persistence indisponível', err);
+      window.dispatchEvent(new CustomEvent('figurinhas-auth-error', {
+        detail: { code: err.code || 'auth/persistence-unavailable', message: err.message || String(err) }
+      }));
     });
+
+    function setAuthPending(pending) {
+      try {
+        if (pending) localStorage.setItem(AUTH_PENDING_KEY, '1');
+        else localStorage.removeItem(AUTH_PENDING_KEY);
+      } catch (err) {
+        console.warn('Não consegui atualizar o estado do login Google', err);
+      }
+    }
+
+    function emitAuthError(err) {
+      window.dispatchEvent(new CustomEvent('figurinhas-auth-error', {
+        detail: {
+          code: err?.code || 'auth/unknown',
+          message: err?.message || String(err)
+        }
+      }));
+    }
 
     const userProfile = (user) => ({
       uid: user.uid,
@@ -1352,15 +1374,21 @@
     }
 
     async function signInWithGoogle() {
+      await authPersistenceReady;
+      setAuthPending(true);
       if (preferRedirect()) {
         return signInWithRedirect(firebaseAuth, googleProvider);
       }
       try {
-        return await signInWithPopup(firebaseAuth, googleProvider);
+        const result = await signInWithPopup(firebaseAuth, googleProvider);
+        setAuthPending(false);
+        return result;
       } catch (err) {
         if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'].includes(err.code)) {
           return signInWithRedirect(firebaseAuth, googleProvider);
         }
+        setAuthPending(false);
+        emitAuthError(err);
         throw err;
       }
     }
@@ -1408,21 +1436,17 @@
         });
     }
 
-    getRedirectResult(firebaseAuth).catch((err) => {
+    getRedirectResult(firebaseAuth).then((result) => {
+      if (result?.user) setAuthPending(false);
+    }).catch((err) => {
       console.warn('Firebase redirect login indisponível', err);
-      const el = document.getElementById('auth-message');
-      if (!el) return;
-      if (err.code === 'auth/unauthorized-domain') {
-        el.textContent = 'Adicione este domínio nos domínios autorizados do Firebase Authentication.';
-      } else if (err.code === 'auth/operation-not-allowed') {
-        el.textContent = 'Ative o provedor Google no Firebase Authentication.';
-      } else {
-        el.textContent = 'Não consegui concluir o login com Google. Tente novamente.';
-      }
+      setAuthPending(false);
+      emitAuthError(err);
     });
 
     onAuthStateChanged(firebaseAuth, (user) => {
       window.FigurinhasFirebase.currentUser = user;
+      if (user) setAuthPending(false);
       window.dispatchEvent(new CustomEvent('figurinhas-auth-changed', { detail: { user } }));
     });
   </script>
@@ -1941,6 +1965,35 @@
       if (el) el.textContent = message;
     }
 
+    function hasPendingGoogleLogin() {
+      try {
+        return localStorage.getItem('figurinhas-google-login-pending') === '1';
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function handleAuthError(detail = {}) {
+      const code = detail.code || '';
+      const host = window.location.hostname || 'este domínio';
+      const errorMessages = {
+        'auth/operation-not-allowed': 'Ative o provedor Google no Firebase Authentication.',
+        'auth/unauthorized-domain': `Domínio não autorizado. No Firebase, adicione ${host}, localhost e 127.0.0.1 em Authentication > Settings > Authorized domains.`,
+        'auth/network-request-failed': 'Falha de rede ao falar com o Firebase. Confira sua conexão e tente de novo.',
+        'auth/web-storage-unsupported': 'O navegador bloqueou o armazenamento local. Libere cookies/armazenamento para manter o login.',
+        'auth/persistence-unavailable': 'O navegador não permitiu salvar a sessão. Libere cookies/armazenamento para este app.',
+        'auth/popup-blocked': 'O popup foi bloqueado. Vou tentar abrir o login por redirecionamento.',
+        'auth/cancelled-popup-request': 'A janela de login foi cancelada. Tente entrar novamente.',
+        'auth/popup-closed-by-user': 'A janela do Google foi fechada antes de concluir o login.'
+      };
+      const message = errorMessages[code] || `Não consegui concluir o login com Google${code ? ` (${code})` : ''}.`;
+      setAuthMessage(message);
+      renderAuthUserStatus('Nenhuma conta conectada.');
+      const btn = $('#btn-google-login');
+      if (btn) btn.disabled = false;
+      toast(code === 'auth/unauthorized-domain' ? 'Domínio não autorizado' : 'Erro no login Google');
+    }
+
     function buildAlbumSummary() {
       const owned = ownedCount();
       const dups = dupsCount();
@@ -1990,8 +2043,12 @@
 
       if (!user) {
         setAuthLocked(true);
-        setAuthMessage('Entre com sua conta Google para salvar seu álbum.');
+        setAuthMessage(hasPendingGoogleLogin()
+          ? 'Finalizando login com Google...'
+          : 'Entre com sua conta Google para salvar seu álbum.');
         renderAuthUserStatus('Nenhuma conta conectada.');
+        const btn = $('#btn-google-login');
+        if (btn) btn.disabled = false;
         return;
       }
 
@@ -2040,17 +2097,7 @@
         await api.signInWithGoogle();
       } catch (err) {
         console.warn('google login failed', err);
-        if (err.code === 'auth/operation-not-allowed') {
-          setAuthMessage('Ative o provedor Google no Firebase Authentication.');
-          toast('Ative Google Auth no Firebase');
-        } else if (err.code === 'auth/unauthorized-domain') {
-          setAuthMessage('Adicione este domínio nos domínios autorizados do Firebase Authentication.');
-          toast('Domínio não autorizado');
-        } else {
-          setAuthMessage('Não consegui concluir o login. Tente novamente.');
-          toast('Erro no login Google');
-        }
-        if (btn) btn.disabled = false;
+        handleAuthError(err);
       }
     }
 
@@ -2912,6 +2959,7 @@
     function bindEvents() {
       $('#btn-google-login').addEventListener('click', signInWithGoogle);
       $('#btn-signout').addEventListener('click', signOutGoogle);
+      window.addEventListener('figurinhas-auth-error', e => handleAuthError(e.detail));
       window.addEventListener('figurinhas-auth-changed', e => handleFirebaseAuthChanged(e.detail.user));
       if (firebaseApi()?.currentUser) handleFirebaseAuthChanged(firebaseApi().currentUser);
 
