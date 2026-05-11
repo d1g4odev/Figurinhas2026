@@ -1,26 +1,32 @@
-import { Camera, Crosshair, Keyboard, ScanSearch, Settings, X } from 'lucide-react';
+import { Camera, Check, Crosshair, Keyboard, Settings, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
 import { catalog } from '../album/album.utils';
 import { useAlbum } from '../album/useAlbum';
+import { flagUrl } from '../../data/worldCup2026';
 import { extractStickerIdFromText } from './scanner.utils';
 
 const catalogById = new Map(catalog.map((sticker) => [sticker.id, sticker]));
+
+const AUTO_SCAN_INTERVAL = 1100;
+const SAME_STICKER_COOLDOWN = 4000;
 
 export function ScannerPage() {
   const navigate = useNavigate();
   const { album, markOwned, incrementDuplicate } = useAlbum();
   const [mode, setMode] = useState<'photo' | 'code'>('photo');
   const [manualCode, setManualCode] = useState('');
-  const [status, setStatus] = useState('Aponte a câmera para o código.');
+  const [status, setStatus] = useState('Aponte a câmera para a figurinha.');
   const [pendingStickerId, setPendingStickerId] = useState<string | null>(null);
   const [duplicateStickerId, setDuplicateStickerId] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [quickMode, setQuickMode] = useState(false);
+  const [editedCode, setEditedCode] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const cameraAvailableRef = useRef(true);
+  const scanningRef = useRef(false);
+  const lastDetectedRef = useRef<{ id: string; at: number } | null>(null);
 
   const pendingSticker = useMemo(
     () => (pendingStickerId ? catalogById.get(pendingStickerId) || null : null),
@@ -30,6 +36,16 @@ export function ScannerPage() {
     () => (duplicateStickerId ? catalogById.get(duplicateStickerId) || null : null),
     [duplicateStickerId]
   );
+
+  /* Live re-mapping of the modal preview as user edits the code. */
+  const previewSticker = useMemo(() => {
+    if (!pendingSticker) return null;
+    const normalized = editedCode.toUpperCase().replace(/\s+/g, '');
+    if (!normalized) return pendingSticker;
+    const candidateId = extractStickerIdFromText(normalized);
+    if (candidateId) return catalogById.get(candidateId) || pendingSticker;
+    return pendingSticker;
+  }, [editedCode, pendingSticker]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -64,9 +80,15 @@ export function ScannerPage() {
   function applyStickerDetection(stickerId: string) {
     const sticker = catalogById.get(stickerId);
     if (!sticker) {
-      setStatus('Código detectado não existe no álbum.');
+      setStatus('Código não está no álbum.');
       return;
     }
+    const last = lastDetectedRef.current;
+    if (last && last.id === stickerId && Date.now() - last.at < SAME_STICKER_COOLDOWN) {
+      return;
+    }
+    lastDetectedRef.current = { id: stickerId, at: Date.now() };
+
     if (quickMode) {
       const state = album.stickers[stickerId];
       if (state?.owned) {
@@ -74,30 +96,26 @@ export function ScannerPage() {
         setStatus(`${sticker.teamCode} ${sticker.number} · repetida adicionada`);
       } else {
         markOwned(stickerId);
-        setStatus(`${sticker.teamCode} ${sticker.number} · marcada no álbum`);
+        setStatus(`${sticker.teamCode} ${sticker.number} · marcada`);
       }
       return;
     }
     setPendingStickerId(stickerId);
+    setEditedCode(`${sticker.teamCode}${sticker.number}`);
   }
 
-  async function detectStickerFromCamera() {
-    if (!videoRef.current || !cameraAvailableRef.current) {
-      setStatus('Não consegui acessar a câmera. Use o modo Código.');
-      return;
-    }
+  const detectStickerFromCamera = useCallback(async () => {
+    if (scanningRef.current) return;
+    if (!videoRef.current || !cameraAvailableRef.current) return;
+    scanningRef.current = true;
     setIsScanning(true);
-    setStatus('Escaneando...');
 
     try {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth || 1280;
       canvas.height = videoRef.current.videoHeight || 720;
       const context = canvas.getContext('2d');
-      if (!context) {
-        setStatus('Não consegui processar a imagem da câmera.');
-        return;
-      }
+      if (!context) return;
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
       const DetectorCtor = (window as unknown as {
@@ -105,7 +123,7 @@ export function ScannerPage() {
       }).TextDetector;
 
       if (!DetectorCtor) {
-        setStatus('Seu navegador não suporta OCR. Use Código.');
+        setStatus('Seu browser não tem OCR. Use Código.');
         return;
       }
 
@@ -116,16 +134,26 @@ export function ScannerPage() {
       const combinedText = blocks.map((item) => item.rawValue || item.text || '').join(' ');
       const stickerId = extractStickerIdFromText(combinedText);
 
-      if (!stickerId) {
-        setStatus('Nenhum código válido encontrado.');
-        return;
-      }
-
+      if (!stickerId) return;
       applyStickerDetection(stickerId);
+    } catch {
+      // ignore — auto-scan will retry
     } finally {
       setIsScanning(false);
+      scanningRef.current = false;
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickMode, album]);
+
+  /* Auto-scan loop while in foto mode with no modal open */
+  useEffect(() => {
+    if (mode !== 'photo') return;
+    if (pendingStickerId || duplicateStickerId) return;
+    const interval = window.setInterval(() => {
+      void detectStickerFromCamera();
+    }, AUTO_SCAN_INTERVAL);
+    return () => window.clearInterval(interval);
+  }, [mode, pendingStickerId, duplicateStickerId, detectStickerFromCamera]);
 
   function detectStickerFromCode() {
     const stickerId = extractStickerIdFromText(manualCode);
@@ -136,18 +164,26 @@ export function ScannerPage() {
     applyStickerDetection(stickerId);
   }
 
-  function confirmSticker() {
-    if (!pendingSticker) return;
-    const stickerState = album.stickers[pendingSticker.id];
+  function dismissPending() {
     setPendingStickerId(null);
+    setEditedCode('');
+    /* short cooldown so the same sticker in view doesn't re-trigger immediately */
+    lastDetectedRef.current = { id: '__dismissed__', at: Date.now() };
+  }
+
+  function confirmSticker() {
+    if (!previewSticker) return;
+    const stickerState = album.stickers[previewSticker.id];
+    setPendingStickerId(null);
+    setEditedCode('');
 
     if (stickerState?.owned) {
-      setDuplicateStickerId(pendingSticker.id);
+      setDuplicateStickerId(previewSticker.id);
       return;
     }
 
-    markOwned(pendingSticker.id);
-    setStatus(`${pendingSticker.teamCode} ${pendingSticker.number} marcada no álbum.`);
+    markOwned(previewSticker.id);
+    setStatus(`${previewSticker.teamCode} ${previewSticker.number} marcada no álbum.`);
   }
 
   function confirmDuplicate() {
@@ -159,8 +195,15 @@ export function ScannerPage() {
 
   const helperLine =
     mode === 'photo'
-      ? <>Centralize o <em>código</em> da figurinha</>
+      ? <>Aponte pra <em>frente</em> da figurinha</>
       : <>Digite o <em>código</em> da figurinha</>;
+
+  const helperSub =
+    mode === 'photo'
+      ? quickMode
+        ? 'Auto-scan ligado · Quick mode marca direto'
+        : 'Auto-scan ligado · captura sozinho quando encontra'
+      : status;
 
   return (
     <section className="scanner-screen">
@@ -226,7 +269,7 @@ export function ScannerPage() {
 
       <div className="scanner-helper">
         <p className="scanner-helper-main">{helperLine}</p>
-        <p className="scanner-helper-sub">{status}</p>
+        <p className="scanner-helper-sub">{helperSub}</p>
       </div>
 
       <div className="scanner-bottom">
@@ -246,48 +289,111 @@ export function ScannerPage() {
             <span />
           </label>
         </div>
-        <button
-          type="button"
-          className="scanner-shoot"
-          onClick={() => (mode === 'photo' ? void detectStickerFromCamera() : detectStickerFromCode())}
-          disabled={isScanning}
-        >
-          <ScanSearch size={18} />
-          {isScanning ? 'Escaneando...' : 'Escanear'}
-        </button>
+        {mode === 'code' && (
+          <button
+            type="button"
+            className="scanner-shoot"
+            onClick={detectStickerFromCode}
+          >
+            <Check size={18} />
+            Confirmar código
+          </button>
+        )}
       </div>
 
-      {pendingSticker && (
-        <div className="scanner-modal-backdrop">
-          <div className="overlay-card">
-            <div className="overlay-card-head">
-              <h3>{pendingSticker.teamCode}{pendingSticker.number}</h3>
-              <button onClick={() => setPendingStickerId(null)} aria-label="Fechar">
-                <X size={18} />
-              </button>
+      {previewSticker && (
+        <div className="scanner-modal-backdrop" onClick={dismissPending}>
+          <div className="scanner-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="scanner-modal-close"
+              onClick={dismissPending}
+              aria-label="Fechar"
+            >
+              <X size={18} />
+            </button>
+            <div className="scanner-preview">
+              <div className="scanner-preview-card">
+                <img src={flagUrl(previewSticker.flagCode, 160)} alt="" />
+                <span className="scanner-preview-card-code">
+                  {previewSticker.teamCode} {previewSticker.number}
+                </span>
+              </div>
+              <h3 className="scanner-preview-code">
+                {previewSticker.teamCode}{previewSticker.number}
+              </h3>
+              <p className="scanner-preview-name">{previewSticker.teamNameEn}</p>
             </div>
-            <p>{pendingSticker.teamNameEn}</p>
-            <div className="overlay-card-actions">
-              <Button variant="secondary" onClick={() => setPendingStickerId(null)}>Cancelar</Button>
-              <Button variant="primary" onClick={confirmSticker}>Marcar no álbum</Button>
+            <input
+              className="scanner-modal-input"
+              value={editedCode}
+              onChange={(event) => setEditedCode(event.target.value.toUpperCase())}
+              spellCheck={false}
+              inputMode="text"
+              aria-label="Código da figurinha (editável)"
+            />
+            <div className="scanner-modal-actions">
+              <button
+                type="button"
+                className="scanner-modal-cancel"
+                onClick={dismissPending}
+              >
+                <X size={16} />
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="scanner-modal-confirm"
+                onClick={confirmSticker}
+              >
+                <Check size={16} />
+                Confirmar
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {duplicateSticker && (
-        <div className="scanner-modal-backdrop">
-          <div className="overlay-card">
-            <div className="overlay-card-head">
-              <h3>{duplicateSticker.teamCode}{duplicateSticker.number}</h3>
-              <button onClick={() => setDuplicateStickerId(null)} aria-label="Fechar">
-                <X size={18} />
-              </button>
+        <div className="scanner-modal-backdrop" onClick={() => setDuplicateStickerId(null)}>
+          <div className="scanner-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="scanner-modal-close"
+              onClick={() => setDuplicateStickerId(null)}
+              aria-label="Fechar"
+            >
+              <X size={18} />
+            </button>
+            <div className="scanner-preview">
+              <div className="scanner-preview-card">
+                <img src={flagUrl(duplicateSticker.flagCode, 160)} alt="" />
+                <span className="scanner-preview-card-code">
+                  {duplicateSticker.teamCode} {duplicateSticker.number}
+                </span>
+              </div>
+              <h3 className="scanner-preview-code">
+                {duplicateSticker.teamCode}{duplicateSticker.number}
+              </h3>
+              <p className="scanner-preview-name">Você já tem essa. Marcar como repetida?</p>
             </div>
-            <p>Essa figurinha já existe no álbum. Quer marcar como repetida?</p>
-            <div className="overlay-card-actions">
-              <Button variant="secondary" onClick={() => setDuplicateStickerId(null)}>Cancelar</Button>
-              <Button variant="primary" onClick={confirmDuplicate}>Marcar repetida</Button>
+            <div className="scanner-modal-actions">
+              <button
+                type="button"
+                className="scanner-modal-cancel"
+                onClick={() => setDuplicateStickerId(null)}
+              >
+                <X size={16} />
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="scanner-modal-confirm"
+                onClick={confirmDuplicate}
+              >
+                <Check size={16} />
+                Marcar repetida
+              </button>
             </div>
           </div>
         </div>
