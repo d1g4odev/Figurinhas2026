@@ -5,7 +5,6 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
-  signInWithPopup,
   signInWithRedirect,
   signOut,
   type User
@@ -21,13 +20,6 @@ const persistenceReady = setPersistence(auth, browserLocalPersistence).catch((er
   console.warn('Firebase Auth persistence indisponível', error);
 });
 
-function preferRedirect() {
-  const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
-  return window.matchMedia('(display-mode: standalone)').matches ||
-    navigatorWithStandalone.standalone === true ||
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 export function authErrorMessage(error: unknown) {
   const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
   if (code === 'auth/operation-not-allowed') return 'Ative o provedor Google no Firebase Authentication.';
@@ -40,17 +32,8 @@ export function authErrorMessage(error: unknown) {
 
 export async function signInWithGoogle() {
   await persistenceReady;
-  if (preferRedirect()) return signInWithRedirect(auth, googleProvider);
-
-  try {
-    return await signInWithPopup(auth, googleProvider);
-  } catch (error) {
-    const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
-    if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user'].includes(code)) {
-      return signInWithRedirect(auth, googleProvider);
-    }
-    throw error;
-  }
+  sessionStorage.setItem('figurinhas-auth-redirect-started', window.location.href);
+  return signInWithRedirect(auth, googleProvider);
 }
 
 export function signOutUser() {
@@ -59,7 +42,11 @@ export function signOutUser() {
 
 export async function resolveRedirectLogin() {
   await persistenceReady;
-  return getRedirectResult(auth);
+  try {
+    return await getRedirectResult(auth);
+  } finally {
+    sessionStorage.removeItem('figurinhas-auth-redirect-started');
+  }
 }
 
 export function subscribeToAuth(callback: (user: User | null) => void) {
