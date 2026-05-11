@@ -1,9 +1,10 @@
 export type Team = {
   code: string;
   name: string;
+  nameEn: string;
   group: string;
   host?: boolean;
-  colors: [string, string];
+  flagCode: string;
 };
 
 export type Sticker = {
@@ -11,6 +12,8 @@ export type Sticker = {
   teamCode: string;
   number: string;
   label: string;
+  teamNameEn: string;
+  flagCode: string;
 };
 
 export type StickerState = {
@@ -22,6 +25,7 @@ export type StickerState = {
 export type AlbumState = {
   version: number;
   stickers: Record<string, StickerState>;
+  expenses: ExpenseEntry[];
 };
 
 export type AlbumSummary = {
@@ -29,4 +33,11 @@ export type AlbumSummary = {
   owned: number;
   missing: number;
   duplicates: number;
+  totalSpent: number;
+};
+
+export type ExpenseEntry = {
+  id: string;
+  amount: number;
+  createdAt: string;
 };

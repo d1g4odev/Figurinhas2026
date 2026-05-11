@@ -7,7 +7,8 @@ export const catalog = createCatalog();
 export function createEmptyAlbum(): AlbumState {
   return {
     version: DATA_VERSION,
-    stickers: Object.fromEntries(catalog.map((sticker) => [sticker.id, { owned: false, duplicates: 0 }]))
+    stickers: Object.fromEntries(catalog.map((sticker) => [sticker.id, { owned: false, duplicates: 0 }])),
+    expenses: []
   };
 }
 
@@ -29,7 +30,14 @@ export function normalizeAlbumState(state?: Partial<AlbumState> | null): AlbumSt
           }
         ];
       })
-    )
+    ),
+    expenses: (state.expenses || [])
+      .filter((entry) => Number(entry.amount) > 0)
+      .map((entry) => ({
+        id: entry.id || crypto.randomUUID(),
+        amount: Number(entry.amount),
+        createdAt: entry.createdAt || new Date().toISOString()
+      }))
   };
 }
 
@@ -40,7 +48,8 @@ export function summarizeAlbum(state: AlbumState): AlbumSummary {
     total: TOTAL_STICKERS,
     owned,
     missing: TOTAL_STICKERS - owned,
-    duplicates: values.reduce((sum, sticker) => sum + sticker.duplicates, 0)
+    duplicates: values.reduce((sum, sticker) => sum + sticker.duplicates, 0),
+    totalSpent: state.expenses.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
   };
 }
 

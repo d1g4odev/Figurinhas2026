@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AlbumState } from './album.types';
+import type { AlbumState, ExpenseEntry } from './album.types';
 import { createEmptyAlbum, normalizeAlbumState } from './album.utils';
 
 const STORAGE_KEY = 'figurinhas-copa-2026-react-v1';
@@ -10,9 +10,12 @@ type AlbumStore = {
   hasHydrated: boolean;
   hydrate: () => void;
   replaceAlbum: (album: AlbumState) => void;
+  markOwned: (stickerId: string) => void;
   toggleOwned: (stickerId: string) => void;
   incrementDuplicate: (stickerId: string) => void;
   decrementDuplicate: (stickerId: string) => void;
+  addExpense: (amount: number) => void;
+  removeExpense: (id: string) => void;
 };
 
 function loadLocalAlbum() {
@@ -29,6 +32,17 @@ function persist(album: AlbumState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(album));
 }
 
+function updateSticker(album: AlbumState, stickerId: string, updater: (current: AlbumState['stickers'][string]) => AlbumState['stickers'][string]) {
+  const current = album.stickers[stickerId];
+  return {
+    ...album,
+    stickers: {
+      ...album.stickers,
+      [stickerId]: updater(current)
+    }
+  };
+}
+
 export const useAlbumStore = create<AlbumStore>((set, get) => ({
   album: createEmptyAlbum(),
   hasHydrated: false,
@@ -42,54 +56,69 @@ export const useAlbumStore = create<AlbumStore>((set, get) => ({
     persist(normalized);
     set({ album: normalized, hasHydrated: true });
   },
+  markOwned: (stickerId) => {
+    const album = get().album;
+    const next = updateSticker(album, stickerId, (current) => ({
+      ...current,
+      owned: true,
+      updatedAt: new Date().toISOString()
+    }));
+    persist(next);
+    set({ album: next });
+  },
   toggleOwned: (stickerId) => {
     const album = get().album;
-    const current = album.stickers[stickerId];
-    const next = {
-      ...album,
-      stickers: {
-        ...album.stickers,
-        [stickerId]: {
-          ...current,
-          owned: !current?.owned,
-          updatedAt: new Date().toISOString()
-        }
-      }
-    };
+    const next = updateSticker(album, stickerId, (current) => ({
+      ...current,
+      owned: !current?.owned,
+      updatedAt: new Date().toISOString()
+    }));
     persist(next);
     set({ album: next });
   },
   incrementDuplicate: (stickerId) => {
     const album = get().album;
-    const current = album.stickers[stickerId];
-    const next = {
-      ...album,
-      stickers: {
-        ...album.stickers,
-        [stickerId]: {
-          ...current,
-          owned: true,
-          duplicates: (current?.duplicates || 0) + 1,
-          updatedAt: new Date().toISOString()
-        }
-      }
-    };
+    const next = updateSticker(album, stickerId, (current) => ({
+      ...current,
+      owned: true,
+      duplicates: (current?.duplicates || 0) + 1,
+      updatedAt: new Date().toISOString()
+    }));
     persist(next);
     set({ album: next });
   },
   decrementDuplicate: (stickerId) => {
     const album = get().album;
-    const current = album.stickers[stickerId];
+    const next = updateSticker(album, stickerId, (current) => ({
+      ...current,
+      duplicates: Math.max(0, (current?.duplicates || 0) - 1),
+      updatedAt: new Date().toISOString()
+    }));
+    persist(next);
+    set({ album: next });
+  },
+  addExpense: (amount) => {
+    const safeAmount = Number(amount);
+    if (!Number.isFinite(safeAmount) || safeAmount <= 0) return;
+
+    const album = get().album;
+    const entry: ExpenseEntry = {
+      id: crypto.randomUUID(),
+      amount: safeAmount,
+      createdAt: new Date().toISOString()
+    };
     const next = {
       ...album,
-      stickers: {
-        ...album.stickers,
-        [stickerId]: {
-          ...current,
-          duplicates: Math.max(0, (current?.duplicates || 0) - 1),
-          updatedAt: new Date().toISOString()
-        }
-      }
+      expenses: [...album.expenses, entry]
+    };
+    persist(next);
+    set({ album: next });
+  },
+  removeExpense: (id) => {
+    const album = get().album;
+    const next = {
+      ...album,
+      expenses: album.expenses.filter((entry) => entry.id !== id)
     };
     persist(next);
     set({ album: next });

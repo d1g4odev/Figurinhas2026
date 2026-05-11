@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/Button';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { buildCopyText } from '../album/album.utils';
 import { useAlbum } from '../album/useAlbum';
+import { flagUrl } from '../../data/worldCup2026';
 
 export function MissingPage() {
   const { missing } = useAlbum();
@@ -21,8 +22,14 @@ export function MissingPage() {
           {copied ? 'Copiado' : 'Copiar'}
         </Button>
       </div>
-      <div className="plain-list">
-        {missing.map((sticker) => <span key={sticker.id}>{sticker.teamCode} {sticker.number}</span>)}
+      <div className="plain-list detailed">
+        {missing.map((sticker) => (
+          <span key={sticker.id}>
+            <img src={flagUrl(sticker.flagCode, 40)} alt="" />
+            <b>{sticker.teamCode} {sticker.number}</b>
+            <small>{sticker.teamNameEn}</small>
+          </span>
+        ))}
       </div>
     </section>
   );

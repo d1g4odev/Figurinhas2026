@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/Button';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 import { buildCopyText } from '../album/album.utils';
 import { useAlbum } from '../album/useAlbum';
+import { flagUrl } from '../../data/worldCup2026';
 
 export function DuplicatesPage() {
   const { album, duplicates } = useAlbum();
@@ -21,11 +22,15 @@ export function DuplicatesPage() {
           {copied ? 'Copiado' : 'Copiar'}
         </Button>
       </div>
-      <div className="plain-list">
+      <div className="plain-list detailed">
         {duplicates.map((sticker) => (
           <span key={sticker.id}>
-            {sticker.teamCode} {sticker.number}
-            {(album.stickers[sticker.id]?.duplicates || 0) > 1 ? ` x${album.stickers[sticker.id].duplicates}` : ''}
+            <img src={flagUrl(sticker.flagCode, 40)} alt="" />
+            <b>
+              {sticker.teamCode} {sticker.number}
+              {(album.stickers[sticker.id]?.duplicates || 0) > 1 ? ` x${album.stickers[sticker.id].duplicates}` : ''}
+            </b>
+            <small>{sticker.teamNameEn}</small>
           </span>
         ))}
       </div>

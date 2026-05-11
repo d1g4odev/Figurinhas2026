@@ -1,6 +1,7 @@
 import { Minus, Plus } from 'lucide-react';
 import type { Sticker, StickerState } from '../album/album.types';
 import { formatStickerCode } from '../../lib/formatStickerCode';
+import { flagUrl } from '../../data/worldCup2026';
 
 type StickerCardProps = {
   sticker: Sticker;
@@ -14,7 +15,11 @@ export function StickerCard({ sticker, state, onToggleOwned, onIncrementDuplicat
   return (
     <article className={state.owned ? 'sticker-card owned' : 'sticker-card'}>
       <button className="sticker-main" onClick={onToggleOwned}>
-        <strong>{formatStickerCode(sticker)}</strong>
+        <div className="sticker-main-head">
+          <img src={flagUrl(sticker.flagCode, 40)} alt="" />
+          <strong>{formatStickerCode(sticker)}</strong>
+        </div>
+        <span className="sticker-country">{sticker.teamNameEn}</span>
         <span>{state.owned ? 'Tenho' : 'Falta'}</span>
       </button>
       <div className="duplicate-stepper">

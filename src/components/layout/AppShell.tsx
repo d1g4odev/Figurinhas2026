@@ -1,11 +1,12 @@
 import type { User } from 'firebase/auth';
-import { Album, CopyCheck, Home, UserRound } from 'lucide-react';
+import { BookOpenText, Camera, CopyCheck, LayoutGrid, UserRound } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
-  { to: '/album', label: 'Álbum', icon: Home },
-  { to: '/faltantes', label: 'Faltam', icon: Album },
+  { to: '/album', label: 'Coleção', icon: LayoutGrid },
+  { to: '/faltantes', label: 'Faltam', icon: BookOpenText },
+  { to: '/scanner', label: 'Scanner', icon: Camera },
   { to: '/repetidas', label: 'Repetidas', icon: CopyCheck },
   { to: '/perfil', label: 'Perfil', icon: UserRound }
 ];
@@ -15,7 +16,7 @@ export function AppShell({ children, user }: PropsWithChildren<{ user: User }>) 
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <span className="eyebrow">Copa 2026</span>
+          <span className="eyebrow">World Cup 2026</span>
           <h1>Meu álbum</h1>
         </div>
         <img className="avatar" src={user.photoURL || '/icons/icon-192.png'} alt="" />

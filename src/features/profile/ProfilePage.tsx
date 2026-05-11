@@ -23,6 +23,7 @@ export function ProfilePage() {
         <div><strong>{summary.owned}</strong><span>Tenho</span></div>
         <div><strong>{summary.missing}</strong><span>Faltam</span></div>
         <div><strong>{summary.duplicates}</strong><span>Repetidas</span></div>
+        <div><strong>R$ {summary.totalSpent.toFixed(2)}</strong><span>Gastos</span></div>
       </div>
 
       <Button variant="danger" onClick={() => signOutUser()}>
