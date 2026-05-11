@@ -17,8 +17,10 @@ export function App() {
     hydrate();
   }, [hydrate]);
 
+  const isPreview = user?.uid === '__preview__';
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || isPreview) return;
 
     loadAlbumState(user)
       .then((cloudAlbum) => {
@@ -27,17 +29,17 @@ export function App() {
       .catch((error) => {
         console.warn('Não consegui carregar o álbum do Firestore', error);
       });
-  }, [replaceAlbum, user]);
+  }, [isPreview, replaceAlbum, user]);
 
   useEffect(() => {
-    if (!user || !hasHydrated) return;
+    if (!user || isPreview || !hasHydrated) return;
     const timer = window.setTimeout(() => {
       saveAlbumState(user, album, summarizeAlbum(album)).catch((error) => {
         console.warn('Não consegui sincronizar com Firestore', error);
       });
     }, 800);
     return () => window.clearTimeout(timer);
-  }, [album, hasHydrated, user]);
+  }, [album, hasHydrated, isPreview, user]);
 
   if (loading) return <div className="splash">Carregando...</div>;
   if (!user) return <Navigate to="/login" replace />;
