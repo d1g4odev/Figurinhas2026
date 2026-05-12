@@ -152,6 +152,7 @@ export function AlbumPage() {
             <input
               value={expenseInput}
               onChange={(event) => setExpenseInput(event.target.value)}
+              onKeyDown={(event) => event.key === 'Enter' && registerExpense()}
               inputMode="decimal"
               placeholder="Digite o valor gasto"
             />

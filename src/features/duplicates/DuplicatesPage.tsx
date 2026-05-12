@@ -22,18 +22,22 @@ export function DuplicatesPage() {
           {copied ? 'Copiado' : 'Copiar'}
         </Button>
       </div>
-      <div className="plain-list detailed">
-        {duplicates.map((sticker) => (
-          <span key={sticker.id}>
-            <img src={flagUrl(sticker.flagCode, 40)} alt="" />
-            <b>
-              {sticker.teamCode} {sticker.number}
-              {(album.stickers[sticker.id]?.duplicates || 0) > 1 ? ` x${album.stickers[sticker.id].duplicates}` : ''}
-            </b>
-            <small>{sticker.playerName || sticker.label}</small>
-          </span>
-        ))}
-      </div>
+      {duplicates.length === 0 ? (
+        <p className="album-empty">Nenhuma repetida marcada ainda.</p>
+      ) : (
+        <div className="plain-list detailed">
+          {duplicates.map((sticker) => (
+            <span key={sticker.id}>
+              <img src={flagUrl(sticker.flagCode, 40)} alt="" />
+              <b>
+                {sticker.teamCode} {sticker.number}
+                {(album.stickers[sticker.id]?.duplicates || 0) > 1 ? ` x${album.stickers[sticker.id].duplicates}` : ''}
+              </b>
+              <small>{sticker.playerName || sticker.label}</small>
+            </span>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

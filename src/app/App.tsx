@@ -1,60 +1,93 @@
-import { useEffect } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Outlet } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { useAlbumStore } from '../features/album/album.store';
-import { summarizeAlbum } from '../features/album/album.utils';
-import { useAuth } from '../features/auth/useAuth';
-import { useAuthStore } from '../features/auth/auth.store';
-import { loadAlbumState, loadUserProfile, saveAlbumState } from '../firebase/firebase.firestore';
+import { isAlbumPristine } from '../features/album/album.utils';
+import { ensureSupabaseSession, isSupabaseConfigured, loadAlbumBackup, saveAlbumBackup } from '../lib/supabase';
 
 export function App() {
-  const { user, loading } = useAuth();
-  const album = useAlbumStore((state) => state.album);
   const hydrate = useAlbumStore((state) => state.hydrate);
-  const replaceAlbum = useAlbumStore((state) => state.replaceAlbum);
   const hasHydrated = useAlbumStore((state) => state.hasHydrated);
-  const setProfile = useAuthStore((state) => state.setProfile);
+  const album = useAlbumStore((state) => state.album);
+  const replaceAlbum = useAlbumStore((state) => state.replaceAlbum);
+  const cloudBootstrapped = useRef(false);
+  const cloudRestoring = useRef(false);
+  const lastCloudSignature = useRef('');
+  const syncTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
-  const isPreview = user?.uid === '__preview__';
+  useEffect(() => {
+    if (!hasHydrated || !isSupabaseConfigured || cloudBootstrapped.current) return;
+
+    let cancelled = false;
+
+    async function bootstrapCloudAccount() {
+      try {
+        await ensureSupabaseSession();
+        const remote = await loadAlbumBackup();
+
+        if (cancelled) return;
+
+        if (remote.payload && isAlbumPristine(album)) {
+          cloudRestoring.current = true;
+          replaceAlbum(remote.payload);
+          lastCloudSignature.current = JSON.stringify(remote.payload);
+        } else {
+          lastCloudSignature.current = JSON.stringify(album);
+        }
+      } catch {
+        lastCloudSignature.current = JSON.stringify(album);
+      } finally {
+        if (!cancelled) {
+          cloudBootstrapped.current = true;
+          window.setTimeout(() => {
+            cloudRestoring.current = false;
+          }, 50);
+        }
+      }
+    }
+
+    bootstrapCloudAccount();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasHydrated, replaceAlbum]);
 
   useEffect(() => {
-    if (!user || isPreview) return;
-    loadUserProfile(user.uid)
-      .then((profile) => {
-        setProfile(profile);
-      })
-      .catch((err) => {
-        console.warn('Não consegui carregar o perfil do Firestore', err);
-      });
+    if (!hasHydrated || !isSupabaseConfigured || !cloudBootstrapped.current) return;
+    if (cloudRestoring.current) return;
 
-    loadAlbumState(user)
-      .then((cloudAlbum) => {
-        if (cloudAlbum) replaceAlbum(cloudAlbum);
-      })
-      .catch((err) => {
-        console.warn('Não consegui carregar o álbum do Firestore', err);
-      });
-  }, [isPreview, replaceAlbum, setProfile, user]);
+    const signature = JSON.stringify(album);
+    if (signature === lastCloudSignature.current) return;
 
-  useEffect(() => {
-    if (!user || isPreview || !hasHydrated) return;
-    const timer = window.setTimeout(() => {
-      saveAlbumState(user, album, summarizeAlbum(album)).catch((err) => {
-        console.warn('Não consegui sincronizar com Firestore', err);
-      });
-    }, 800);
-    return () => window.clearTimeout(timer);
-  }, [album, hasHydrated, isPreview, user]);
+    if (syncTimeout.current) {
+      window.clearTimeout(syncTimeout.current);
+    }
 
-  if (loading) return <div className="splash">Carregando...</div>;
-  if (!user) return <Navigate to="/login" replace />;
+    syncTimeout.current = window.setTimeout(() => {
+      saveAlbumBackup(album)
+        .then(() => {
+          lastCloudSignature.current = signature;
+        })
+        .catch(() => undefined);
+    }, 1200);
+
+    return () => {
+      if (syncTimeout.current) {
+        window.clearTimeout(syncTimeout.current);
+        syncTimeout.current = null;
+      }
+    };
+  }, [album, hasHydrated]);
+
+  if (!hasHydrated) return <div className="splash">Carregando...</div>;
 
   return (
-    <AppShell user={user}>
+    <AppShell>
       <Outlet />
     </AppShell>
   );

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { AlbumState, ExpenseEntry } from './album.types';
 import { createEmptyAlbum, normalizeAlbumState } from './album.utils';
 
-const STORAGE_KEY = 'figurinhas-copa-2026-react-v1';
+export const STORAGE_KEY = 'figurinhas-copa-2026-react-v1';
 const LEGACY_STORAGE_KEY = 'figurinhas-copa-2026-v1';
 
 type AlbumStore = {

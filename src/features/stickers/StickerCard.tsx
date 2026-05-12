@@ -25,7 +25,7 @@ export function StickerCard({ sticker, state, onToggleOwned, onIncrementDuplicat
         <span>{state.owned ? 'Tenho' : 'Falta'}</span>
       </button>
       <div className="duplicate-stepper">
-        <button onClick={onDecrementDuplicate} aria-label={`Diminuir repetidas ${formatStickerCode(sticker)}`}>
+        <button onClick={onDecrementDuplicate} disabled={state.duplicates === 0} aria-label={`Diminuir repetidas ${formatStickerCode(sticker)}`}>
           <Minus size={14} />
         </button>
         <span>{state.duplicates}</span>

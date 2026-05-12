@@ -53,6 +53,11 @@ export function summarizeAlbum(state: AlbumState): AlbumSummary {
   };
 }
 
+export function isAlbumPristine(state: AlbumState) {
+  const summary = summarizeAlbum(state);
+  return summary.owned === 0 && summary.duplicates === 0 && summary.totalSpent === 0;
+}
+
 export function stickerLine(sticker: Sticker) {
   return formatStickerCode(sticker);
 }
