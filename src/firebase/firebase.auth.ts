@@ -6,11 +6,13 @@ import {
   GoogleAuthProvider,
   indexedDBLocalPersistence,
   initializeAuth,
+  linkWithPopup,
   linkWithRedirect,
   onAuthStateChanged,
   setPersistence,
   signInWithCustomToken,
   signInWithCredential,
+  signInWithPopup,
   signInWithRedirect,
   signOut,
   type User
@@ -87,9 +89,17 @@ async function postAuthEndpoint(path: string, payload: UsernameAuthPayload) {
     body: JSON.stringify(payload)
   });
 
-  const data = (await response.json().catch(() => ({}))) as Partial<UsernameAuthResponse> & { error?: string };
+  const rawText = await response.text();
+  const data = (() => {
+    try {
+      return JSON.parse(rawText) as Partial<UsernameAuthResponse> & { error?: string };
+    } catch {
+      return { error: rawText || undefined };
+    }
+  })();
+
   if (!response.ok || !data.token) {
-    throw new Error(data.error || 'Não consegui validar sua conta.');
+    throw new Error(data.error || `Não consegui validar sua conta. (${response.status})`);
   }
 
   return data as UsernameAuthResponse;
@@ -124,10 +134,31 @@ export async function linkOrSignInWithGoogle(rememberDevice = true) {
   await configurePersistence(rememberDevice);
   const current = auth.currentUser;
   const alreadyLinkedToGoogle = !!current?.providerData.some((provider) => provider.providerId === 'google.com');
-  if (current && !alreadyLinkedToGoogle) {
-    return linkWithRedirect(current, googleProvider);
+
+  try {
+    if (current && !alreadyLinkedToGoogle) {
+      return await linkWithPopup(current, googleProvider);
+    }
+    return await signInWithPopup(auth, googleProvider);
+  } catch (error: unknown) {
+    const code = typeof error === 'object' && error && 'code' in error ? String((error as { code: string }).code) : '';
+    const shouldFallbackToRedirect = [
+      'auth/popup-blocked',
+      'auth/popup-closed-by-user',
+      'auth/cancelled-popup-request',
+      'auth/operation-not-supported-in-this-environment',
+      'auth/argument-error'
+    ].includes(code);
+
+    if (!shouldFallbackToRedirect) {
+      throw error;
+    }
+
+    if (current && !alreadyLinkedToGoogle) {
+      return linkWithRedirect(current, googleProvider);
+    }
+    return signInWithRedirect(auth, googleProvider);
   }
-  return signInWithRedirect(auth, googleProvider);
 }
 
 /**

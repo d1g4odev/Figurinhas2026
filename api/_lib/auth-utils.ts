@@ -60,6 +60,22 @@ export function syntheticEmail(username: string) {
 }
 
 export function readJsonBody(body: unknown) {
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body) as Record<string, unknown>;
+    } catch {
+      return {};
+    }
+  }
+
+  if (body instanceof Buffer) {
+    try {
+      return JSON.parse(body.toString('utf8')) as Record<string, unknown>;
+    } catch {
+      return {};
+    }
+  }
+
   if (!body || typeof body !== 'object') {
     return {};
   }
