@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { randomUUID } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminAuth, adminDb } from '../_lib/firebase-admin';
+import { adminAuth, adminDb } from '../_lib/firebase-admin.ts';
 import {
   formatMemberId,
   hashPin,
   readJsonBody,
   syntheticEmail,
   validatePayload
-} from '../_lib/auth-utils';
+} from '../_lib/auth-utils.ts';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store');

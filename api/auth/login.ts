@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { adminAuth, adminDb } from '../_lib/firebase-admin';
-import { readJsonBody, validatePayload, verifyPin } from '../_lib/auth-utils';
+import { adminAuth, adminDb } from '../_lib/firebase-admin.ts';
+import { readJsonBody, validatePayload, verifyPin } from '../_lib/auth-utils.ts';
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 5 * 60 * 1000;
