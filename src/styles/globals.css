@@ -99,8 +99,14 @@
 
 html, body, #root { min-height: 100%; margin: 0; }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   min-width: 320px;
+  overflow-x: hidden;
+  overscroll-behavior: none;
   color: var(--ink);
   background:
     radial-gradient(900px 600px at 12% -10%, rgba(229,168,50,0.28), transparent 60%),
