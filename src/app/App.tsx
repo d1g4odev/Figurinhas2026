@@ -4,6 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { useAlbumStore } from '../features/album/album.store';
 import { isAlbumPristine } from '../features/album/album.utils';
 import { ensureSupabaseSession, isSupabaseConfigured, loadAlbumBackup, saveAlbumBackup } from '../lib/supabase';
+import { PixPopup } from '../features/support/PixPopup';
 
 export function App() {
   const hydrate = useAlbumStore((state) => state.hydrate);
@@ -87,8 +88,11 @@ export function App() {
   if (!hasHydrated) return <div className="splash">Carregando...</div>;
 
   return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
+    <>
+      <AppShell>
+        <Outlet />
+      </AppShell>
+      <PixPopup />
+    </>
   );
 }

@@ -1702,6 +1702,139 @@ h1, h2, h3 {
   text-shadow: 1px 1px 0 var(--ink);
 }
 
+/* ── Pix Popup ──────────────────────────────────────────────────────────── */
+.pix-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(42, 26, 14, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: fade-in 0.2s var(--ease-out);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pix-card {
+  position: relative;
+  width: min(100%, 360px);
+  display: grid;
+  gap: 12px;
+  padding: 28px 22px 22px;
+  border-radius: var(--r-xl);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.5), rgba(0,0,0,0) 30%),
+    var(--off-white);
+  border: 2.5px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  animation: pop-in 0.25s var(--ease-out);
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.pix-card::before {
+  content: "⚽";
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  filter: drop-shadow(0 2px 0 var(--ink));
+}
+
+.pix-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: var(--stamp-press);
+  padding: 0;
+}
+
+.pix-title {
+  font-size: clamp(24px, 6vw, 28px);
+  color: var(--ink);
+  margin: 0;
+}
+
+.pix-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.pix-key-box {
+  display: grid;
+  gap: 3px;
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--cream);
+  border: 2px solid var(--cream-edge);
+  text-align: center;
+}
+
+.pix-key-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.pix-key-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--brick);
+  letter-spacing: 0.04em;
+}
+
+.pix-key-name {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.pix-copy-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.pix-dismiss {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-faint);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (min-width: 520px) {
   .missing-team-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
