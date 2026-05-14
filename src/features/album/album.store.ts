@@ -11,7 +11,6 @@ type AlbumStore = {
   hydrate: () => void;
   replaceAlbum: (album: AlbumState) => void;
   markOwned: (stickerId: string) => void;
-  toggleOwned: (stickerId: string) => void;
   incrementDuplicate: (stickerId: string) => void;
   decrementDuplicate: (stickerId: string) => void;
   addExpense: (amount: number) => void;
@@ -61,16 +60,7 @@ export const useAlbumStore = create<AlbumStore>((set, get) => ({
     const next = updateSticker(album, stickerId, (current) => ({
       ...current,
       owned: true,
-      updatedAt: new Date().toISOString()
-    }));
-    persist(next);
-    set({ album: next });
-  },
-  toggleOwned: (stickerId) => {
-    const album = get().album;
-    const next = updateSticker(album, stickerId, (current) => ({
-      ...current,
-      owned: !current?.owned,
+      duplicates: Math.max(1, current?.duplicates || 0),
       updatedAt: new Date().toISOString()
     }));
     persist(next);
@@ -78,24 +68,26 @@ export const useAlbumStore = create<AlbumStore>((set, get) => ({
   },
   incrementDuplicate: (stickerId) => {
     const album = get().album;
-    const next = updateSticker(album, stickerId, (current) => ({
-      ...current,
-      owned: true,
-      duplicates: (current?.duplicates || 0) + 1,
-      updatedAt: new Date().toISOString()
-    }));
+    const next = updateSticker(album, stickerId, (current) => {
+      const newCount = (current?.duplicates || 0) + 1;
+      return {
+        ...current,
+        owned: true,
+        duplicates: newCount,
+        updatedAt: new Date().toISOString()
+      };
+    });
     persist(next);
     set({ album: next });
   },
   decrementDuplicate: (stickerId) => {
     const album = get().album;
     const next = updateSticker(album, stickerId, (current) => {
-      const newDuplicates = Math.max(0, (current?.duplicates || 0) - 1);
+      const newCount = Math.max(0, (current?.duplicates || 0) - 1);
       return {
         ...current,
-        duplicates: newDuplicates,
-        // se chegou a 0, desmarca como "tenho" automaticamente
-        owned: newDuplicates > 0 ? current?.owned : false,
+        duplicates: newCount,
+        owned: newCount > 0,
         updatedAt: new Date().toISOString()
       };
     });

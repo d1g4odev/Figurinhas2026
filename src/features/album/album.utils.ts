@@ -16,16 +16,26 @@ export function normalizeAlbumState(state?: Partial<AlbumState> | null): AlbumSt
   const empty = createEmptyAlbum();
   if (!state?.stickers) return empty;
 
+  // Antes da v8, `duplicates` guardava só os extras (0 = tenho 1, 1 = tenho 2…).
+  // De v8 em diante, `duplicates` é a contagem TOTAL (0 = não tenho, 1 = tenho, >1 = repetida).
+  const incomingVersion = Number(state.version || 0);
+  const needsCountMigration = incomingVersion < 8;
+
   return {
     version: DATA_VERSION,
     stickers: Object.fromEntries(
       catalog.map((sticker) => {
         const current = state.stickers?.[sticker.id];
+        const rawDuplicates = Math.max(0, Number(current?.duplicates || 0));
+        const wasOwned = Boolean(current?.owned);
+        const count = needsCountMigration
+          ? (wasOwned ? rawDuplicates + 1 : 0)
+          : rawDuplicates;
         return [
           sticker.id,
           {
-            owned: Boolean(current?.owned),
-            duplicates: Math.max(0, Number(current?.duplicates || 0)),
+            owned: count > 0,
+            duplicates: count,
             updatedAt: current?.updatedAt
           }
         ];
@@ -48,7 +58,7 @@ export function summarizeAlbum(state: AlbumState): AlbumSummary {
     total: TOTAL_STICKERS,
     owned,
     missing: TOTAL_STICKERS - owned,
-    duplicates: values.reduce((sum, sticker) => sum + sticker.duplicates, 0),
+    duplicates: values.reduce((sum, sticker) => sum + Math.max(0, sticker.duplicates - 1), 0),
     totalSpent: state.expenses.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
   };
 }
@@ -71,7 +81,7 @@ export function missingStickers(state: AlbumState) {
 }
 
 export function duplicateStickers(state: AlbumState) {
-  return catalog.filter((sticker) => (state.stickers[sticker.id]?.duplicates || 0) > 0);
+  return catalog.filter((sticker) => (state.stickers[sticker.id]?.duplicates || 0) > 1);
 }
 
 export function buildCopyText(title: string, stickers: Sticker[], state?: AlbumState) {

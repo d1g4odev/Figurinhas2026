@@ -2,7 +2,7 @@ import type { Sticker, StickerType, Team } from '../features/album/album.types';
 import paniniData from './panini2026.json';
 
 export const STICKERS_PER_TEAM = 20;
-export const DATA_VERSION = 7;
+export const DATA_VERSION = 8;
 
 type PaniniIntroEntry = {
   code: string;

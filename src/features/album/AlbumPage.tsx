@@ -67,7 +67,7 @@ export function AlbumPage() {
         statusFilter === 'all' ? true :
         statusFilter === 'owned' ? owned :
         statusFilter === 'missing' ? !owned :
-        duplicates > 0;
+        duplicates > 1;
       return matchTeam && matchSearch && matchStatus;
     });
   }, [album, search, statusFilter, teamCode]);

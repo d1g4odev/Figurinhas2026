@@ -6,15 +6,15 @@ import { flagUrl } from '../../data/worldCup2026';
 type StickerCardProps = {
   sticker: Sticker;
   state: StickerState;
-  onToggleOwned: () => void;
+  onMarkOwned: () => void;
   onIncrementDuplicate: () => void;
   onDecrementDuplicate: () => void;
 };
 
-export function StickerCard({ sticker, state, onToggleOwned, onIncrementDuplicate, onDecrementDuplicate }: StickerCardProps) {
+export function StickerCard({ sticker, state, onMarkOwned, onIncrementDuplicate, onDecrementDuplicate }: StickerCardProps) {
   return (
     <article className={state.owned ? 'sticker-card owned' : 'sticker-card'}>
-      <button className="sticker-main" onClick={onToggleOwned}>
+      <button className="sticker-main" onClick={onMarkOwned}>
         <div className="sticker-main-head">
           <img src={flagUrl(sticker.flagCode, 40)} alt="" />
           <strong>{formatStickerCode(sticker)}</strong>

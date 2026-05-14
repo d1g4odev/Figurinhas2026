@@ -71,6 +71,14 @@ src/
 - A tela de perfil mostra status do Supabase, backup local, sync manual e reset local.
 - A função de câmera/leitura de figurinhas foi removida completamente do app.
 
+### Semântica de contagem (DATA_VERSION 8+)
+
+- `StickerState.duplicates` é a contagem **total** de cópias daquela figurinha (0 = não tenho, 1 = tenho, >1 = repetida).
+- `StickerState.owned` é mantido sincronizado (`duplicates > 0`).
+- Aba "Repetidas" e filtro "Repetidas" só listam figurinhas com `duplicates > 1`.
+- `summary.duplicates` soma `max(0, duplicates - 1)` por figurinha — número de cópias excedentes.
+- Migração automática em `normalizeAlbumState`: estados com `version < 8` tinham `duplicates` = extras além da primeira; convertidos para total ao carregar (local ou Supabase).
+
 ---
 
 ## Rotas

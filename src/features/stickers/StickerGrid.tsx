@@ -7,7 +7,7 @@ type StickerGridProps = {
 };
 
 export function StickerGrid({ stickers }: StickerGridProps) {
-  const { album, toggleOwned, incrementDuplicate, decrementDuplicate } = useAlbum();
+  const { album, markOwned, incrementDuplicate, decrementDuplicate } = useAlbum();
 
   return (
     <div className="sticker-grid">
@@ -16,7 +16,7 @@ export function StickerGrid({ stickers }: StickerGridProps) {
           key={sticker.id}
           sticker={sticker}
           state={album.stickers[sticker.id]}
-          onToggleOwned={() => toggleOwned(sticker.id)}
+          onMarkOwned={() => markOwned(sticker.id)}
           onIncrementDuplicate={() => incrementDuplicate(sticker.id)}
           onDecrementDuplicate={() => decrementDuplicate(sticker.id)}
         />
