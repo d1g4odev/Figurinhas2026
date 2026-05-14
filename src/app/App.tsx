@@ -22,7 +22,7 @@ export function App() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || (window.navigator as { standalone?: boolean }).standalone === true;
     if (isStandalone) {
-      document.documentElement.style.setProperty('--pwa-bottom-inset', '34px');
+      document.documentElement.style.setProperty('--pwa-bottom-inset', '20px');
       document.documentElement.classList.add('pwa-standalone');
     }
   }, []);

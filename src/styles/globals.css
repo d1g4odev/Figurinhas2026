@@ -628,9 +628,10 @@ h1, h2, h3 {
   overscroll-behavior-y: contain;
 }
 
-/* padding-bottom no page-stack — usa a mesma var --pwa-bottom-inset que a nav. */
+/* padding-bottom no page-stack — usa a mesma var --pwa-bottom-inset que a nav.
+   Nav agora tem ~76px (4px top + 52px content + 20px bottom em PWA). */
 .page-stack {
-  padding-bottom: calc(86px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
+  padding-bottom: calc(64px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1673,20 +1674,20 @@ h1, h2, h3 {
   background: var(--off-white);
   border-top: 2.5px solid var(--ink);
   border-bottom: none;
-  /* Padding bottom dinâmico: usa env() OU a var --pwa-bottom-inset (34px em PWA mode). */
-  padding: 10px 0 max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
+  /* Padding compacto: 4px top + ~52px content (inner) + safe-area (20px em PWA) = ~76px total */
+  padding: 4px 0 max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
   z-index: 10;
-  box-shadow: 0 -4px 0 -1px var(--cream-edge), 0 -8px 24px -8px rgba(42, 26, 14, 0.18);
+  box-shadow: 0 -3px 12px -6px rgba(42, 26, 14, 0.15);
 }
 
 .bottom-nav-inner {
   width: min(calc(100% - 20px), 720px);
-  height: 64px;
+  height: 52px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
-  padding: 6px;
+  padding: 4px;
 }
 
 .bottom-nav a {
