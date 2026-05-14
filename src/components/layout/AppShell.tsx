@@ -23,15 +23,17 @@ export function AppShell({ children }: PropsWithChildren) {
       <main className="app-main">{children}</main>
 
       <nav className="bottom-nav" aria-label="Navegação principal">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? 'active' : ''}>
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
+        <div className="bottom-nav-inner">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? 'active' : ''}>
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );

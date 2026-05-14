@@ -1651,22 +1651,24 @@ h1, h2, h3 {
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
 .bottom-nav {
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
-  transform: translateX(-50%);
+  background: var(--off-white);
+  border-top: 2.5px solid var(--ink);
+  border-bottom: none;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 10;
+}
+
+.bottom-nav-inner {
   width: min(calc(100% - 20px), 720px);
-  height: auto;
-  min-height: 64px;
+  height: 64px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
-  padding: 6px 6px max(6px, env(safe-area-inset-bottom, 0px));
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
-  background: var(--off-white);
-  border: 2.5px solid var(--ink);
-  border-bottom: none;
-  box-shadow: var(--stamp-ink);
-  z-index: 10;
+  padding: 6px;
 }
 
 .bottom-nav a {
