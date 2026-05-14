@@ -626,14 +626,15 @@ h1, h2, h3 {
   overscroll-behavior-y: contain;
 }
 
-/* padding-bottom no page-stack (não no container scroll — Safari ignora) */
+/* padding-bottom no page-stack (não no container scroll — Safari ignora).
+   Nav tem ~110px de altura total (64px items + 10px top + 24px bottom + ~12px borda/shadow). */
 .page-stack {
-  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (display-mode: standalone) {
   .page-stack {
-    padding-bottom: calc(78px + max(env(safe-area-inset-bottom), 34px));
+    padding-bottom: calc(115px + max(env(safe-area-inset-bottom), 34px));
   }
 }
 
@@ -1656,6 +1657,25 @@ h1, h2, h3 {
 }
 
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
+/* Safe-area filler: elemento fixo ATRÁS da nav que garante cobertura total
+   da safe-area do iPhone em PWA mode (z-index abaixo da nav). */
+.safe-area-filler {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background: var(--off-white);
+  z-index: 9;
+  pointer-events: none;
+}
+
+@media (display-mode: standalone) {
+  .safe-area-filler {
+    height: max(80px, calc(env(safe-area-inset-bottom) + 60px));
+  }
+}
+
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -1664,14 +1684,16 @@ h1, h2, h3 {
   background: var(--off-white);
   border-top: 2.5px solid var(--ink);
   border-bottom: none;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Nav alta: 18px top + 64px conteúdo + 24px bottom = 106px em modo normal.
+     Em PWA aumenta o padding-bottom para cobrir o home indicator. */
+  padding: 10px 0 max(24px, env(safe-area-inset-bottom));
   z-index: 10;
+  box-shadow: 0 -4px 0 -1px var(--cream-edge), 0 -8px 24px -8px rgba(42, 26, 14, 0.18);
 }
 
-/* PWA standalone mode (iOS Home Screen): garante padding mínimo para o home indicator */
 @media (display-mode: standalone) {
   .bottom-nav {
-    padding-bottom: max(env(safe-area-inset-bottom), 34px);
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
   }
 }
 

@@ -35,6 +35,7 @@ export function AppShell({ children }: PropsWithChildren) {
           })}
         </div>
       </nav>
+      <div className="safe-area-filler" aria-hidden />
     </div>
   );
 }
