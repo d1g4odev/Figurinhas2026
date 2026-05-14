@@ -1669,8 +1669,8 @@ h1, h2, h3 {
 .bottom-nav-inner {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  padding: 4px;
+  gap: 4px;
+  padding: 4px 8px;
 }
 
 .bottom-nav a {
@@ -1688,7 +1688,7 @@ h1, h2, h3 {
   letter-spacing: 0.10em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-radius: var(--r-md);
+  border-radius: var(--r-pill);
   border: 2px solid transparent;
   transition: color .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
 }
@@ -1703,14 +1703,7 @@ h1, h2, h3 {
 }
 
 .bottom-nav a.active::before {
-  content: "★";
-  position: absolute;
-  top: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--mustard);
-  font-size: 12px;
-  text-shadow: 1px 1px 0 var(--ink);
+  display: none;
 }
 
 /* ── Pix Popup ──────────────────────────────────────────────────────────── */
