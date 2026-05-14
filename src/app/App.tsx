@@ -16,6 +16,17 @@ export function App() {
   const lastCloudSignature = useRef('');
   const syncTimeout = useRef<number | null>(null);
 
+  // Detecta PWA standalone mode (iOS Home Screen) e força safe-area mínima de 34px,
+  // já que env(safe-area-inset-bottom) pode retornar 0 nesse contexto no iOS Safari.
+  useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as { standalone?: boolean }).standalone === true;
+    if (isStandalone) {
+      document.documentElement.style.setProperty('--pwa-bottom-inset', '34px');
+      document.documentElement.classList.add('pwa-standalone');
+    }
+  }, []);
+
   useEffect(() => {
     hydrate();
   }, [hydrate]);
@@ -92,6 +103,8 @@ export function App() {
       <AppShell>
         <Outlet />
       </AppShell>
+      {/* Filler FORA do .app-shell para escapar do overflow:hidden (bug iOS Safari) */}
+      <div className="safe-area-filler" aria-hidden />
       <PixPopup />
     </>
   );

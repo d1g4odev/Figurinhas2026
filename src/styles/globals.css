@@ -104,22 +104,24 @@ html {
   background-color: var(--off-white);
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
-}
-
 body {
   min-width: 320px;
   overflow-x: hidden;
   overscroll-behavior: none;
   color: var(--ink);
+  /* body = mesma cor da nav. O design cream foi movido pro #root.
+     Assim a safe-area do iPhone (que pega a cor do body) fica igual à nav. */
+  background: var(--off-white);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(900px 600px at 12% -10%, rgba(229,168,50,0.28), transparent 60%),
     radial-gradient(800px 700px at 100% 110%, rgba(110,139,54,0.16), transparent 55%),
     radial-gradient(700px 500px at 80% 30%, rgba(193,62,26,0.10), transparent 60%),
     var(--cream);
-  background-attachment: fixed;
 }
 
 body::before {
@@ -626,16 +628,9 @@ h1, h2, h3 {
   overscroll-behavior-y: contain;
 }
 
-/* padding-bottom no page-stack (não no container scroll — Safari ignora).
-   Nav tem ~110px de altura total (64px items + 10px top + 24px bottom + ~12px borda/shadow). */
+/* padding-bottom no page-stack — usa a mesma var --pwa-bottom-inset que a nav. */
 .page-stack {
-  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
-}
-
-@media (display-mode: standalone) {
-  .page-stack {
-    padding-bottom: calc(115px + max(env(safe-area-inset-bottom), 34px));
-  }
+  padding-bottom: calc(86px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1657,23 +1652,17 @@ h1, h2, h3 {
 }
 
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
-/* Safe-area filler: elemento fixo ATRÁS da nav que garante cobertura total
-   da safe-area do iPhone em PWA mode (z-index abaixo da nav). */
+/* Safe-area filler: BAR FIXA na base, fora do app-shell pra escapar do
+   overflow:hidden bug do iOS Safari. Usa --pwa-bottom-inset setado por JS. */
 .safe-area-filler {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 80px;
+  height: max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
   background: var(--off-white);
   z-index: 9;
   pointer-events: none;
-}
-
-@media (display-mode: standalone) {
-  .safe-area-filler {
-    height: max(80px, calc(env(safe-area-inset-bottom) + 60px));
-  }
 }
 
 .bottom-nav {
@@ -1684,17 +1673,10 @@ h1, h2, h3 {
   background: var(--off-white);
   border-top: 2.5px solid var(--ink);
   border-bottom: none;
-  /* Nav alta: 18px top + 64px conteúdo + 24px bottom = 106px em modo normal.
-     Em PWA aumenta o padding-bottom para cobrir o home indicator. */
-  padding: 10px 0 max(24px, env(safe-area-inset-bottom));
+  /* Padding bottom dinâmico: usa env() OU a var --pwa-bottom-inset (34px em PWA mode). */
+  padding: 10px 0 max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
   z-index: 10;
   box-shadow: 0 -4px 0 -1px var(--cream-edge), 0 -8px 24px -8px rgba(42, 26, 14, 0.18);
-}
-
-@media (display-mode: standalone) {
-  .bottom-nav {
-    padding-bottom: max(40px, env(safe-area-inset-bottom));
-  }
 }
 
 .bottom-nav-inner {
