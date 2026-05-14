@@ -623,7 +623,11 @@ h1, h2, h3 {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding-bottom: calc(88px + max(12px, env(safe-area-inset-bottom)));
+}
+
+/* padding-bottom no page-stack (não no container scroll — Safari ignora) */
+.page-stack {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1648,17 +1652,19 @@ h1, h2, h3 {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: 0;
   transform: translateX(-50%);
   width: min(calc(100% - 20px), 720px);
-  height: 64px;
+  height: auto;
+  min-height: 64px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
-  padding: 6px;
-  border-radius: var(--r-xl);
+  padding: 6px 6px max(6px, env(safe-area-inset-bottom, 0px));
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
   background: var(--off-white);
   border: 2.5px solid var(--ink);
+  border-bottom: none;
   box-shadow: var(--stamp-ink);
   z-index: 10;
 }
