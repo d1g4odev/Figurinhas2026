@@ -628,7 +628,13 @@ h1, h2, h3 {
 
 /* padding-bottom no page-stack (não no container scroll — Safari ignora) */
 .page-stack {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (display-mode: standalone) {
+  .page-stack {
+    padding-bottom: calc(78px + max(env(safe-area-inset-bottom), 34px));
+  }
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1660,6 +1666,13 @@ h1, h2, h3 {
   border-bottom: none;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   z-index: 10;
+}
+
+/* PWA standalone mode (iOS Home Screen): garante padding mínimo para o home indicator */
+@media (display-mode: standalone) {
+  .bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 34px);
+  }
 }
 
 .bottom-nav-inner {
