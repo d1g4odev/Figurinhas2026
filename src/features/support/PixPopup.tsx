@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard';
 
-const PIX_KEY = '55992091755';
+const PIX_KEY = 'd9edce4e-4718-471c-9ab6-238f434077a7';
 const INTERVAL_MS = 5 * 60 * 1000;
 
 export function PixPopup() {
@@ -35,9 +35,9 @@ export function PixPopup() {
         </p>
 
         <div className="pix-key-box">
-          <span className="pix-key-label">Chave Pix (telefone)</span>
-          <strong className="pix-key-value">{PIX_KEY}</strong>
-          <span className="pix-key-name">Rodrigo Duarte Ribeiro</span>
+          <span className="pix-key-label">Chave aleatória</span>
+          <strong className="pix-key-value">Rodrigo Duarte Ribeiro</strong>
+          <span className="pix-key-name">Mercado Pago</span>
         </div>
 
         <button

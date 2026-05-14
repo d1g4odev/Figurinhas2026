@@ -1813,9 +1813,10 @@ h1, h2, h3 {
 
 .pix-key-value {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--brick);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
 }
 
 .pix-key-name {
