@@ -101,7 +101,12 @@ html, body, #root { height: 100%; margin: 0; overflow: hidden; }
 
 html {
   overflow-x: hidden;
-  background-color: var(--off-white);
+  background-color: var(--cream);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
 }
 
 body {
@@ -109,19 +114,12 @@ body {
   overflow-x: hidden;
   overscroll-behavior: none;
   color: var(--ink);
-  /* body = mesma cor da nav. O design cream foi movido pro #root.
-     Assim a safe-area do iPhone (que pega a cor do body) fica igual à nav. */
-  background: var(--off-white);
-}
-
-#root {
-  display: flex;
-  flex-direction: column;
   background:
     radial-gradient(900px 600px at 12% -10%, rgba(229,168,50,0.28), transparent 60%),
     radial-gradient(800px 700px at 100% 110%, rgba(110,139,54,0.16), transparent 55%),
     radial-gradient(700px 500px at 80% 30%, rgba(193,62,26,0.10), transparent 60%),
     var(--cream);
+  background-attachment: fixed;
 }
 
 body::before {
@@ -628,10 +626,10 @@ h1, h2, h3 {
   overscroll-behavior-y: contain;
 }
 
-/* padding-bottom no page-stack — usa a mesma var --pwa-bottom-inset que a nav.
-   Nav agora tem ~76px (4px top + 52px content + 20px bottom em PWA). */
+/* padding-bottom no page-stack: nav agora é floating pill (~52px de altura) que
+   flutua 8px + safe-area do fundo. Total a clarear: ~60px + safe-area + margem. */
 .page-stack {
-  padding-bottom: calc(64px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
+  padding-bottom: calc(80px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1653,40 +1651,26 @@ h1, h2, h3 {
 }
 
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
-/* Safe-area filler: BAR FIXA na base, fora do app-shell pra escapar do
-   overflow:hidden bug do iOS Safari. Usa --pwa-bottom-inset setado por JS. */
-.safe-area-filler {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
-  background: var(--off-white);
-  z-index: 9;
-  pointer-events: none;
-}
-
+/* Nav floating pill — ocupa apenas o espaço dos itens, flutua acima da base. */
 .bottom-nav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 50%;
+  bottom: calc(8px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
+  transform: translateX(-50%);
+  width: auto;
+  max-width: calc(100% - 20px);
   background: var(--off-white);
-  border-top: 2.5px solid var(--ink);
-  border-bottom: none;
-  /* Padding compacto: 4px top + ~52px content (inner) + safe-area (20px em PWA) = ~76px total */
-  padding: 4px 0 max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px));
+  border: 2.5px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: 4px 4px 0 var(--ink), 0 12px 28px -8px rgba(42, 26, 14, 0.28);
   z-index: 10;
-  box-shadow: 0 -3px 12px -6px rgba(42, 26, 14, 0.15);
+  padding: 0;
 }
 
 .bottom-nav-inner {
-  width: min(calc(100% - 20px), 720px);
-  height: 52px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(4, auto);
+  gap: 2px;
   padding: 4px;
 }
 
@@ -1696,7 +1680,7 @@ h1, h2, h3 {
   display: grid;
   place-items: center;
   gap: 2px;
-  padding: 4px 2px;
+  padding: 6px 10px;
   color: var(--ink-soft);
   text-decoration: none;
   font-family: var(--font-ui);

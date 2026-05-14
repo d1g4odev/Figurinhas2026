@@ -103,8 +103,6 @@ export function App() {
       <AppShell>
         <Outlet />
       </AppShell>
-      {/* Filler FORA do .app-shell para escapar do overflow:hidden (bug iOS Safari) */}
-      <div className="safe-area-filler" aria-hidden />
       <PixPopup />
     </>
   );
