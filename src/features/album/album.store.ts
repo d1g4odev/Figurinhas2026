@@ -89,11 +89,16 @@ export const useAlbumStore = create<AlbumStore>((set, get) => ({
   },
   decrementDuplicate: (stickerId) => {
     const album = get().album;
-    const next = updateSticker(album, stickerId, (current) => ({
-      ...current,
-      duplicates: Math.max(0, (current?.duplicates || 0) - 1),
-      updatedAt: new Date().toISOString()
-    }));
+    const next = updateSticker(album, stickerId, (current) => {
+      const newDuplicates = Math.max(0, (current?.duplicates || 0) - 1);
+      return {
+        ...current,
+        duplicates: newDuplicates,
+        // se chegou a 0, desmarca como "tenho" automaticamente
+        owned: newDuplicates > 0 ? current?.owned : false,
+        updatedAt: new Date().toISOString()
+      };
+    });
     persist(next);
     set({ album: next });
   },
