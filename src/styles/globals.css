@@ -623,7 +623,7 @@ h1, h2, h3 {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding-bottom: 14px;
+  padding-bottom: calc(88px + max(12px, env(safe-area-inset-bottom)));
 }
 
 .page-stack { display: grid; gap: 14px; }
@@ -1646,10 +1646,12 @@ h1, h2, h3 {
 
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
 .bottom-nav {
-  flex-shrink: 0;
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
   width: min(calc(100% - 20px), 720px);
   height: 64px;
-  margin: 8px auto max(12px, env(safe-area-inset-bottom));
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
@@ -1658,6 +1660,7 @@ h1, h2, h3 {
   background: var(--off-white);
   border: 2.5px solid var(--ink);
   box-shadow: var(--stamp-ink);
+  z-index: 10;
 }
 
 .bottom-nav a {
