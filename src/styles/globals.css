@@ -1651,14 +1651,13 @@ h1, h2, h3 {
 }
 
 /* ── Bottom nav ─────────────────────────────────────────────────────────── */
-/* Nav floating pill — ocupa apenas o espaço dos itens, flutua acima da base. */
+/* Nav floating pill — largura fixa com colunas iguais para evitar sobreposição. */
 .bottom-nav {
   position: fixed;
   left: 50%;
   bottom: calc(8px + max(env(safe-area-inset-bottom, 0px), var(--pwa-bottom-inset, 0px)));
   transform: translateX(-50%);
-  width: auto;
-  max-width: calc(100% - 20px);
+  width: min(calc(100% - 12px), 400px);
   background: var(--off-white);
   border: 2.5px solid var(--ink);
   border-radius: var(--r-pill);
@@ -1669,7 +1668,7 @@ h1, h2, h3 {
 
 .bottom-nav-inner {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2px;
   padding: 4px;
 }
@@ -1680,14 +1679,15 @@ h1, h2, h3 {
   display: grid;
   place-items: center;
   gap: 2px;
-  padding: 6px 10px;
+  padding: 6px 4px;
   color: var(--ink-soft);
   text-decoration: none;
   font-family: var(--font-ui);
   font-size: 8.5px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
+  white-space: nowrap;
   border-radius: var(--r-md);
   border: 2px solid transparent;
   transition: color .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
