@@ -120,3 +120,14 @@ export function createCatalog(): Sticker[] {
 export function flagUrl(flagCode: string, width = 80) {
   return `https://flagcdn.com/w${width}/${flagCode}.png`;
 }
+
+export function flagEmoji(flagCode: string): string {
+  const special: Record<string, string> = {
+    un: '⚽',
+    'gb-sct': '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}',
+    'gb-eng': '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',
+  };
+  if (flagCode in special) return special[flagCode];
+  const code = flagCode.toUpperCase().slice(0, 2);
+  return [...code].map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65)).join('');
+}

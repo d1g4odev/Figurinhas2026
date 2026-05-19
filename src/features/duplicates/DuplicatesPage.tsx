@@ -17,7 +17,7 @@ export function DuplicatesPage() {
           <h2>Repetidas</h2>
           <p>{duplicates.length} códigos com repetidas marcadas.</p>
         </div>
-        <Button variant="primary" onClick={() => copy(buildCopyText('Figurinhas repetidas:', duplicates, album))}>
+        <Button variant="primary" onClick={() => copy(buildCopyText('MINHAS REPETIDAS', duplicates, album))}>
           <Copy size={18} />
           {copied ? 'Copiado' : 'Copiar'}
         </Button>

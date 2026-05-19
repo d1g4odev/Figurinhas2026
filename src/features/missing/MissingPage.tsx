@@ -83,7 +83,7 @@ export function MissingPage() {
             </button>
             <Button
               variant="primary"
-              onClick={() => copy(buildCopyText(`Faltam · ${title}:`, teamMissing))}
+              onClick={() => copy(buildCopyText(`FALTAM · ${title.toUpperCase()}`, teamMissing))}
             >
               <Copy size={18} />
               {copied ? 'Copiado' : 'Copiar'}
@@ -126,7 +126,7 @@ export function MissingPage() {
         </div>
         <Button
           variant="primary"
-          onClick={() => copy(buildCopyText('Figurinhas que faltam:', missing))}
+          onClick={() => copy(buildCopyText('MINHAS FALTANTES', missing))}
         >
           <Copy size={18} />
           {copied ? 'Copiado' : 'Copiar'}

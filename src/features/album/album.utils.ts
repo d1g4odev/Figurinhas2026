@@ -1,4 +1,4 @@
-import { createCatalog, DATA_VERSION, TOTAL_STICKERS } from '../../data/worldCup2026';
+import { createCatalog, DATA_VERSION, flagEmoji, TOTAL_STICKERS } from '../../data/worldCup2026';
 import { formatStickerCode } from '../../lib/formatStickerCode';
 import type { AlbumState, AlbumSummary, Sticker } from './album.types';
 
@@ -84,14 +84,24 @@ export function duplicateStickers(state: AlbumState) {
   return catalog.filter((sticker) => (state.stickers[sticker.id]?.duplicates || 0) > 1);
 }
 
-export function buildCopyText(title: string, stickers: Sticker[], state?: AlbumState) {
-  if (!stickers.length) return `${title}\nNenhuma figurinha nesta lista.`;
+export function buildCopyText(title: string, stickers: Sticker[], _state?: AlbumState) {
+  if (!stickers.length) return `*${title}*\nNenhuma figurinha nesta lista.`;
 
-  const lines = stickers.map((sticker) => {
-    const duplicates = state?.stickers[sticker.id]?.duplicates || 0;
-    const suffix = duplicates > 1 ? ` x${duplicates}` : '';
-    return `${stickerLine(sticker)}${suffix}`;
-  });
+  const byTeam = new Map<string, { flagCode: string; numbers: string[] }>();
+  for (const sticker of stickers) {
+    if (!byTeam.has(sticker.teamCode)) {
+      byTeam.set(sticker.teamCode, { flagCode: sticker.flagCode, numbers: [] });
+    }
+    byTeam.get(sticker.teamCode)!.numbers.push(sticker.number);
+  }
 
-  return `${title}\n${lines.join('\n')}`;
+  const lines: string[] = [];
+  for (const [teamCode, { flagCode, numbers }] of byTeam) {
+    lines.push(`${flagEmoji(flagCode)} ${teamCode} ${numbers.join(', ')}`);
+  }
+
+  const appUrl = window.location.origin;
+  const footer = `📲 Use o App pra gerenciar seu álbum!\n${appUrl}`;
+
+  return `*${title}*\n\n${lines.join('\n')}\n\n${footer}`;
 }
